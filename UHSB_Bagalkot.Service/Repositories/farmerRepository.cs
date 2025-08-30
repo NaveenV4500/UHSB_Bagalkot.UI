@@ -1,0 +1,40 @@
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using UHSB_Bagalkot.Data;
+using UHSB_Bagalkot.Data.DataAccess;
+using UHSB_Bagalkot.Service.Interface;
+
+namespace UHSB_Bagalkot.Service.Repositories
+{
+    public class farmerRepository : CommonConnection
+    {
+        public farmerRepository(AppDbContext context) : base(context)
+        {
+        }
+        public async Task<IEnumerable<FarmerProfile>> GetFarmerProfilesAsync()
+        {
+            return await _context.FarmersProfiles.ToListAsync();
+        }
+
+        public async Task<FarmerProfile> GetFarmerProfileByIdAsync(int id)
+        {
+            return await _context.FarmersProfiles.FindAsync(id);
+        }
+
+        public async Task<FarmerProfile> AddFarmerProfileAsync(FarmerProfile farmerProfile)
+        {
+            _context.FarmersProfiles.Add(farmerProfile);
+            await _context.SaveChangesAsync();
+            return farmerProfile;
+        }
+
+        public async Task<bool> FarmerMobileExistsAsync(string mobile)
+        {
+            return await _context.FarmersProfiles.AnyAsync(f => f.Mobile == mobile);
+        }
+    }
+}
