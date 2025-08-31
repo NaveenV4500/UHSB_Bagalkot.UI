@@ -5,14 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UHSB_Bagalkot.Data;
-using UHSB_Bagalkot.Data.DataAccess;
+using UHSB_Bagalkot.Data.Models;
 using UHSB_Bagalkot.Service.Interface;
 
 namespace UHSB_Bagalkot.Service.Repositories
 {
     public class farmerRepository : CommonConnection
     {
-        public farmerRepository(AppDbContext context) : base(context)
+        public farmerRepository(Uhsb2025Context context) : base(context)
         {
         }
         public async Task<IEnumerable<FarmerProfile>> GetFarmerProfilesAsync()

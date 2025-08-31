@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UHSB_Bagalkot.Data.DataAccess;
+using UHSB_Bagalkot.Data.Models;
+
 
 namespace UHSB_Bagalkot.Service.Repositories
 {
     
         public abstract class CommonConnection
         {
-            protected readonly AppDbContext _context;
+            protected readonly Uhsb2025Context _context;
 
-            protected CommonConnection(AppDbContext context)
+            protected CommonConnection(Uhsb2025Context context)
             {
                 _context = context;
             }

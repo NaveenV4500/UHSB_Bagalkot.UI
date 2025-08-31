@@ -6,7 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using UHSB_Bagalkot.Data;
-using UHSB_Bagalkot.Data.DataAccess;
+
 using UHSB_Bagalkot.Service.Interface;
 using UHSB_Bagalkot.Service.Repositories;
 using UHSB_Bagalkot.Service.ViewModels;

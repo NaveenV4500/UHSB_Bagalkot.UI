@@ -4,14 +4,14 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using UHSB_Bagalkot.Data;
-using UHSB_Bagalkot.Data.DataAccess;
+
 using UHSB_Bagalkot.Service.Interface;
 using UHSB_Bagalkot.Service.Repositories;
 
 
 var builder = WebApplication.CreateBuilder(args);
 // Add EF Core with SQL Server
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<Uhsb2025Context>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 

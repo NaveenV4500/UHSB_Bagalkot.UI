@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UHSB_Bagalkot.Data;
-using UHSB_Bagalkot.Data.DataAccess;
+
 using UHSB_Bagalkot.Service.Interface;
 using UHSB_Bagalkot.Service.ViewModels;
 
@@ -14,7 +14,7 @@ namespace UHSB_Bagalkot.Service.Repositories
 {
     public class AccountRepository : CommonConnection, IAccountRepository
     {
-        public AccountRepository(AppDbContext context) : base(context)
+        public AccountRepository(Uhsb2025Context context) : base(context)
         {
         }
 

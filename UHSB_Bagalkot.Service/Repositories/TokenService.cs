@@ -9,7 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using UHSB_Bagalkot.Data;
-using UHSB_Bagalkot.Data.DataAccess;
+
 using UHSB_Bagalkot.Service.ViewModels;
 
 namespace UHSB_Bagalkot.Service.Repositories
@@ -18,7 +18,7 @@ namespace UHSB_Bagalkot.Service.Repositories
     {
         private readonly IConfiguration _configuration;
 
-        public TokenService(AppDbContext context, IConfiguration configuration)
+        public TokenService(Uhsb2025Context context, IConfiguration configuration)
             : base(context)   
         {
             _configuration = configuration;

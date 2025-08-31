@@ -5,14 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UHSB_Bagalkot.Data;
-using UHSB_Bagalkot.Data.DataAccess;
+
 using UHSB_Bagalkot.Service.Interface;
 
 namespace UHSB_Bagalkot.Service.Repositories
 {
     public class HorticultureHandbookRepository:CommonConnection, IHorticultureHandbookRepository
     {
-        public HorticultureHandbookRepository(AppDbContext context) : base(context)
+        public HorticultureHandbookRepository(Uhsb2025Context context) : base(context)
         {
         }
 
