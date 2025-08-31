@@ -27,6 +27,10 @@ namespace UHSB_Bagalkot.Data
 
         public bool IsActive { get; set; } = true;
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow; 
+        public ICollection<Article> Articles { get; set; }
+        public ICollection<Feedback> Feedbacks { get; set; }
+        public ICollection<Question> Questions { get; set; }
+        public ICollection<Answer> Answers { get; set; }
     }
 }

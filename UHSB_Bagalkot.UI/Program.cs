@@ -19,6 +19,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<farmerRepository, farmerRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<IHorticultureHandbookRepository, HorticultureHandbookRepository>();
 
 // Add CORS
 builder.Services.AddCors(options =>

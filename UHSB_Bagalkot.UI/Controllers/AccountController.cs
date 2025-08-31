@@ -64,34 +64,24 @@ namespace UHSB_Bagalkot.UI.Controllers
 
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] UserMaster request)
+        public async Task<IActionResult> Register([FromBody] UserMasterVM request)
         {
             if (string.IsNullOrEmpty(request.UserName) ||
                 string.IsNullOrEmpty(request.PhoneNumber))
             {
                 return BadRequest("All fields are required.");
-            }
-
-            // Check if phone number already exists
+            } 
             var existingUser = await _accountRepository.GetUserByPhoneAsync(request.PhoneNumber);
             if (existingUser != null)
                 return BadRequest("Phone number already registered.");
 
             // Hash the password
             var passwordHash = ComputeSha256Hash(request.UserName);
-
+            request.PasswordHash= passwordHash;
             // Create user
-            var user = new UserMaster
-            {
-                UserName = request.UserName,
-                PhoneNumber = request.PhoneNumber,
-                PasswordHash = passwordHash,
-                RoleType = request.RoleType,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            };
 
-            await _accountRepository.CreateUserAsync(user);
+
+            await _accountRepository.CreateUserAsync(request);
 
             return Ok(new { Message = "User registered successfully." });
         }

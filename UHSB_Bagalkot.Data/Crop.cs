@@ -10,11 +10,14 @@ namespace UHSB_Bagalkot.Data
     {
         public int CropId { get; set; }
         public int CategoryId { get; set; }
-        public string Name { get; set; }
-        public string? Description { get; set; }
-        public string? PestSolutions { get; set; }
-        public DateTime CreatedDate { get; set; }
+        public string CropName { get; set; }
+        public string Description { get; set; }
+        public string ImageUrl { get; set; }
 
         public CropCategory Category { get; set; }
+        public ICollection<CropDetail> CropDetails { get; set; }
+        public ICollection<Article> Articles { get; set; }
+        public ICollection<Feedback> Feedbacks { get; set; }
+        public ICollection<Question> Questions { get; set; }
     }
 }

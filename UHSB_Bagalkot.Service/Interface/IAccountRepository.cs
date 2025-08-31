@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UHSB_Bagalkot.Data;
+using UHSB_Bagalkot.Service.ViewModels;
 
 namespace UHSB_Bagalkot.Service.Interface
 {
     public interface IAccountRepository
     {
         Task<UserMaster> GetUserByPhoneAsync(string phoneNumber);
-        Task<UserMaster> CreateUserAsync(UserMaster user);
+        Task<bool> CreateUserAsync(UserMasterVM user);
 
     }
 }
