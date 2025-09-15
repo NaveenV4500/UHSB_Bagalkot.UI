@@ -361,3 +361,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/UHSB_Bagalkot.UI/Controllers/CropProfileController.cs
