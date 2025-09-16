@@ -11,7 +11,7 @@ using UHSB_Bagalkot.Service.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add EF Core with SQL Server
-builder.Services.AddDbContext<Uhsb2025Context>(options =>
+builder.Services.AddDbContext<UHSB_Bagalkot.Data.Models.Uhsb2025Context>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
@@ -20,6 +20,7 @@ builder.Services.AddScoped<farmerRepository, farmerRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<IHorticultureHandbookRepository, HorticultureHandbookRepository>();
+builder.Services.AddScoped<ICropProfileRepository, CropProfileRepository>();
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -27,7 +28,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigins",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000", "https://example.com") // allowed origins
+            policy.WithOrigins("http://localhost:3000", "http://localhost:8081/", "http://localhost/UHSB") // allowed origins
                   .AllowAnyHeader()
                   .AllowAnyMethod(); // or .WithMethods("GET","POST") to restrict
         });

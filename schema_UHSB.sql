@@ -1,0 +1,272 @@
+Create database UHSB2025
+Go
+
+USE [UHSB2025]
+GO
+/****** Object:  Table [dbo].[FarmersProfile]    Script Date: 10-09-2025 09:03:01 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[FarmersProfile](
+	[FarmerId] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[Mobile] [varchar](15) NOT NULL,
+	[Village] [nvarchar](100) NULL,
+	[LandSize] [decimal](10, 2) NULL,
+	[CreatedDate] [datetime] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[FarmerId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+UNIQUE NONCLUSTERED 
+(
+	[Mobile] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ItemContent]    Script Date: 10-09-2025 09:03:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ItemContent](
+	[ContentId] [int] IDENTITY(1,1) NOT NULL,
+	[ItemId] [int] NOT NULL,
+	[Title] [nvarchar](200) NULL,
+	[Article] [nvarchar](max) NOT NULL,
+	[CreatedDate] [datetime] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[ContentId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[RefreshTokens]    Script Date: 10-09-2025 09:03:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[RefreshTokens](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NOT NULL,
+	[Token] [nvarchar](500) NOT NULL,
+	[Expires] [datetime] NOT NULL,
+	[Created] [datetime] NOT NULL,
+	[Revoked] [datetime] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UHSB_Categories]    Script Date: 10-09-2025 09:03:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UHSB_Categories](
+	[CategoryId] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[ImageUrl] [nvarchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[CategoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UHSB_Crops]    Script Date: 10-09-2025 09:03:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UHSB_Crops](
+	[CropId] [int] IDENTITY(1,1) NOT NULL,
+	[CategoryId] [int] NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[Description] [nvarchar](max) NULL,
+	[ImageUrl] [nvarchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[CropId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UHSB_ItemDeails]    Script Date: 10-09-2025 09:03:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UHSB_ItemDeails](
+	[ItemId] [int] IDENTITY(1,1) NOT NULL,
+	[SubSectionId] [int] NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[ImageUrl] [varchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[ItemId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UHSB_ItemImages]    Script Date: 10-09-2025 09:03:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UHSB_ItemImages](
+	[ImageId] [int] IDENTITY(1,1) NOT NULL,
+	[ItemId] [int] NOT NULL,
+	[ImageUrl] [varchar](max) NULL,
+	[Description] [nvarchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[ImageId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UHSB_ItemQnA]    Script Date: 10-09-2025 09:03:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UHSB_ItemQnA](
+	[QnAId] [int] IDENTITY(1,1) NOT NULL,
+	[ItemId] [int] NOT NULL,
+	[Question] [nvarchar](max) NOT NULL,
+	[Answer] [nvarchar](max) NOT NULL,
+	[CreatedDate] [datetime] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[QnAId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UHSB_Sections]    Script Date: 10-09-2025 09:03:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UHSB_Sections](
+	[SectionId] [int] IDENTITY(1,1) NOT NULL,
+	[CropId] [int] NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[Description] [nvarchar](max) NULL,
+	[ImageUrl] [nvarchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[SectionId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UHSB_SubSections]    Script Date: 10-09-2025 09:03:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UHSB_SubSections](
+	[SubSectionId] [int] IDENTITY(1,1) NOT NULL,
+	[SectionId] [int] NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[Description] [nvarchar](max) NULL,
+	[ImageUrl] [nvarchar](500) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[SubSectionId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserMaster]    Script Date: 10-09-2025 09:03:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserMaster](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[UserName] [nvarchar](100) NOT NULL,
+	[PhoneNumber] [nvarchar](20) NOT NULL,
+	[PasswordHash] [nvarchar](500) NULL,
+	[IsActive] [bit] NOT NULL,
+	[CreatedAt] [datetime] NOT NULL,
+	[RoleType] [int] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+UNIQUE NONCLUSTERED 
+(
+	[PhoneNumber] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserRoles]    Script Date: 10-09-2025 09:03:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserRoles](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[RoleName] [nvarchar](50) NOT NULL,
+	[Description] [nvarchar](200) NULL,
+	[CreatedAt] [datetime] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+UNIQUE NONCLUSTERED 
+(
+	[RoleName] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[FarmersProfile] ADD  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+ALTER TABLE [dbo].[ItemContent] ADD  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+ALTER TABLE [dbo].[UHSB_ItemQnA] ADD  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+ALTER TABLE [dbo].[UserMaster] ADD  DEFAULT ((1)) FOR [IsActive]
+GO
+ALTER TABLE [dbo].[UserMaster] ADD  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[UserRoles] ADD  DEFAULT (getdate()) FOR [CreatedAt]
+GO
+ALTER TABLE [dbo].[ItemContent]  WITH CHECK ADD  CONSTRAINT [FK_UHSB_ItemContent_UHSB_Items] FOREIGN KEY([ItemId])
+REFERENCES [dbo].[UHSB_ItemDeails] ([ItemId])
+GO
+ALTER TABLE [dbo].[ItemContent] CHECK CONSTRAINT [FK_UHSB_ItemContent_UHSB_Items]
+GO
+ALTER TABLE [dbo].[RefreshTokens]  WITH CHECK ADD  CONSTRAINT [FK_RefreshTokens_UserMaster] FOREIGN KEY([UserId])
+REFERENCES [dbo].[UserMaster] ([Id])
+GO
+ALTER TABLE [dbo].[RefreshTokens] CHECK CONSTRAINT [FK_RefreshTokens_UserMaster]
+GO
+ALTER TABLE [dbo].[UHSB_Crops]  WITH CHECK ADD  CONSTRAINT [FK_UHSB_Crops_UHSB_Category] FOREIGN KEY([CategoryId])
+REFERENCES [dbo].[UHSB_Categories] ([CategoryId])
+GO
+ALTER TABLE [dbo].[UHSB_Crops] CHECK CONSTRAINT [FK_UHSB_Crops_UHSB_Category]
+GO
+ALTER TABLE [dbo].[UHSB_ItemDeails]  WITH CHECK ADD  CONSTRAINT [FK_UHSB_ItemDeails_UHSB_SubSection] FOREIGN KEY([SubSectionId])
+REFERENCES [dbo].[UHSB_SubSections] ([SubSectionId])
+GO
+ALTER TABLE [dbo].[UHSB_ItemDeails] CHECK CONSTRAINT [FK_UHSB_ItemDeails_UHSB_SubSection]
+GO
+ALTER TABLE [dbo].[UHSB_ItemImages]  WITH CHECK ADD  CONSTRAINT [FK_UHSB_ItemImages_UHSB_Items] FOREIGN KEY([ItemId])
+REFERENCES [dbo].[UHSB_ItemDeails] ([ItemId])
+GO
+ALTER TABLE [dbo].[UHSB_ItemImages] CHECK CONSTRAINT [FK_UHSB_ItemImages_UHSB_Items]
+GO
+ALTER TABLE [dbo].[UHSB_ItemQnA]  WITH CHECK ADD  CONSTRAINT [FK_UHSB_ItemQnA_UHSB_Items] FOREIGN KEY([ItemId])
+REFERENCES [dbo].[UHSB_ItemDeails] ([ItemId])
+GO
+ALTER TABLE [dbo].[UHSB_ItemQnA] CHECK CONSTRAINT [FK_UHSB_ItemQnA_UHSB_Items]
+GO
+ALTER TABLE [dbo].[UHSB_Sections]  WITH CHECK ADD  CONSTRAINT [FK_UHSB_Sections_UHSB_Crop] FOREIGN KEY([CropId])
+REFERENCES [dbo].[UHSB_Crops] ([CropId])
+GO
+ALTER TABLE [dbo].[UHSB_Sections] CHECK CONSTRAINT [FK_UHSB_Sections_UHSB_Crop]
+GO
+ALTER TABLE [dbo].[UHSB_SubSections]  WITH CHECK ADD  CONSTRAINT [FK_UHSB_SubSections_UHSB_Section] FOREIGN KEY([SectionId])
+REFERENCES [dbo].[UHSB_Sections] ([SectionId])
+GO
+ALTER TABLE [dbo].[UHSB_SubSections] CHECK CONSTRAINT [FK_UHSB_SubSections_UHSB_Section]
+GO

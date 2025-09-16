@@ -15,112 +15,36 @@ public partial class Uhsb2025Context : DbContext
     {
     }
 
-    public virtual DbSet<Article> Articles { get; set; }
-
-    public virtual DbSet<ArticleItem> ArticleItems { get; set; }
-
-    public virtual DbSet<Crop> Crops { get; set; }
-
-    public virtual DbSet<CropCategory> CropCategories { get; set; }
-
-    public virtual DbSet<CropDetail> CropDetails { get; set; }
-
     public virtual DbSet<FarmersProfile> FarmersProfiles { get; set; }
 
+    public virtual DbSet<ItemContent> ItemContents { get; set; }
+
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+
+    public virtual DbSet<UhsbCategory> UhsbCategories { get; set; }
+
+    public virtual DbSet<UhsbCrop> UhsbCrops { get; set; }
+
+    public virtual DbSet<UhsbItemDeail> UhsbItemDeails { get; set; }
+
+    public virtual DbSet<UhsbItemImage> UhsbItemImages { get; set; }
+
+    public virtual DbSet<UhsbItemQnA> UhsbItemQnAs { get; set; }
+
+    public virtual DbSet<UhsbSection> UhsbSections { get; set; }
+
+    public virtual DbSet<UhsbSubSection> UhsbSubSections { get; set; }
 
     public virtual DbSet<UserMaster> UserMasters { get; set; }
 
     public virtual DbSet<UserRole> UserRoles { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Name=DefaultConnection");
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=DESKTOP-5GU02OK;Database=UHSB2025;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Article>(entity =>
-        {
-            entity.HasKey(e => e.ArticleId).HasName("PK__Articles__9C6270E8197B9D43");
-
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.CropDetailId).HasColumnName("CropDetailID");
-            entity.Property(e => e.ImageUrl).HasMaxLength(255);
-            entity.Property(e => e.Title).HasMaxLength(200);
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.Articles)
-                .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__Articles__Create__03F0984C");
-
-            entity.HasOne(d => d.CropDetail).WithMany(p => p.Articles)
-                .HasForeignKey(d => d.CropDetailId)
-                .HasConstraintName("FK_Articles_CropDetails");
-
-            entity.HasOne(d => d.Crop).WithMany(p => p.Articles)
-                .HasForeignKey(d => d.CropId)
-                .HasConstraintName("FK__Articles__CropId__02FC7413");
-        });
-
-        modelBuilder.Entity<ArticleItem>(entity =>
-        {
-            entity.HasKey(e => e.ArticleItemsId).HasName("PK__ArticleI__8D1D7245D034F5A7");
-
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.ImageUrl).HasMaxLength(255);
-            entity.Property(e => e.Title).HasMaxLength(200);
-
-            entity.HasOne(d => d.Article).WithMany(p => p.ArticleItems)
-                .HasForeignKey(d => d.ArticleId)
-                .HasConstraintName("FK__ArticleIt__Artic__08B54D69");
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ArticleItems)
-                .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__ArticleIt__Creat__09A971A2");
-
-            entity.HasOne(d => d.Crop).WithMany(p => p.ArticleItems)
-                .HasForeignKey(d => d.CropId)
-                .HasConstraintName("FK__ArticleIt__CropI__07C12930");
-        });
-
-        modelBuilder.Entity<Crop>(entity =>
-        {
-            entity.HasKey(e => e.CropId).HasName("PK__Crops__9235611587DEECB3");
-
-            entity.Property(e => e.CropName).HasMaxLength(100);
-            entity.Property(e => e.ImageUrl).HasMaxLength(255);
-
-            entity.HasOne(d => d.Category).WithMany(p => p.Crops)
-                .HasForeignKey(d => d.CategoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Crops__CategoryI__6FE99F9F");
-        });
-
-        modelBuilder.Entity<CropCategory>(entity =>
-        {
-            entity.HasKey(e => e.CategoryId).HasName("PK__CropCate__19093A0BB0F69E67");
-
-            entity.HasIndex(e => e.CategoryName, "UQ__CropCate__8517B2E088894268").IsUnique();
-
-            entity.Property(e => e.CategoryName).HasMaxLength(100);
-            entity.Property(e => e.Description).HasMaxLength(250);
-        });
-
-        modelBuilder.Entity<CropDetail>(entity =>
-        {
-            entity.HasKey(e => e.DetailId).HasName("PK__CropDeta__135C316DC3B91F42");
-
-            entity.Property(e => e.DetailType).HasMaxLength(50);
-            entity.Property(e => e.Title).HasMaxLength(200);
-
-            entity.HasOne(d => d.Crop).WithMany(p => p.CropDetails)
-                .HasForeignKey(d => d.CropId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__CropDetai__CropI__72C60C4A");
-        });
-
         modelBuilder.Entity<FarmersProfile>(entity =>
         {
             entity.HasKey(e => e.FarmerId).HasName("PK__FarmersP__731B8888126DB797");
@@ -140,6 +64,23 @@ public partial class Uhsb2025Context : DbContext
             entity.Property(e => e.Village).HasMaxLength(100);
         });
 
+        modelBuilder.Entity<ItemContent>(entity =>
+        {
+            entity.HasKey(e => e.ContentId).HasName("PK__ItemCont__2907A81E44B946CF");
+
+            entity.ToTable("ItemContent");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Title).HasMaxLength(200);
+
+            entity.HasOne(d => d.Item).WithMany(p => p.ItemContents)
+                .HasForeignKey(d => d.ItemId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_ItemContent_UHSB_Items");
+        });
+
         modelBuilder.Entity<RefreshToken>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__RefreshT__3214EC07EBAB120B");
@@ -153,6 +94,108 @@ public partial class Uhsb2025Context : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_RefreshTokens_UserMaster");
+        });
+
+        modelBuilder.Entity<UhsbCategory>(entity =>
+        {
+            entity.HasKey(e => e.CategoryId).HasName("PK__UHSB_Cat__19093A0B6CC0EDA7");
+
+            entity.ToTable("UHSB_Categories");
+
+            entity.Property(e => e.ImageUrl).HasMaxLength(500);
+            entity.Property(e => e.Name).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<UhsbCrop>(entity =>
+        {
+            entity.HasKey(e => e.CropId).HasName("PK__UHSB_Cro__9235611589353871");
+
+            entity.ToTable("UHSB_Crops");
+
+            entity.Property(e => e.ImageUrl).HasMaxLength(500);
+            entity.Property(e => e.Name).HasMaxLength(100);
+
+            entity.HasOne(d => d.Category).WithMany(p => p.UhsbCrops)
+                .HasForeignKey(d => d.CategoryId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_Crops_UHSB_Category");
+        });
+
+        modelBuilder.Entity<UhsbItemDeail>(entity =>
+        {
+            entity.HasKey(e => e.ItemId).HasName("PK__UHSB_Ite__727E838BC58DFEC2");
+
+            entity.ToTable("UHSB_ItemDeails");
+
+            entity.Property(e => e.ImageUrl).HasMaxLength(500);
+            entity.Property(e => e.Name).HasMaxLength(100);
+
+            entity.HasOne(d => d.SubSection).WithMany(p => p.UhsbItemDeails)
+                .HasForeignKey(d => d.SubSectionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_ItemDeails_UHSB_SubSection");
+        });
+
+        modelBuilder.Entity<UhsbItemImage>(entity =>
+        {
+            entity.HasKey(e => e.ImageId).HasName("PK__UHSB_Ite__7516F70C28649EA1");
+
+            entity.ToTable("UHSB_ItemImages");
+
+            entity.Property(e => e.Description).HasMaxLength(200);
+            entity.Property(e => e.ImageUrl).HasMaxLength(500);
+
+            entity.HasOne(d => d.Item).WithMany(p => p.UhsbItemImages)
+                .HasForeignKey(d => d.ItemId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_ItemImages_UHSB_Items");
+        });
+
+        modelBuilder.Entity<UhsbItemQnA>(entity =>
+        {
+            entity.HasKey(e => e.QnAid).HasName("PK__UHSB_Ite__C4DF8B097F677125");
+
+            entity.ToTable("UHSB_ItemQnA");
+
+            entity.Property(e => e.QnAid).HasColumnName("QnAId");
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Item).WithMany(p => p.UhsbItemQnAs)
+                .HasForeignKey(d => d.ItemId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_ItemQnA_UHSB_Items");
+        });
+
+        modelBuilder.Entity<UhsbSection>(entity =>
+        {
+            entity.HasKey(e => e.SectionId).HasName("PK__UHSB_Sec__80EF087273D7BD88");
+
+            entity.ToTable("UHSB_Sections");
+
+            entity.Property(e => e.ImageUrl).HasMaxLength(500);
+            entity.Property(e => e.Name).HasMaxLength(100);
+
+            entity.HasOne(d => d.Crop).WithMany(p => p.UhsbSections)
+                .HasForeignKey(d => d.CropId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_Sections_UHSB_Crop");
+        });
+
+        modelBuilder.Entity<UhsbSubSection>(entity =>
+        {
+            entity.HasKey(e => e.SubSectionId).HasName("PK__UHSB_Sub__A8281A1DB2865AD6");
+
+            entity.ToTable("UHSB_SubSections");
+
+            entity.Property(e => e.ImageUrl).HasMaxLength(500);
+            entity.Property(e => e.Name).HasMaxLength(100);
+
+            entity.HasOne(d => d.Section).WithMany(p => p.UhsbSubSections)
+                .HasForeignKey(d => d.SectionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_SubSections_UHSB_Section");
         });
 
         modelBuilder.Entity<UserMaster>(entity =>

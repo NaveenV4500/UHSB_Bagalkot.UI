@@ -19,9 +19,5 @@ public partial class UserMaster
 
     public int? RoleType { get; set; }
 
-    public virtual ICollection<ArticleItem> ArticleItems { get; set; } = new List<ArticleItem>();
-
-    public virtual ICollection<Article> Articles { get; set; } = new List<Article>();
-
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }

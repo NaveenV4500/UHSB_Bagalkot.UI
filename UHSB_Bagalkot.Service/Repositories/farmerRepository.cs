@@ -15,17 +15,17 @@ namespace UHSB_Bagalkot.Service.Repositories
         public farmerRepository(Uhsb2025Context context) : base(context)
         {
         }
-        public async Task<IEnumerable<FarmerProfile>> GetFarmerProfilesAsync()
+        public async Task<IEnumerable<FarmersProfile>> GetFarmerProfilesAsync()
         {
             return await _context.FarmersProfiles.ToListAsync();
         }
 
-        public async Task<FarmerProfile> GetFarmerProfileByIdAsync(int id)
+        public async Task<FarmersProfile> GetFarmerProfileByIdAsync(int id)
         {
             return await _context.FarmersProfiles.FindAsync(id);
         }
 
-        public async Task<FarmerProfile> AddFarmerProfileAsync(FarmerProfile farmerProfile)
+        public async Task<FarmersProfile> AddFarmerProfileAsync(FarmersProfile farmerProfile)
         {
             _context.FarmersProfiles.Add(farmerProfile);
             await _context.SaveChangesAsync();

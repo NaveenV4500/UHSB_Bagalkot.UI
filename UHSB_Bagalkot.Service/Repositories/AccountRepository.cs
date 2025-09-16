@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UHSB_Bagalkot.Data;
-
+using UHSB_Bagalkot.Data.Models;
 using UHSB_Bagalkot.Service.Interface;
 using UHSB_Bagalkot.Service.ViewModels;
 
@@ -42,7 +42,7 @@ namespace UHSB_Bagalkot.Service.Repositories
                     _context.UserMasters.Add(users);
                     await _context.SaveChangesAsync();
 
-                    FarmerProfile farmerProfile = new FarmerProfile
+                    FarmersProfile farmerProfile = new FarmersProfile
                     {
                         Name = user.UserName,
                         Mobile = user.PhoneNumber,
