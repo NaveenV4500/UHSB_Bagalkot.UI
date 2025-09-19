@@ -9,7 +9,7 @@ public partial class UhsbCategory
 
     public string Name { get; set; } = null!;
 
-    public string ImageUrl { get; set; } = null!;
+    public string? ImageUrl { get; set; }
 
     public virtual ICollection<UhsbCrop> UhsbCrops { get; set; } = new List<UhsbCrop>();
 }

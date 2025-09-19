@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,7 @@ namespace UHSB_Bagalkot.Service.Interface
     {
         Task<UserMaster> GetUserByPhoneAsync(string phoneNumber);
         Task<bool> CreateUserAsync(UserMasterVM user);
-
+        int GetUsersCount();
+        
     }
 }

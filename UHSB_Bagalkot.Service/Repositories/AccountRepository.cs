@@ -66,6 +66,9 @@ namespace UHSB_Bagalkot.Service.Repositories
             }
         }
 
-
+        public int GetUsersCount()
+        {
+            return _context.UserMasters.Count();
+        }
     }
 }

@@ -26,6 +26,6 @@ namespace UHSB_Bagalkot.Service.Interface
         public Task<List<DropdownItemDto>> GetCategoryForDD();
 
         Task<List<FarmersProfile>> GetAllFarmers();
-
+      
     }
 }

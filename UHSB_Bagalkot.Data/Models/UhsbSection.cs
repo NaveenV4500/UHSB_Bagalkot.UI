@@ -13,7 +13,7 @@ public partial class UhsbSection
 
     public string? Description { get; set; }
 
-    public string ImageUrl { get; set; } = null!;
+    public string? ImageUrl { get; set; }
 
     public virtual UhsbCrop Crop { get; set; } = null!;
 

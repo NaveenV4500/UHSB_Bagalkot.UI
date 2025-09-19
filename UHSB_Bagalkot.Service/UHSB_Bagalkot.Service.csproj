@@ -15,4 +15,8 @@
     <ProjectReference Include="..\UHSB_Bagalkot.Data\UHSB_Bagalkot.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ViewModels\NewFolder\" />
+  </ItemGroup>
+
 </Project>

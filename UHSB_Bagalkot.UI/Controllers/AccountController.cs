@@ -68,6 +68,7 @@ namespace UHSB_Bagalkot.UI.Controllers
 
                 _tokenService.SaveRefreshTokenToDb(user.Id, refreshToken);
                 CommonEnum.WriteLog($"[Login] Refresh token saved to DB for UserId: {user.Id}");
+                var count = _accountRepository.GetUsersCount();
 
                 return Ok(new
                 {
@@ -77,13 +78,14 @@ namespace UHSB_Bagalkot.UI.Controllers
                     UserName = user.UserName,
                     userRoleType = user.RoleType.ToString(),
                     phoneNo = user.PhoneNumber,
-                    UserID = user.Id
+                    UserID = user.Id,
+                    UserCount = count
                 });
             }
             catch (Exception ex)
             {
                 CommonEnum.WriteLog($"[Login] Exception: {ex.Message}");
-                return new JsonResult(new { success = false, message = "An unexpected error occurred." }) { StatusCode = 500 };
+                return new JsonResult(new { success = false, message = "An unexpected error occurred." + ex.Message }) { StatusCode = 500 };
             }
         }
 
@@ -117,6 +119,7 @@ namespace UHSB_Bagalkot.UI.Controllers
 
             // save refresh token in DB
             _tokenService.SaveRefreshTokenToDb(user.Id, refreshToken);
+            var count = _accountRepository.GetUsersCount();
 
             return Ok(new
             {
@@ -126,7 +129,8 @@ namespace UHSB_Bagalkot.UI.Controllers
                 UserName = user.UserName,
                 userRoleType = user.RoleType.ToString(),
                 phoneNo=user.PhoneNumber,
-                UserID=user.Id
+                UserID=user.Id,
+                UserCount=count
             });
         }
 

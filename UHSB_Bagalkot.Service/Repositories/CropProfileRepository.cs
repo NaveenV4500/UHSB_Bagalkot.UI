@@ -13,7 +13,7 @@ using UHSB_Bagalkot.Service.ViewModels.CropProfile;
 
 namespace UHSB_Bagalkot.Service.Repositories
 {
-    public class CropProfileRepository:CommonConnection,ICropProfileRepository
+    public class CropProfileRepository : CommonConnection, ICropProfileRepository
     {
         private readonly IMapper _mapper;
 
@@ -26,10 +26,10 @@ namespace UHSB_Bagalkot.Service.Repositories
         {
             return _context.UhsbCategories.ToList();
         }
- 
-        public IEnumerable<UhsbCrop> GetCropDetailsAsync(int categoryId=0)
+
+        public IEnumerable<UhsbCrop> GetCropDetailsAsync(int categoryId = 0)
         {
-            return _context.UhsbCrops.Where(c=>c.CategoryId==categoryId).ToList();
+            return _context.UhsbCrops.Where(c => c.CategoryId == categoryId).ToList();
         }
 
         public IEnumerable<UhsbSection> GetSectionsByCropId(int cropId)
@@ -104,8 +104,8 @@ namespace UHSB_Bagalkot.Service.Repositories
 
         public async Task<IEnumerable<UhsbItemQnA>> GetByItemIdAsync(int itemId)
         {
-            if(itemId ==0)
-                return await _context.UhsbItemQnAs 
+            if (itemId == 0)
+                return await _context.UhsbItemQnAs
                 .OrderByDescending(q => q.CreatedDate)
                 .ToListAsync();
 
@@ -116,23 +116,23 @@ namespace UHSB_Bagalkot.Service.Repositories
         }
 
         public async Task<UhsbItemQnA> AddAsync(UhsbItemQnAVM qnaVm)
-        { 
+        {
             var qna = new UhsbItemQnA
             {
                 ItemId = qnaVm.ItemId,
                 Question = qnaVm.Question,
-                Answer = qnaVm.Answer ?? string.Empty,  
-                CreatedDate = DateTime.UtcNow ,
+                Answer = qnaVm.Answer ?? string.Empty,
+                CreatedDate = DateTime.UtcNow,
                 Datastatus = qnaVm.Datastatus,
                 ImageUrl = qnaVm.ImageUrl,
-                UserID = qnaVm.UserID
+                UserId = qnaVm.UserID
             };
 
             // Add and save
             _context.UhsbItemQnAs.Add(qna);
             await _context.SaveChangesAsync();
 
-            return qna;   
+            return qna;
         }
 
 
@@ -223,7 +223,7 @@ namespace UHSB_Bagalkot.Service.Repositories
         {
             if (cropDetails == null)
                 throw new ArgumentNullException(nameof(cropDetails));
-             
+
             //var cropEntity = new Crop
             //{
             //    CropName = cropDetails.CropName,
@@ -242,8 +242,8 @@ namespace UHSB_Bagalkot.Service.Repositories
 
         public async Task<List<DropdownItemDto>> GetCategoryForDD()
         {
-            return await _context.UhsbCategories   
-                .OrderBy(c => c.Name)    
+            return await _context.UhsbCategories
+                .OrderBy(c => c.Name)
                 .Select(c => new DropdownItemDto
                 {
                     Id = c.CategoryId,
@@ -254,10 +254,12 @@ namespace UHSB_Bagalkot.Service.Repositories
 
         public async Task<List<FarmersProfile>> GetAllFarmers()
         {
-            return   _context.FarmersProfiles
+            return _context.FarmersProfiles
                 .OrderByDescending(f => f.CreatedDate)
                 .ToList();
         }
+
+       
 
     }
 }

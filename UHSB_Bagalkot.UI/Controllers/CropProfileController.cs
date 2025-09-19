@@ -93,6 +93,9 @@ namespace UHSB_Bagalkot.UI.Controllers
             return Ok(farmers);
         }
 
+
+        
+
         //[HttpGet("full-details/{cropId}")]
         //public async Task<IActionResult> GetCropFullDetailsAsync(int cropId)
         //{

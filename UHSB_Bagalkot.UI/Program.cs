@@ -21,19 +21,30 @@ builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<IHorticultureHandbookRepository, HorticultureHandbookRepository>();
 builder.Services.AddScoped<ICropProfileRepository, CropProfileRepository>();
+builder.Services.AddScoped<IWeatherCastRepository, WeatherCastRepository>();
 
 // Add CORS
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowSpecificOrigins",
+//        policy =>
+//        {
+//            policy.WithOrigins("http://localhost:3000", "http://localhost:8081/", "http://localhost/UHSB", "http://localhost:8081/") // allowed origins
+//                  .AllowAnyHeader()
+//                  .AllowAnyMethod(); // or .WithMethods("GET","POST") to restrict
+//        });
+//});
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigins",
-        policy =>
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
         {
-            policy.WithOrigins("http://localhost:3000", "http://localhost:8081/", "http://localhost/UHSB") // allowed origins
-                  .AllowAnyHeader()
-                  .AllowAnyMethod(); // or .WithMethods("GET","POST") to restrict
+            builder
+                .AllowAnyOrigin()    // For dev/test; use specific origins in production
+                .AllowAnyHeader()
+                .AllowAnyMethod();
         });
 });
-
 
 // Bind JWT settings
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -104,7 +115,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 // Use CORS
-app.UseCors("AllowSpecificOrigins");
+app.UseCors("AllowAllOrigins");
 
 app.UseAuthentication();
  

@@ -25,6 +25,8 @@ public partial class Uhsb2025Context : DbContext
 
     public virtual DbSet<UhsbCrop> UhsbCrops { get; set; }
 
+    public virtual DbSet<UhsbDistrict> UhsbDistricts { get; set; }
+
     public virtual DbSet<UhsbItemDeail> UhsbItemDeails { get; set; }
 
     public virtual DbSet<UhsbItemImage> UhsbItemImages { get; set; }
@@ -35,16 +37,45 @@ public partial class Uhsb2025Context : DbContext
 
     public virtual DbSet<UhsbSubSection> UhsbSubSections { get; set; }
 
+    public virtual DbSet<UhsbWeatherCastFileDetail> UhsbWeatherCastFileDetails { get; set; }
+
     public virtual DbSet<UserMaster> UserMasters { get; set; }
 
     public virtual DbSet<UserRole> UserRoles { get; set; }
+    public DbSet<SPWeeklyWeatherRecord> SP_WeeklyWeatherRecords { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=DESKTOP-5GU02OK;Database=UHSB2025;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;");
+        => optionsBuilder.UseSqlServer("Server=DESKTOP-5GU02OK;Database=UHSB2025;Trusted_Connection=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
+    { 
+        modelBuilder.Entity<SPWeeklyWeatherRecord>(entity =>
+        {
+            entity.HasNoKey(); // keyless entity
+            entity.ToView(null); // not mapped to a table
+
+            // DateOnly conversion if needed
+            entity.Property(e => e.WeekStartDate)
+                .HasConversion(
+                    v => v.HasValue ? v.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
+                    v => v.HasValue ? DateOnly.FromDateTime(v.Value) : (DateOnly?)null
+                );
+
+            entity.Property(e => e.WeekEndDate)
+                .HasConversion(
+                    v => v.HasValue ? v.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
+                    v => v.HasValue ? DateOnly.FromDateTime(v.Value) : (DateOnly?)null
+                );
+
+            entity.Property(e => e.CreatedDate)
+                .HasConversion(
+                    v => v.HasValue ? v.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
+                    v => v.HasValue ? DateOnly.FromDateTime(v.Value) : (DateOnly?)null
+                );
+        });
+
         modelBuilder.Entity<FarmersProfile>(entity =>
         {
             entity.HasKey(e => e.FarmerId).HasName("PK__FarmersP__731B8888126DB797");
@@ -102,7 +133,6 @@ public partial class Uhsb2025Context : DbContext
 
             entity.ToTable("UHSB_Categories");
 
-            entity.Property(e => e.ImageUrl).HasMaxLength(500);
             entity.Property(e => e.Name).HasMaxLength(100);
         });
 
@@ -112,7 +142,6 @@ public partial class Uhsb2025Context : DbContext
 
             entity.ToTable("UHSB_Crops");
 
-            entity.Property(e => e.ImageUrl).HasMaxLength(500);
             entity.Property(e => e.Name).HasMaxLength(100);
 
             entity.HasOne(d => d.Category).WithMany(p => p.UhsbCrops)
@@ -121,13 +150,22 @@ public partial class Uhsb2025Context : DbContext
                 .HasConstraintName("FK_UHSB_Crops_UHSB_Category");
         });
 
+        modelBuilder.Entity<UhsbDistrict>(entity =>
+        {
+            entity.HasKey(e => e.DistrictId).HasName("PK__UHSB_Dis__85FDA4C68A83E225");
+
+            entity.ToTable("UHSB_Districts");
+
+            entity.Property(e => e.DistrictName).HasMaxLength(100);
+        });
+
         modelBuilder.Entity<UhsbItemDeail>(entity =>
         {
             entity.HasKey(e => e.ItemId).HasName("PK__UHSB_Ite__727E838BC58DFEC2");
 
             entity.ToTable("UHSB_ItemDeails");
 
-            entity.Property(e => e.ImageUrl).HasMaxLength(500);
+            entity.Property(e => e.ImageUrl).IsUnicode(false);
             entity.Property(e => e.Name).HasMaxLength(100);
 
             entity.HasOne(d => d.SubSection).WithMany(p => p.UhsbItemDeails)
@@ -142,8 +180,7 @@ public partial class Uhsb2025Context : DbContext
 
             entity.ToTable("UHSB_ItemImages");
 
-            entity.Property(e => e.Description).HasMaxLength(200);
-            entity.Property(e => e.ImageUrl).HasMaxLength(500);
+            entity.Property(e => e.ImageUrl).IsUnicode(false);
 
             entity.HasOne(d => d.Item).WithMany(p => p.UhsbItemImages)
                 .HasForeignKey(d => d.ItemId)
@@ -161,6 +198,7 @@ public partial class Uhsb2025Context : DbContext
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
 
             entity.HasOne(d => d.Item).WithMany(p => p.UhsbItemQnAs)
                 .HasForeignKey(d => d.ItemId)
@@ -174,7 +212,6 @@ public partial class Uhsb2025Context : DbContext
 
             entity.ToTable("UHSB_Sections");
 
-            entity.Property(e => e.ImageUrl).HasMaxLength(500);
             entity.Property(e => e.Name).HasMaxLength(100);
 
             entity.HasOne(d => d.Crop).WithMany(p => p.UhsbSections)
@@ -196,6 +233,26 @@ public partial class Uhsb2025Context : DbContext
                 .HasForeignKey(d => d.SectionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UHSB_SubSections_UHSB_Section");
+        });
+
+        modelBuilder.Entity<UhsbWeatherCastFileDetail>(entity =>
+        {
+            entity.HasKey(e => e.WeatherFileId);
+
+            entity.ToTable("UHSB_WeatherCastFileDetails");
+
+            entity.Property(e => e.Description)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.FilePath).HasMaxLength(500);
+
+            entity.HasOne(d => d.District).WithMany(p => p.UhsbWeatherCastFileDetails)
+                .HasForeignKey(d => d.DistrictId)
+                .HasConstraintName("FK_WeatherCastFileDetails_Districts");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UhsbWeatherCastFileDetails)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_UHSB_WeatherCastFileDetails_UserMaster");
         });
 
         modelBuilder.Entity<UserMaster>(entity =>

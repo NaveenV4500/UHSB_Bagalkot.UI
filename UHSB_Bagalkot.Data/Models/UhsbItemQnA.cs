@@ -14,9 +14,10 @@ public partial class UhsbItemQnA
     public string Answer { get; set; } = null!;
 
     public DateTime? CreatedDate { get; set; }
+
     public byte? Datastatus { get; set; }
 
-    public int? UserID { get; set; }
+    public int? UserId { get; set; }
 
     public string? ImageUrl { get; set; }
 

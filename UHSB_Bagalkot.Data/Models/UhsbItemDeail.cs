@@ -11,7 +11,7 @@ public partial class UhsbItemDeail
 
     public string Name { get; set; } = null!;
 
-    public string ImageUrl { get; set; } = null!;
+    public string? ImageUrl { get; set; }
 
     public virtual ICollection<ItemContent> ItemContents { get; set; } = new List<ItemContent>();
 
