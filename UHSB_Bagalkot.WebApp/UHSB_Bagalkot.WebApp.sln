@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36414.22 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UHSB_Bagalkot.WebApp", "UHSB_Bagalkot.WebApp\UHSB_Bagalkot.WebApp.csproj", "{BC1444E5-9010-4698-8827-9A8E8F94F604}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UHSB_MasterService", "..\UHSB_MasterService\UHSB_MasterService\UHSB_MasterService.csproj", "{0893D133-3CE9-6D4A-4B0E-5695A3FF7928}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BC1444E5-9010-4698-8827-9A8E8F94F604}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC1444E5-9010-4698-8827-9A8E8F94F604}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC1444E5-9010-4698-8827-9A8E8F94F604}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC1444E5-9010-4698-8827-9A8E8F94F604}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0893D133-3CE9-6D4A-4B0E-5695A3FF7928}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0893D133-3CE9-6D4A-4B0E-5695A3FF7928}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0893D133-3CE9-6D4A-4B0E-5695A3FF7928}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0893D133-3CE9-6D4A-4B0E-5695A3FF7928}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {98C4529F-4126-4AC8-B733-99917F7DF5BE}
+	EndGlobalSection
+EndGlobal

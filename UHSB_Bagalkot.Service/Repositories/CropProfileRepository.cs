@@ -78,7 +78,7 @@ namespace UHSB_Bagalkot.Service.Repositories
         //}
 
 
-        public async Task<List<ItemDto>> GetContentByItemIdAsync(int itemId)
+        public async Task<List<ItemDto>> GetContentByItemIdAsyncOld(int itemId)
         {
             return await _context.ItemContents
                 .Where(c => c.ItemId == itemId)
@@ -101,6 +101,29 @@ namespace UHSB_Bagalkot.Service.Repositories
                 })
                 .ToListAsync();
         }
+
+        public async Task<List<ItemDto>> GetContentByItemIdAsync(int itemId)
+        {
+            return await _context.ItemContents
+                .Where(c => c.ItemId == itemId)
+                .Select(c => new ItemDto
+                {
+                    ContentId = c.ContentId,
+                    ItemId = c.ItemId,
+                    Title = c.Title,
+                    Article = c.Article,
+                    Images = _context.UhsbItemImages
+                                .Where(i => i.ItemId == c.ItemId)
+                                .Select(i => new ItemImageDto
+                                {
+                                    ImageId = i.ImageId,
+                                    ItemId = i.ItemId,
+                                    ImageUrl = "/InwardsInvoices/TempFiles/" + i.ImageUrl, // relative path
+                                    Description = i.Description
+                                }).ToList()
+                }).ToListAsync();
+        }
+
 
         public async Task<IEnumerable<UhsbItemQnA>> GetByItemIdAsync(int itemId)
         {

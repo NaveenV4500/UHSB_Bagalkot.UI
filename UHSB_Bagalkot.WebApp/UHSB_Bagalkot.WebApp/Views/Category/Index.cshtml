@@ -1,0 +1,64 @@
+﻿@model IEnumerable<UHSB_Bagalkot.WebService.ViewModels.CategoryModels.CategoryVM>
+
+@{
+    ViewData["Title"] = "Category Management";
+}
+
+<div class="container mt-3">
+    <div class="card shadow border-success">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">Category Entry</h4>
+        </div>
+        <div class="card-body">
+            <form id="categoryForm" method="post" enctype="multipart/form-data">
+                <input type="hidden" id="CategoryId" name="CategoryId" />
+
+                <div class="mb-3">
+                    <label for="Name" class="form-label text-success fw-bold">Name</label>
+                    <input type="text" id="Name" name="Name" class="form-control border-success" style="max-width:400px;" required />
+                </div>
+
+                <div class="mb-3">
+                    <label for="ImageFile" class="form-label text-success fw-bold">Upload Image</label>
+                    <input type="file" id="ImageFile" class="form-control border-success" accept="image/*" style="max-width:400px;" />
+                    <input type="hidden" id="ImageUrl" name="ImageUrl" />
+                </div>
+
+                <div class="mb-3">
+                    <img id="previewImg" src="" alt="Preview" style="max-height:100px; display:none;" class="border border-success p-1 rounded" />
+                </div>
+
+                <button type="submit" class="btn btn-success me-2">Save</button>
+                <button type="button" id="btnBack" class="btn btn-outline-success">Back</button>
+            </form>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="card shadow mt-4 border-success">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">Category List</h4>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-striped mt-2" id="categoryTable">
+                <thead class="bg-success text-white">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Image</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be injected by jQuery -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/script/category_index.js"></script>
+}

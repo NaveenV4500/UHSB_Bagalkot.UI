@@ -77,6 +77,14 @@ namespace UHSB_Bagalkot.Service.Repositories
                 ImageUrl = entity.ImageUrl
             };
         }
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var existing = await _context.UhsbCategories.FindAsync(id);
+            if (existing == null) return false;
 
+            _context.UhsbCategories.Remove(existing);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

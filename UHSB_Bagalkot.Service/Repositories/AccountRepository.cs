@@ -18,11 +18,13 @@ namespace UHSB_Bagalkot.Service.Repositories
         {
         }
 
-        public async Task<UserMaster> GetUserByPhoneAsync(string phoneNumber)
+        public async Task<UserMaster> GetUserByPhoneAsync(string phoneNumber, string userName = "", bool isFromAdmin = false)
         {
             return await _context.UserMasters
-                .FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber);
+                .Where(u => u.PhoneNumber == phoneNumber && (!isFromAdmin || u.UserName == userName))
+                .FirstOrDefaultAsync();
         }
+
 
         public async Task<bool> CreateUserAsync(UserMasterVM user)
         {

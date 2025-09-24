@@ -1,0 +1,67 @@
+﻿@model UHSB_Bagalkot.WebService.ViewModels.LoginVM
+@{
+    Layout = "_LayoutMinimal";
+}
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/script/login_index.js"></script>
+</head>
+
+<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+    <div class="card shadow-sm p-4" style="width: 100%; max-width: 400px;">
+        <div class="text-center mb-4">
+            <img src="~/images/icon.jpg" alt="Logo" class="img-fluid mb-3" style="max-height: 100px;" />
+            <h2 class="fw-bold">UHSB Artiguide Admin</h2>
+            <p class="text-muted">University of Horticultural Sciences, Bagalkot</p>
+        </div>
+
+        <form id="loginForm" asp-action="Login" method="post">
+            <div class="mb-3">
+                <label asp-for="UserName" class="form-label"></label>
+                <input asp-for="UserName" id="UserName" class="form-control" placeholder="Enter username" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="PhoneNumber" class="form-label"></label>
+                <input asp-for="PhoneNumber" id="PhoneNumber" class="form-control" placeholder="Enter phone number" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-check mb-3">
+                <input type="checkbox" class="form-check-input" id="rememberMe" />
+                <label class="form-check-label" for="rememberMe">Remember Me</label>
+            </div>
+
+            <div class="d-grid">
+                <button id="saveUserBtn" type="submit" class="btn btn-primary btn-block">Login</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+            // Auto-fill if localStorage has saved values
+            if (localStorage.getItem("UserName")) {
+                $('#UserName').val(localStorage.getItem("UserName"));
+                $('#PhoneNumber').val(localStorage.getItem("PhoneNumber"));
+                $('#rememberMe').prop('checked', true);
+            }
+
+            // On form submit, save to localStorage if "Remember Me" is checked
+            $('#loginForm').submit(function () {
+                if ($('#rememberMe').is(':checked')) {
+                    localStorage.setItem("UserName", $('#UserName').val());
+                    localStorage.setItem("PhoneNumber", $('#PhoneNumber').val());
+                } else {
+                    localStorage.removeItem("UserName");
+                    localStorage.removeItem("PhoneNumber");
+                }
+            });
+        });
+    </script>
+}

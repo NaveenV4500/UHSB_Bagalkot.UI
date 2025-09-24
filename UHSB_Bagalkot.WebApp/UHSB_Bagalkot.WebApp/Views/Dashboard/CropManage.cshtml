@@ -1,0 +1,94 @@
+﻿@model UHSB_Bagalkot.WebService.ViewModels.ManageAdminDashboard.CropContentWithImageVM
+
+<div class="card mb-4">
+
+    <div id="loader">
+        <img src="~/Images/webapploader.gif" alt="Loading..." />
+    </div>
+
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Manage Crop Content</h5>
+    </div>
+    @Html.Hidden("Count",Model.ItemImages.Count())
+    <div class="card-body">
+             <form asp-action="CropManage" method="post" enctype="multipart/form-data">
+
+            <div class="row mb-3">
+                <div class="col-md-3 mb-3">
+                    <label>Category</label>
+                    @Html.DropDownListFor(m => m.CategoryId, new SelectList(Model.Categories, "Key", "Value", Model.CategoryId), "--Select Category--", new { @class = "form-control", id = "Categoriestype" })
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label>Crop</label>
+                    @Html.DropDownListFor(m => m.CropsId, new SelectList(Model.Crops, "Key", "Value", Model.CropsId), "--Select Crops--", new { @class = "form-control", id = "Cropstype" })
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label>Section</label>
+                    @Html.DropDownListFor(m => m.SectionsId, new SelectList(Model.Sections, "Key", "Value", Model.SectionsId), "--Select Sections--", new { @class = "form-control", id = "Sectionstype" })
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label>Sub Section</label>
+                    @Html.DropDownListFor(m => m.SubSectionsId, new SelectList(Model.SubSections, "Key", "Value", Model.SubSectionsId), "--Select SubSections--", new { @class = "form-control", id = "SubSectionstype" })
+                </div>
+            </div>
+
+            
+
+
+            <hr />
+
+
+            <!-- Item Images Table -->
+            <div class="table-responsive">
+                <h2>Add Content Details</h2>
+                <button type="button" id="addRow" class="btn btn-success mb-2">Add New</button>
+                <table class="table table-bordered" id="ItemImagesTable">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Description</th>
+                            <th>Image</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.ItemImages.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DropDownListFor(m => m.ItemImages[i].ItemId, new SelectList(Model.Items, "Key", "Value", Model.ItemImages[i].ItemId), "--Select Item--", new { @class = "form-control", id = "ItemsIdtype" })
+                                </td>
+                                <td>
+                                    @Html.TextBoxFor(m => m.ItemImages[i].Description, new { @class = "form-control" })
+                                </td>
+                                <td>
+                                    <input type="file" name="ItemImages[@i].ImageFile" class="form-control" />
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm removeRow">Remove</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <button type="submit" class="btn btn-primary"> Submit </button>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    <!-- jQuery validation bundle (if using jQuery validation) -->
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+    <!-- Your custom JS -->
+    <script src="~/js/CropManage_Index.js"></script>
+
+}
+

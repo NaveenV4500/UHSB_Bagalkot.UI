@@ -1,16 +1,16 @@
 {
   "profiles": {
-    //"http": {
-    //  "commandName": "Project",
-    //  "launchBrowser": true,
-    //  "launchUrl": "swagger",
-    //  "environmentVariables": {
-    //    "ASPNETCORE_ENVIRONMENT": "Development"
-    //  },
-    //  "dotnetRunMessages": true,
-    //  "applicationUrl": "http://10.136.194.158:5114/"
-    //},
     "http": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://10.84.179.158:5114/"
+    },
+    "https": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",

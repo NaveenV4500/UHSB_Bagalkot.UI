@@ -20,6 +20,19 @@ namespace UHSB_Bagalkot.Service.Repositories
         {
 
         }
+
+        public async Task<IEnumerable<DistrictDD>> GetDistrictDropdownAsync()
+        {
+            return await _context.UhsbDistricts
+                .Where(d => d.IsActive == true)
+                .Select(d => new DistrictDD
+                {
+                    Id = d.DistrictId,
+                    Text = d.DistrictName
+                })
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<UhsbWeatherCastFileDetail>> GetAllAsync()
         {
             return await _context.UhsbWeatherCastFileDetails.ToListAsync();
@@ -32,15 +45,11 @@ namespace UHSB_Bagalkot.Service.Repositories
         }
 
 
-
-
-        public bool SaveFileAsync(WeatherFileUploadVM dto)
+        public bool SaveFileAsync(WeatherFileUploadVM dto,string filePath)
         {
-            var fullPath = CommonHelper.GetFilePath("UploadedWeatherFiles", dto.FileName+".pdf");
-
             // Save file asynchronously
-            CommonHelper.SaveFileAsync(fullPath, dto.FileBytes);
-
+            CommonHelper.SaveFileAsync(filePath+".pdf", dto.FileBytes);
+            var filename = Path.GetFileName(filePath);
             // Calculate start and end of week
             var startOfWeek = StartOfWeek(DateTime.Now, DayOfWeek.Monday);
             var endOfWeek = startOfWeek.AddDays(6);
@@ -49,7 +58,7 @@ namespace UHSB_Bagalkot.Service.Repositories
             {
                 UserId = dto.UserId,
                 DistrictId = dto.DistrictId,
-                FilePath = fullPath,
+                FilePath = filename,
                 Description = dto.Description,
                 WeekStartDate = DateOnly.FromDateTime(startOfWeek),
                 WeekEndDate = DateOnly.FromDateTime(endOfWeek),
@@ -101,9 +110,9 @@ namespace UHSB_Bagalkot.Service.Repositories
                        (r.WeekStartDate <= prevWeekEnd && r.WeekEndDate >= prevWeekStart))
                 let weekType =
                     (r.WeekStartDate <= currentWeekEnd && r.WeekEndDate >= currentWeekStart)
-                        ? "CurrentWeek"
+                        ? "ಪ್ರಸ್ತುತ ಹವಾಮಾನ"
                         : (r.WeekStartDate <= prevWeekEnd && r.WeekEndDate >= prevWeekStart)
-                            ? "PreviousWeek"
+                            ? "ಇಂದಿನ ಹವಾಮಾನ"
                             : "Other"
                 orderby r.WeekStartDate descending, r.CreatedDate descending
                 select new

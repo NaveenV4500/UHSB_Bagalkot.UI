@@ -14,4 +14,10 @@ namespace UHSB_Bagalkot.Service.ViewModels
         public string FileName { get; set; } = string.Empty;
         public int? DistrictId { get; set; }
     }
+    public class DistrictDD
+    {
+        public int Id { get; set; }
+        public string Text { get; set; }
+    }
+
 }

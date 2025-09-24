@@ -8,27 +8,10 @@ namespace UHSB_Bagalkot.Service.ViewModels
 {
     public static class CommonHelper
     {
-        public static string GetFilePath(string baseFolder, string fileName)
-        {
-            // Read server root path from environment variable
-            string serverRoot = Environment.GetEnvironmentVariable("WEATHER_FILES_PATH");
-
-            if (string.IsNullOrEmpty(serverRoot))
-                throw new InvalidOperationException("Server path not configured. Please set WEATHER_FILES_PATH environment variable.");
-
-            var folderPath = Path.Combine(serverRoot, baseFolder);
-
-            if (!Directory.Exists(folderPath))
-                Directory.CreateDirectory(folderPath);
-
-            var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
-            return Path.Combine(folderPath, uniqueFileName);
-        }
+         
 
         public static async Task SaveFileAsync(string fullPath, byte[] fileBytes)
-        {
-            
-
+        { 
             await File.WriteAllBytesAsync(fullPath, fileBytes);
         }
 

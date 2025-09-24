@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="wwwroot\InwardsInvoices\**" />
+    <Content Remove="wwwroot\InwardsInvoices\**" />
+    <EmbeddedResource Remove="wwwroot\InwardsInvoices\**" />
+    <None Remove="wwwroot\InwardsInvoices\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\Images\icon.jpg" />
+    <None Include="wwwroot\Images\webapploader.gif" />
+    <None Include="wwwroot\js\Category_index.js" />
+    <None Include="wwwroot\js\CropManage_Index.js" />
+    <None Include="wwwroot\js\Login_Index.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Content\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\UHSB_Bagalkot.Service\UHSB_Bagalkot.Service.csproj" />
+  </ItemGroup>
+
+</Project>

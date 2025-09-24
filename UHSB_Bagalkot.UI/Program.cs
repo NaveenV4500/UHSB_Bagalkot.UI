@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -22,6 +23,7 @@ builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<IHorticultureHandbookRepository, HorticultureHandbookRepository>();
 builder.Services.AddScoped<ICropProfileRepository, CropProfileRepository>();
 builder.Services.AddScoped<IWeatherCastRepository, WeatherCastRepository>();
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 
 // Add CORS
 //builder.Services.AddCors(options =>
@@ -107,6 +109,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+//app.UseStaticFiles(new StaticFileOptions
+//{
+//    FileProvider = new PhysicalFileProvider(
+//        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "InwardsInvoices", "TempFiles")),
+//    RequestPath = "/InwardsInvoices/TempFiles"
+//});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

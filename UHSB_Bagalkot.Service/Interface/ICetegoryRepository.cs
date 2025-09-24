@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,5 +15,6 @@ namespace UHSB_Bagalkot.Service.Interface
         Task<CategoryVM?> UpdateAsync(CategoryVM category);
         Task<IEnumerable<CategoryVM>> GetAllAsync();
         Task<CategoryVM?> GetByIdAsync(int id);
+        Task<bool> DeleteAsync(int id);
     }
 }

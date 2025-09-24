@@ -45,7 +45,7 @@ namespace UHSB_Bagalkot.UI.Controllers
                 request.PhoneNumber = request.PhoneNumber.Trim('"');
                 CommonEnum.WriteLog($"[Login] Trimmed PhoneNumber: {request.PhoneNumber}");
 
-                var user = await _accountRepository.GetUserByPhoneAsync(request.PhoneNumber);
+                var user = await _accountRepository.GetUserByPhoneAsync(request.PhoneNumber,request.UserName,request.IsFromadmin);
 
                 if (user == null)
                 {
