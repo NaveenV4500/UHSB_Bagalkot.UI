@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,17 +11,20 @@ using UHSB_Bagalkot.Service.Dto;
 using UHSB_Bagalkot.Service.Interface;
 using UHSB_Bagalkot.Service.ViewModels;
 using UHSB_Bagalkot.Service.ViewModels.CropProfile;
+using UHSB_Bagalkot.WebService.AppSettings;
 
 namespace UHSB_Bagalkot.Service.Repositories
 {
     public class CropProfileRepository : CommonConnection, ICropProfileRepository
     {
+        private readonly ApiSettings _apiSettings;
         private readonly IMapper _mapper;
 
-        public CropProfileRepository(Uhsb2025Context context) : base(context)
+        public CropProfileRepository(Uhsb2025Context context, IOptions<ApiSettings> apiSettings) : base(context)
         {
-
+            _apiSettings = apiSettings.Value;
         }
+
 
         public IEnumerable<UhsbCategory> GetCategoryItems()
         {
@@ -103,7 +107,10 @@ namespace UHSB_Bagalkot.Service.Repositories
         }
 
         public async Task<List<ItemDto>> GetContentByItemIdAsync(int itemId)
-        {
+      {
+            // The URL path clients will use to access images
+            var relativePath = "";
+
             return await _context.ItemContents
                 .Where(c => c.ItemId == itemId)
                 .Select(c => new ItemDto
@@ -118,11 +125,13 @@ namespace UHSB_Bagalkot.Service.Repositories
                                 {
                                     ImageId = i.ImageId,
                                     ItemId = i.ItemId,
-                                    ImageUrl = "/InwardsInvoices/TempFiles/" + i.ImageUrl, // relative path
+                                    // i.ImageUrl should contain only the filename (e.g., abc.jpg)
+                                    ImageUrl = relativePath + i.ImageUrl.Replace("\\", "/"),
                                     Description = i.Description
                                 }).ToList()
                 }).ToListAsync();
         }
+
 
 
         public async Task<IEnumerable<UhsbItemQnA>> GetByItemIdAsync(int itemId)

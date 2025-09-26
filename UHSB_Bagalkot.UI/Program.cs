@@ -132,5 +132,10 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(@"D:\InwardsInvoices\TempFiles"),
+    RequestPath = "/InwardsInvoices/TempFiles"
+});
 
 app.Run();

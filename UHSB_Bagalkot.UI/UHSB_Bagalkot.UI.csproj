@@ -10,9 +10,13 @@
 
   <ItemGroup>
     <Compile Remove="publish\**" />
+    <Compile Remove="UploadedWeatherFiles\**" />
     <Content Remove="publish\**" />
+    <Content Remove="UploadedWeatherFiles\**" />
     <EmbeddedResource Remove="publish\**" />
+    <EmbeddedResource Remove="UploadedWeatherFiles\**" />
     <None Remove="publish\**" />
+    <None Remove="UploadedWeatherFiles\**" />
   </ItemGroup>
 
   <ItemGroup>

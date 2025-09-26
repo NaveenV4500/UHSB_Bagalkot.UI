@@ -3,6 +3,13 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Support.UI;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Web.Helpers;
+using System.Web.WebPages;
 using UHSB_Bagalkot.Service.ViewModels.AdminDashboard;
 using UHSB_Bagalkot.WebService.AppSettings;
 using UHSB_Bagalkot.WebService.ViewModels;
@@ -143,6 +150,47 @@ namespace UHSB_Bagalkot.WebApp.Controllers
         }
 
 
+        //Get CropManage
+        [HttpGet]
+        public async Task<IActionResult> GetgridItems(int subSectId)
+        {
+            try
+            {
+                var token = HttpContext.Session.GetString("AccessToken");
+                if (string.IsNullOrEmpty(token))
+                {
+                    return Json(new { success = false, message = "Unauthorized. Please login." });
+                }
+
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+
+                var response = await _httpClient.GetAsync($"{_apiSettings.Base_Url}/Dashboard/GetGridItems/{subSectId}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Json(new { success = false, message = $"Error fetching content: {response.StatusCode}" });
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+
+                // Deserialize API response
+                var result = JsonConvert.DeserializeObject<ApiResponse<List<CropContentItems>>>(content);
+
+                if (result?.Data == null || !result.Data.Any())
+                {
+                    return Json(new { success = true, data = new List<CropContentItems>() });
+                }
+
+                return Json(new { success = true, data = result.Data });
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions and return JSON
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
 
         //Save
         [HttpPost]
@@ -155,7 +203,10 @@ namespace UHSB_Bagalkot.WebApp.Controllers
                 if (item.ImageFile != null && item.ImageFile.Length > 0)
                 {
                     // Folder path: wwwroot/InwardsInvoices/TempFiles (you can change it)
-                    var uploadPath = Path.Combine(env.WebRootPath, "InwardsInvoices", "TempFiles");
+                    //var uploadPath = Path.Combine(env.WebRootPath, "InwardsInvoices", "TempFiles");
+                  
+                    var uploadPath = _apiSettings.UploadSettings.TempFilesPath;
+
                     if (!Directory.Exists(uploadPath))
                         Directory.CreateDirectory(uploadPath);
 
@@ -200,9 +251,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
                 return View(model);
             }
         }
-
-
-
+         
         //File Uploads
         [HttpPost]
         public IActionResult Index(CropContentWithImageVM model)

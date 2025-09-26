@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.35.0" />
   </ItemGroup>
 
   <ItemGroup>

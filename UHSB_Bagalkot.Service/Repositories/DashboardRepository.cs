@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UHSB_Bagalkot.Data.Models;
+using UHSB_Bagalkot.Service.Dto;
 using UHSB_Bagalkot.Service.Interface;
 using UHSB_Bagalkot.Service.ViewModels;
 using UHSB_Bagalkot.Service.ViewModels.AdminDashboard;
@@ -90,6 +91,27 @@ namespace UHSB_Bagalkot.Service.Repositories
                 .Select(i => new DropdownVM { Id = i.ItemId, Name = i.Name })
                 .ToListAsync();
         }
+        public async Task<IEnumerable<UhsbItemImageVM>> GetgridItems(int subSectionId)
+        {
+            var relativePath = "";  
+
+            var data = await (from d in _context.UhsbItemDeails
+                              join img in _context.UhsbItemImages
+                                  on d.ItemId equals img.ItemId
+                              where d.SubSectionId == subSectionId
+                              select new UhsbItemImageVM
+                              {
+                                  ImageId = img.ImageId,
+                                  ItemId = d.ItemId,
+                                  ImageUrl = relativePath + (img.ImageUrl ?? string.Empty).Replace("\\", "/"),
+                                  Description = img.Description
+                              }).ToListAsync();
+
+            return data;
+        }
+
+
+
 
         //save
         public async Task<bool> SaveCropContentAsync(List<UhsbItemImageVM> model)

@@ -1,74 +1,108 @@
 ﻿@model UHSB_Bagalkot.WebService.ViewModels.ManageAdminDashboard.CropContentWithImageVM
+@using Microsoft.AspNetCore.Mvc.Rendering
 
-<div class="card mb-4">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada&display=swap" rel="stylesheet">
 
-    <div id="loader">
+<style>
+    /* Applying the Kannada font globally */
+    body, input, textarea, select, .btn {
+        font-family: 'Noto Sans Kannada', Arial, sans-serif;
+    }
+
+    /* Enhanced Loader Style */
+    #loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        z-index: 1050; /* Ensure it's above other content */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Style for vertically aligning content in table cells */
+    .table td, .table th {
+        vertical-align: middle;
+    }
+
+    /* Custom file input styling for better integration */
+    .form-control-file {
+        border: 1px solid #ced4da;
+        padding: .375rem .75rem;
+        border-radius: .25rem;
+    }
+</style>
+
+<div class="card shadow-sm mb-4">
+    <div id="loader" style="display:none;">
         <img src="~/Images/webapploader.gif" alt="Loading..." />
     </div>
 
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Manage Crop Content</h5>
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Manage Crop Content</h5>
     </div>
-    @Html.Hidden("Count",Model.ItemImages.Count())
+
     <div class="card-body">
-             <form asp-action="CropManage" method="post" enctype="multipart/form-data">
+        <form asp-action="CropManage" method="post" enctype="multipart/form-data">
 
-            <div class="row mb-3">
-                <div class="col-md-3 mb-3">
-                    <label>Category</label>
-                    @Html.DropDownListFor(m => m.CategoryId, new SelectList(Model.Categories, "Key", "Value", Model.CategoryId), "--Select Category--", new { @class = "form-control", id = "Categoriestype" })
+            <h6 class="text-muted mb-3">Step 1: Select Your Crop & Section</h6>
+            <div class="row mb-4">
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <label class="form-label">Category</label>
+                    @Html.DropDownListFor(m => m.CategoryId, new SelectList(Model.Categories, "Key", "Value", Model.CategoryId), "--Select Category--", new { @class = "form-select", id = "Categoriestype" })
                 </div>
-
-                <div class="col-md-3 mb-3">
-                    <label>Crop</label>
-                    @Html.DropDownListFor(m => m.CropsId, new SelectList(Model.Crops, "Key", "Value", Model.CropsId), "--Select Crops--", new { @class = "form-control", id = "Cropstype" })
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <label class="form-label">Crop</label>
+                    @Html.DropDownListFor(m => m.CropsId, new SelectList(Model.Crops, "Key", "Value", Model.CropsId), "--Select Crop--", new { @class = "form-select", id = "Cropstype" })
                 </div>
-
-                <div class="col-md-3 mb-3">
-                    <label>Section</label>
-                    @Html.DropDownListFor(m => m.SectionsId, new SelectList(Model.Sections, "Key", "Value", Model.SectionsId), "--Select Sections--", new { @class = "form-control", id = "Sectionstype" })
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <label class="form-label">Section</label>
+                    @Html.DropDownListFor(m => m.SectionsId, new SelectList(Model.Sections, "Key", "Value", Model.SectionsId), "--Select Section--", new { @class = "form-select", id = "Sectionstype" })
                 </div>
-
-                <div class="col-md-3 mb-3">
-                    <label>Sub Section</label>
-                    @Html.DropDownListFor(m => m.SubSectionsId, new SelectList(Model.SubSections, "Key", "Value", Model.SubSectionsId), "--Select SubSections--", new { @class = "form-control", id = "SubSectionstype" })
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <label class="form-label">Sub Section</label>
+                    @Html.DropDownListFor(m => m.SubSectionsId, new SelectList(Model.SubSections, "Key", "Value", Model.SubSectionsId), "--Select SubSection--", new { @class = "form-select", id = "SubSectionstype" })
                 </div>
             </div>
 
-            
+            <hr class="my-4" />
 
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="text-muted mb-0">Step 2: Add Content Details</h6>
+                <button type="button" id="addRow" class="btn btn-success"><i class="bi bi-plus-circle me-1"></i> Add New</button>
+            </div>
 
-            <hr />
-
-
-            <!-- Item Images Table -->
             <div class="table-responsive">
-                <h2>Add Content Details</h2>
-                <button type="button" id="addRow" class="btn btn-success mb-2">Add New</button>
-                <table class="table table-bordered" id="ItemImagesTable">
-                    <thead>
+                <table id="ItemImagesBody" class="table table-bordered table-hover">
+                    <thead class="table-light">
                         <tr>
-                            <th>Item</th>
-                            <th>Description</th>
-                            <th>Image</th>
-                            <th>Action</th>
+                            <th style="width: 25%;">Item</th>
+                            <th style="width: 35%;">Description</th>
+                            <th style="width: 25%;">Image</th>
+                            <th style="width: 15%;" class="text-center">Action</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="">
                         @for (int i = 0; i < Model.ItemImages.Count; i++)
                         {
                             <tr>
                                 <td>
-                                    @Html.DropDownListFor(m => m.ItemImages[i].ItemId, new SelectList(Model.Items, "Key", "Value", Model.ItemImages[i].ItemId), "--Select Item--", new { @class = "form-control", id = "ItemsIdtype" })
+                                    @Html.DropDownListFor(m => m.ItemImages[i].ItemId, new SelectList(Model.Items, "Key", "Value", Model.ItemImages[i].ItemId), "--Select Item--", new { @class = "form-select itemDropdown", @id = "ItemsIdtype" })
                                 </td>
                                 <td>
-                                    @Html.TextBoxFor(m => m.ItemImages[i].Description, new { @class = "form-control" })
+                                    <button type="button" class="btn btn-outline-secondary btn-sm editDescription" data-index="@i"><i class="bi bi-pencil me-1"></i> Edit Description</button>
+                                    <input type="hidden" name="ItemImages[@i].Description" value="@Model.ItemImages[i].Description" class="descriptionHidden" />
                                 </td>
                                 <td>
-                                    <input type="file" name="ItemImages[@i].ImageFile" class="form-control" />
+                                    <input type="file" name="ItemImages[@i].ImageFile" class="form-control form-control-file" />
                                 </td>
-                                <td>
-                                    <button type="button" class="btn btn-danger btn-sm removeRow">Remove</button>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-outline-danger btn-sm removeRow"><i class="bi bi-trash"></i> Remove</button>
                                 </td>
                             </tr>
                         }
@@ -76,19 +110,65 @@
                 </table>
             </div>
 
-            <button type="submit" class="btn btn-primary"> Submit </button>
+            <div class="mt-4 text-end">
+                <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check-circle me-2"></i>Submit</button>
+            </div>
         </form>
     </div>
 </div>
 
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-images me-2"></i>Item Images</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="ItemImagesTable" class="table table-bordered table-striped">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="width:10%;">Sl No.</th>
+                        <th>Item ID</th>
+                        <th>Description</th>
+                        <th class="text-center" style="width:15%;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">
+                            <div class="spinner-border spinner-border-sm me-2" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            Nill...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="descriptionModal" tabindex="-1" aria-labelledby="descriptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="descriptionModalLabel"><i class="bi bi-card-text me-2"></i>Edit Description</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <textarea id="editorDescription"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="saveDescription" class="btn btn-primary"><i class="bi bi-save me-1"></i>Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
-    <!-- jQuery validation bundle (if using jQuery validation) -->
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-
-    <!-- Your custom JS -->
     <script src="~/js/CropManage_Index.js"></script>
-
+    @* The original script logic remains the same and can be placed here or in CropManage_Index.js *@
 }
-

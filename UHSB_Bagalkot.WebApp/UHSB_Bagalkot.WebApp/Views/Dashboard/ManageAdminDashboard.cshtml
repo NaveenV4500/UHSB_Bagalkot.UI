@@ -26,3 +26,9 @@
 
     </div>
 </div>
+@using (Html.BeginForm("SendMessage", "Dashboard", FormMethod.Post))
+{
+    <input type="text" name="contactName" placeholder="Enter Contact Name" />
+    <input type="text" name="message" placeholder="Enter Message" />
+    <button type="submit" class="btn btn-primary">Send WhatsApp</button>
+}

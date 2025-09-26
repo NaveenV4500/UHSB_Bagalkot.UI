@@ -10,6 +10,7 @@ builder.Services.Configure<ApiSettings>(builder.Configuration);
 // Add memory cache (required for session)
 builder.Services.AddDistributedMemoryCache();
 
+
 // Add session support
 builder.Services.AddSession(options =>
 {

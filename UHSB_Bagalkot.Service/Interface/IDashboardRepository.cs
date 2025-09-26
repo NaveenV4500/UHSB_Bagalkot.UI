@@ -20,6 +20,7 @@ namespace UHSB_Bagalkot.Service.Interface
         Task<IEnumerable<DropdownVM>> SectionDD(int cropId);
         Task<IEnumerable<DropdownVM>> SubSectionDD(int sectionId);
         Task<IEnumerable<DropdownVM>> ItemDeailsDD(int subSectionId);
+        Task<IEnumerable<UhsbItemImageVM>> GetgridItems(int subSectionId);
 
         //Save
         Task<bool> SaveCropContentAsync(List<UhsbItemImageVM> model);

@@ -82,7 +82,18 @@ namespace UHSB_Bagalkot.UI.Controllers
             var result = await _dashboardRepository.ItemDeailsDD(subsectId);
             return Ok(new ApiResponse<object> { Success = true, Data = result });
         }
-      
+
+        [HttpGet("GetGridItems/{subsectId}")]
+        public async Task<IActionResult> GetGridItems(int subsectId)
+        {
+            if (subsectId <= 0) return BadRequest(new ApiResponse<object> { Success = false, Message = "SubSection Id is required" });
+
+            var result = await _dashboardRepository.GetgridItems(subsectId);
+            return Ok(new ApiResponse<object> { Success = true, Data = result });
+        }
+
+
+
         //save
         [HttpPost("SaveCropContent")] 
         public async Task<IActionResult> SaveCropContent([FromBody] List<UhsbItemImageVM> model)

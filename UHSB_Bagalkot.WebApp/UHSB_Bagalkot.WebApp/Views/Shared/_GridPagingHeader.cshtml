@@ -1,0 +1,35 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<section id="pagingNavigation">
+
+    <div class="row">
+        @*<div class="col-sm-12">
+                <hr style="margin:3px;" />
+            </div>*@
+        <div class="col-sm-3" style="font-size:13px;">
+            <span id="pagingDetails"></span>
+        </div>
+        <div class="col-sm-7 text-right">
+            <div class="paging_simple_numbers">
+                <ul id="pagingButtons" class="pagination" style="margin:0;"></ul>
+            </div>
+        </div>
+        <div class="col-sm-2 text-right" style="font-size:13px;">
+            <span>Show</span>
+            <select id="gridmemberCount">
+                <option value="2">2</option>
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+                <option value="50" selected>50</option>
+                <option value="100">100</option>
+                <option value="1000">1000</option>
+            </select>
+            <span>entries</span>
+        </div>
+    </div>
+</section>

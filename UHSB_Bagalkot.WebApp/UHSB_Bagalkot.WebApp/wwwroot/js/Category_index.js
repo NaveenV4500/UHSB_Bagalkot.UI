@@ -21,7 +21,7 @@
         var formData = $(this).serialize(); // bind form fields automatically
 
         $.ajax({
-            url: '/Category/AddOrEdit',
+            url: '/UHSBWeb/Category/AddOrEdit',
             type: 'POST',
             data: formData,
             success: function () {
@@ -39,7 +39,7 @@
 
 // Load table
 function loadCategories() {
-    $.get("/Category/GetAll", function (data) {
+    $.get("/UHSBWeb/Category/GetAll", function (data) {
         var rows = "";
         $.each(data, function (i, item) {
             var imgTag = item.imageUrl ? `<img src="${item.imageUrl}" style="max-height:50px;" />` : "";
@@ -74,7 +74,7 @@ function editCategory(id, name, imageUrl) {
 function deleteCategory(id) {
     if (confirm("Are you sure?")) {
         $.ajax({
-            url: '/Category/Delete?id=' + id,
+            url: '/UHSBWeb/Category/Delete?id=' + id,
             type: 'DELETE',
             success: function () {
                 loadCategories();
