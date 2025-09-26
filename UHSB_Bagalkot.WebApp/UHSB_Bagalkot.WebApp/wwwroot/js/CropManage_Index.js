@@ -60,7 +60,7 @@
         $('#ItemImagesBody tr:gt(1)').remove();
 
         if (!subSectId) return;
-         
+
         $('#ItemImagesBody').find('input, select, textarea, button').prop('disabled', false);
         $('#addRow').prop('disabled', false);
         loadDropdown('/Dashboard/GetItems?subSectId=' + $(this).val(), '#ItemsIdtype', '--Select Item--');
@@ -167,9 +167,6 @@
 
 
 
-    
-
-
     // CKEditor modal
     $(document).on('click', '.editDescription', function () {
         var index = $(this).data('index');
@@ -189,7 +186,7 @@
         }).then(editor => {
             editorInstance = editor;
             editor.setData(data);
-        }); 
+        });
     }
     function initEditor(data) {
         ClassicEditor.create(document.querySelector('#editorDescription'), {
@@ -231,7 +228,7 @@
         }
     });
 
-    // Add new row
+
     // Add new row
     $("#addRow").click(function () {
         // Get the current row count from the correct table body
@@ -297,4 +294,141 @@
 
     //grid content with pagination
 
+    $('#gridmemberCount').on('change', function () {
+        var pagevalue = $(this).val();
+        pageSize = pagevalue;
+        currentPage = 1;
+        SetPageSizeFromStorage(pageSizeKey);
+        window.init();
+    })
+
+
+    function GetAjaxOptionsDataAndParameters() {
+        var subSectId = $(this).val();
+        debugger;
+        return {
+            "currentPage": currentPage,
+            "pageSize": pageSize,
+            "orderBy": window.orderByColumnId,
+            "isDescending": window.isDescendingFilter,
+            "filterDetails": window.filterCollection.length > 0 ? JSON.stringify(window.filterCollection) : "",
+            "externalFilter": window.getExternalFilter,
+            "subSectId": subSectId
+        }
+    }
 });
+
+//    window.init = function () {
+
+//        LoadAjaxAnimation(true);
+//        var tablebody = $('#gridContent table tbody');
+
+//        if (!tablebody.children("tr").length) {
+//            tablebody.append(theadRow);
+//        }
+//        if (tablebody.children().children("td").length < 2) {
+//            tablebody.append('<tr><td colspan="27"><div style="min-height:120px;"></div></td><tr>');
+//        }
+
+//        loader.width(tablebody.width());
+//        debugger;
+//        $.ajax({
+
+//            cache: false,
+//            type: "POST",
+//            dataType: 'json',
+//            url: GetRootPath(window.virtualPath) + '/Dashboard/GetgridItems',
+//            data: GetAjaxOptionsDataAndParameters(),
+//            contentType: 'application/x-www-form-urlencoded; charset=utf-8',
+//            success: function (response, successStatusText, responseJqXhrObject) {
+//                window.LogAjaxRequestDetails(responseJqXhrObject);
+//                gridJson = response;
+//                tablebody.find('tr:gt(0)').remove();
+//                var filetext = "Download";
+
+//                if (response.ItemDetails && response.ItemDetails.length) {
+//                    if (!response.CanEdit && !response.CanViewMultiple && !response.CanDelete) {
+//                        var f_child = tablebody.children('tr:first').children("th:first");
+//                        f_child.remove();
+//                    }
+//                    console.log("Data >>" + JSON.stringify(response.ItemDetails));
+//                    $.each(response.ItemDetails, function (index, item) {
+//                        var rowContent = "";
+//                        if (response.CanEdit || response.CanViewMultiple || response.CanDelete) {
+//                            var edit_span = '';
+//                            var delete_span = '';
+//                            var view_attach_span = "";
+//                            var saperator = '|';
+//                            /*var popupedit = 1;*/
+//                            //var popupdelete = 2;
+//                            //var popupdirectdelete = 3;
+//                            if (roletypeNo == 6) {
+//                                delete_span = '<span id=' + item.Identifier + ' class="btn-link delete" style="cursor:pointer" >Delete</span>';
+//                            }
+
+//                            if (item.FilePath != "" && item.FilePath != null) {
+//                                view_attach_span = '<a href="' + ($.trim($('#rootpath').text()) + 'FTPDocuments/downloadFile?FilePath=' + item.FilePath) +
+//                                    '" target="_blank">' + filetext + '</a>';
+//                            }
+//                        }
+
+//                        rowContent =
+//                            '<td class="text-center">' + ((currentPage - 1) * pageSize + (index + 1)) + '</td>' +
+//                            '<td class="text-center">' + BindValueToGrid(item.UserName, false, false) + '</td>' +
+//                            '<td class="text-center">' + BindValueToGrid(item.BranchName, false, false) + '</td>' +
+//                            '<td class="text-center">' + BindValueToGrid(item.DepartmentName, false, false) + '</td>' +
+//                            '<td class="text-center">' + BindValueToGrid(item.Description, false, false) + '</td>';
+
+//                        if (roletypeNo == 6) {
+//                            rowContent +=
+//                                '<td class="text-center">' +
+//                                '<textarea style="width:350px; height:100px;" class="form-control" id="textarea_' + item.Identifier + '" ' +
+//                                'data-user="' + item.UserId + '" rows="3"></textarea>' +
+//                                '</td>';
+//                        }
+
+
+
+//                        //'<td class="text-center">' + BindValueToGrid(item.FilePath, false, false) + '</td>';
+
+//                        if (roletypeNo == 6) {
+//                            rowContent += "<td class='text-center'>" + delete_span + saperator + view_attach_span + "</td>";
+//                        } else {
+//                            rowContent += "<td class='text-center'>" + view_attach_span + "</td>";
+//                        }
+
+
+//                        tablebody.append('<tr>' + rowContent + '</tr>');
+//                    })
+//                }
+//                else {
+//                    tablebody.append('<tr><td colspan="27"><h3 style="width:400px;min-height:120px;">No Data Found!!!</h3></td><tr>');
+//                }
+//                // $('#btnBack').hide();
+//                totalRecords = response.TotalCount;
+//                debugger;
+//                setupControls();
+//                pagingDetails();
+//                var elem = $('#pagingButtons li a');
+//                $('#pagingButtons li a').removeClass('active');
+//                $('#pagingButtons li a:contains(' + currentPage + ')').parent('li').addClass("active")
+//                $('#pagingButtons li a:contains(' + currentPage + ')').css("cursor", "not-allowed")
+//                LoadAjaxAnimation(false);
+//                loader.width(tablebody.width());
+//            },
+//            error: function (error) {
+
+//                if (error.status == 302) {
+//                    //alert(302);
+//                    return
+//                }
+//                alert(error.statusText + "\n" + error.responseText);
+//                //Removed Con_sole logging
+//                LoadAjaxAnimation(false);
+//                loader.width(tablebody.width());
+//            }
+//        })
+
+     
+
+//});
