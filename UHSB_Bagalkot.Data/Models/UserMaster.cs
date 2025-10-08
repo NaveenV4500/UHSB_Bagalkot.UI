@@ -18,6 +18,11 @@ public partial class UserMaster
     public DateTime CreatedAt { get; set; }
 
     public int? RoleType { get; set; }
+    public byte? DistrictsId { get; set; }
+    public string Village { get; set; }
+    public DateTime? ModifiedDate { get; set; }
+    public byte? ModifiedBy { get; set; }
+    public byte? CreatedBy { get; set; }
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 

@@ -1,0 +1,45 @@
+﻿@model UHSB_Bagalkot.Service.ViewModels.WeatherFileUploadVM
+@{
+    ViewData["Title"] = "Upload Weather Report";
+}
+
+<div class="container mt-4">
+    <h4 class="mb-3 text-primary">Upload Weather Report</h4>
+
+    <form id="uploadForm" asp-action="UploadFile" asp-controller="WeatherReportFiles" method="post" enctype="multipart/form-data">
+
+        <div class="form-group mb-3">
+            <label for="DistrictId" class="form-label">Select District</label>
+            <select asp-for="DistrictId" id="DistrictId" class="form-control" asp-items="@(new SelectList(ViewBag.Districts, "Id", "Text"))">
+                <option value="">-- Select District --</option>
+            </select>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="Description" class="form-label">Description</label>
+            <textarea asp-for="Description" id="Description" class="form-control" placeholder="Enter description"></textarea>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="StartDate" class="form-label">Start Date</label>
+                <input type="date" id="StartDate" name="StartDate" class="form-control" required />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="EndDate" class="form-label">End Date</label>
+                <input type="date" id="EndDate" name="EndDate" class="form-control" required />
+            </div>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="file" class="form-label">Upload File</label>
+            <input type="file" id="file" name="file" class="form-control" required />
+        </div>
+
+        <button type="submit" class="btn btn-success">Upload</button>
+    </form>
+</div>
+
+@section Scripts {
+    @* <script src="~/js/WeatherReportFiles_Index.js?version=@Guid.NewGuid()"></script> *@
+}

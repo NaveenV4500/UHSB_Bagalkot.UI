@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UHSB_MasterService.Common
+namespace UHSB_Bagalkot.Service.Common
 {
     public class GridEnum
     {
@@ -159,6 +159,49 @@ namespace UHSB_MasterService.Common
             DeletedDate = 9,
             [DropDownAttribute(typeof(byte))]
             DatastatusName = 10,
+        }
+        public enum UserMasterColumns
+        {
+            Select = 0,
+
+            [DropDownAttribute(typeof(string))]
+            UserName = 1,
+
+            [DropDownAttribute(typeof(string))]
+            PhoneNumber = 2,
+
+            [DropDownAttribute(typeof(bool))]
+            IsActive = 3,
+
+            [DropDownAttribute(typeof(DateTime))]
+            CreatedDate = 4,
+
+            [DropDownAttribute(typeof(DateTime?))]
+            UpdatedDate = 5,
+
+            [DropDownAttribute(typeof(string))]
+            Village = 6,
+
+            [DropDownAttribute(typeof(decimal?))]
+            LandSize = 7,
+
+            [DropDownAttribute(typeof(string))]
+            PasswordHash = 8,
+
+            [DropDownAttribute(typeof(byte?))]
+            DistrictsId = 9,
+
+            [DropDownAttribute(typeof(DateTime?))]
+            ModifiedDate = 10,
+
+            [DropDownAttribute(typeof(byte?))]
+            ModifiedBy = 11,
+
+            [DropDownAttribute(typeof(byte?))]
+            CreatedBy = 12,
+
+            [DropDownAttribute(typeof(int))]
+            RoleType = 13
         }
 
     }

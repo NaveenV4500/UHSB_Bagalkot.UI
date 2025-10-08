@@ -1,4 +1,4 @@
-﻿@model UHSB_Bagalkot.WebService.ViewModels.AdminDashboardVM
+﻿@model UHSB_Bagalkot.Service.ViewModels.AdminDashboard.AdminDashboardVM
 @{
     ViewData["Title"] = "Farmer Dashboard";
 }
@@ -101,7 +101,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model.FarmersByVillage ?? new List<UHSB_Bagalkot.WebService.ViewModels.FarmersByVillageVM>())
+                    @foreach (var item in Model.FarmersByVillage ?? new List<UHSB_Bagalkot.Service.ViewModels.AdminDashboard.FarmersByVillageVM>())
                     {
                         <tr>
                             <td>@item.Village</td>

@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace UHSB_Bagalkot.Data.Models;
 
@@ -42,16 +43,23 @@ public partial class Uhsb2025Context : DbContext
     public virtual DbSet<UserMaster> UserMasters { get; set; }
 
     public virtual DbSet<UserRole> UserRoles { get; set; }
+    public virtual DbSet<uhsbSectionsMapping> UHSB_SectionsMappings { get; set; }
+
+
     public DbSet<SPWeeklyWeatherRecord> SP_WeeklyWeatherRecords { get; set; }
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-       => optionsBuilder.UseSqlServer("Server=DESKTOP-5GU02OK;Database=UHSB2025;Trusted_Connection=True;TrustServerCertificate=True;");
+       => optionsBuilder.UseSqlServer("Server=DESKTOP-5GU02OK;Database=UHSB2025UAT;Trusted_Connection=True;TrustServerCertificate=True;");
     /*UHSB*/// =>optionsBuilder.UseSqlServer("Server=D465PTN3;Database=UHSB2025UAT;Trusted_Connection=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
-    { 
+    {
+         
+        modelBuilder.Entity<uhsbSectionsMapping>()
+    .ToTable("UHSB_SectionsMapping", "dbo");
+
         modelBuilder.Entity<SPWeeklyWeatherRecord>(entity =>
         {
             entity.HasNoKey();  
@@ -172,6 +180,11 @@ public partial class Uhsb2025Context : DbContext
                 .HasForeignKey(d => d.SubSectionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UHSB_ItemDeails_UHSB_SubSection");
+
+            entity.HasOne(d => d.Section).WithMany(p => p.UhsbItemDeails)
+                .HasForeignKey(d => d.SectionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_ItemDeails_UHSB_Section");
         });
 
         modelBuilder.Entity<UhsbItemImage>(entity =>
@@ -270,6 +283,30 @@ public partial class Uhsb2025Context : DbContext
             entity.Property(e => e.PasswordHash).HasMaxLength(500);
             entity.Property(e => e.PhoneNumber).HasMaxLength(20);
             entity.Property(e => e.UserName).HasMaxLength(100);
+            entity.Property(e => e.RoleType)
+            .HasColumnType("int")
+            .IsRequired(false);  // nullable
+
+            entity.Property(e => e.DistrictsId)
+                .HasColumnType("tinyint")
+                .IsRequired(false);  // nullable
+
+            entity.Property(e => e.Village)
+                .HasMaxLength(250)
+                .IsRequired(false);  // nullable
+
+            entity.Property(e => e.ModifiedDate)
+                .HasColumnType("datetime")
+                .IsRequired(false);  // nullable
+
+            entity.Property(e => e.ModifiedBy)
+                .HasColumnType("tinyint")
+                .IsRequired(false);  // nullable
+
+            entity.Property(e => e.CreatedBy)
+                .HasColumnType("tinyint")
+                .IsRequired(false);  // nullable
+
         });
 
         modelBuilder.Entity<UserRole>(entity =>

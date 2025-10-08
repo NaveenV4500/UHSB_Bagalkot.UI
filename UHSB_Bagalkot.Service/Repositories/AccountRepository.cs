@@ -72,5 +72,20 @@ namespace UHSB_Bagalkot.Service.Repositories
         {
             return _context.UserMasters.Count();
         }
+
+        public Dictionary<int, string> GetAllUserRoleTypeAsDictionary()
+        {
+            return _context.UhsbDistricts
+                .OrderBy(x => x.DistrictName)
+                .Select(x => new { x.DistrictId, x.DistrictName })
+                .ToDictionary(x => x.DistrictId, x => x.DistrictName);
+        }
+        public Dictionary<int, string> GetAllDistrictsTypeAsDictionary()
+        {
+            return _context.UserRoles
+                .OrderBy(x => x.Id)
+                .Select(x => new { x.Id, x.RoleName })
+                .ToDictionary(x => x.Id, x => x.RoleName);
+        }
     }
 }

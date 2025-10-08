@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UHSB_Bagalkot.Service.ViewModels.AdminDashboard;
-using UHSB_Bagalkot.WebService.ViewModels.ManageAdminDashboard;
+using UHSB_Bagalkot.Service.Common;
+using UHSB_Bagalkot.Service.ViewModels;
+using UHSB_Bagalkot.Service.ViewModels.AdminDashboard;  
 
 namespace UHSB_Bagalkot.Service.Interface
 {
@@ -19,8 +20,9 @@ namespace UHSB_Bagalkot.Service.Interface
         Task<IEnumerable<DropdownVM>> CropsDD(int categoryId);
         Task<IEnumerable<DropdownVM>> SectionDD(int cropId);
         Task<IEnumerable<DropdownVM>> SubSectionDD(int sectionId);
-        Task<IEnumerable<DropdownVM>> ItemDeailsDD(int subSectionId);
-        Task<IEnumerable<UhsbItemImageVM>> GetgridItems(int subSectionId);
+        Task<IEnumerable<DropdownVM>> ItemDeailsDD(int sectionId,int cropId);
+        Task<GenericGridModel<UhsbItemImageVM>> GetGridItemsV2(int currentPage = 1, int pageSize = 10, GridEnum.FTPDocumentsLogs orderBy = GridEnum.FTPDocumentsLogs.BranchName, bool isDescending = false, string filterDetails = null, string externalFilter = null, int subSectId = 0, int cropid = 0);
+        Task<GenericGridModel<UserMasterVM>> GetGridUsermasterV2(int currentPage = 1, int pageSize = 10, GridEnum.FTPDocumentsLogs orderBy = GridEnum.FTPDocumentsLogs.BranchName, bool isDescending = false, string filterDetails = null, string externalFilter = null);
 
         //Save
         Task<bool> SaveCropContentAsync(List<UhsbItemImageVM> model);

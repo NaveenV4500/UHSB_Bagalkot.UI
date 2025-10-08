@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 
 
-namespace UHSB_Bagalkot.WebService.ViewModels.ManageAdminDashboard
+namespace UHSB_Bagalkot.Service.ViewModels.ManageAdminDashboard
 {
     public class CropContentWithImageVM
     {

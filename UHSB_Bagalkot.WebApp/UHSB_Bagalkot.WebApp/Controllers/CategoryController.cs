@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Text;
-using UHSB_Bagalkot.WebService.AppSettings;
+using UHSB_Bagalkot.Service.Common;
 using UHSB_Bagalkot.WebService.ViewModels.CategoryModels;
 
 namespace UHSB_Bagalkot.WebApp.Controllers

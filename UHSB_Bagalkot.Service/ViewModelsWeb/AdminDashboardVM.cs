@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UHSB_Bagalkot.WebService.ViewModels
+namespace UHSB_Bagalkot.Service.ViewModels.AdminDashboard
 {
     public class AdminDashboardVM
     {

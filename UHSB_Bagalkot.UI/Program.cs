@@ -138,4 +138,10 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/InwardsInvoices/TempFiles"
 });
 
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(@"D:\WeatherReportFiles\TempFiles"),
+    RequestPath = "/WeatherReportFiles/TempFiles"
+});
+
 app.Run();

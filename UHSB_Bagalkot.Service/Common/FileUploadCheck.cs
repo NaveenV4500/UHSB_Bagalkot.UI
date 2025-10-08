@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UHSB_MasterService.Common
+namespace UHSB_Bagalkot.Service.Common
 {
     public static class FileUploadCheck
     {

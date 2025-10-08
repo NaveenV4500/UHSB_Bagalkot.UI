@@ -7,11 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UHSB_Bagalkot.Data.Models;
+using UHSB_Bagalkot.Service.Common;
 using UHSB_Bagalkot.Service.Dto;
 using UHSB_Bagalkot.Service.Interface;
 using UHSB_Bagalkot.Service.ViewModels;
 using UHSB_Bagalkot.Service.ViewModels.CropProfile;
-using UHSB_Bagalkot.WebService.AppSettings;
 
 namespace UHSB_Bagalkot.Service.Repositories
 {
@@ -50,11 +50,21 @@ namespace UHSB_Bagalkot.Service.Repositories
                 .ToList();
         }
 
-        public async Task<IEnumerable<UhsbItemDeail>> GetItemsBySubSectionIdAsync(int subSectionId)
-        {
-            var items = await _context.UhsbItemDeails
-                .Where(i => i.SubSectionId == subSectionId).ToListAsync();
-            return items;
+        public async Task<IEnumerable<UhsbItemDeail>> GetItemsBySubSectionIdAsync(int SectionId=0,int cropid=0)
+        { 
+            var result = await (from map in _context.UHSB_SectionsMappings
+                                join section in _context.UhsbSections
+                                    on map.SectionId equals section.SectionId
+                                join items in _context.UhsbItemDeails
+                                    on map.SectionMapId equals items.SectionMapId
+                                where map.CropId == cropid &&  section.SectionId == SectionId
+                                select new UhsbItemDeail
+                                {
+                                    ItemId = items.ItemId,
+                                    Name = items.Name, 
+                                }).ToListAsync();
+
+            return result;
         }
 
 
@@ -106,30 +116,41 @@ namespace UHSB_Bagalkot.Service.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<ItemDto>> GetContentByItemIdAsync(int itemId)
+        public async Task<List<ItemImageDto>> GetContentByItemIdAsync(int itemId)
       {
             // The URL path clients will use to access images
             var relativePath = "";
+            return   (from c in _context.UhsbItemImages
+                          where c.ItemId == itemId
+                          select new ItemImageDto
+                          {
+                              ImageId = c.ImageId,
+                              ItemId = c.ItemId,
+                              ImageUrl = relativePath + c.ImageUrl.Replace("\\", "/"),
+                              Description = c.Description.Replace("<table>", "<table border>")
+                          }).ToList();
 
-            return await _context.ItemContents
-                .Where(c => c.ItemId == itemId)
-                .Select(c => new ItemDto
-                {
-                    ContentId = c.ContentId,
-                    ItemId = c.ItemId,
-                    Title = c.Title,
-                    Article = c.Article,
-                    Images = _context.UhsbItemImages
-                                .Where(i => i.ItemId == c.ItemId)
-                                .Select(i => new ItemImageDto
-                                {
-                                    ImageId = i.ImageId,
-                                    ItemId = i.ItemId,
-                                    // i.ImageUrl should contain only the filename (e.g., abc.jpg)
-                                    ImageUrl = relativePath + i.ImageUrl.Replace("\\", "/"),
-                                    Description = i.Description
-                                }).ToList()
-                }).ToListAsync();
+
+
+            //return await _context.ItemContents
+            //    .Where(c => c.ItemId == itemId)
+            //    .Select(c => new ItemDto
+            //    {
+            //        ContentId = c.ContentId,
+            //        ItemId = c.ItemId,
+            //        Title = c.Title,
+            //        Article = c.Article,
+            //        Images = _context.UhsbItemImages
+            //                    .Where(i => i.ItemId == c.ItemId)
+            //                    .Select(i => new ItemImageDto
+            //                    {
+            //                        ImageId = i.ImageId,
+            //                        ItemId = i.ItemId,
+            //                        // i.ImageUrl should contain only the filename (e.g., abc.jpg)
+            //                        ImageUrl = relativePath + i.ImageUrl.Replace("\\", "/"),
+            //                        Description = i.Description
+            //                    }).ToList()
+            //    }).ToListAsync();
         }
 
 

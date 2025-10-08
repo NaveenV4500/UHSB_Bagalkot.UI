@@ -10,12 +10,9 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web.Helpers;
 using System.Web.WebPages;
-using UHSB_Bagalkot.Service.ViewModels.AdminDashboard;
-using UHSB_Bagalkot.WebService.AppSettings;
-using UHSB_Bagalkot.WebService.ViewModels;
-using UHSB_Bagalkot.WebService.ViewModels.ManageAdminDashboard;
-using UHSB_MasterService.Common;
-using static System.Collections.Specialized.BitVector32;
+using UHSB_Bagalkot.Service.Common;
+using UHSB_Bagalkot.Service.ViewModels;
+using UHSB_Bagalkot.Service.ViewModels.AdminDashboard; 
 
 namespace UHSB_Bagalkot.WebApp.Controllers
 {
@@ -93,6 +90,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
                     Description = ""
                 }
             };
+            ViewBag.fileBaseUrl = _apiSettings.Base_Url;
             return View(model);
         }
 
@@ -101,11 +99,17 @@ namespace UHSB_Bagalkot.WebApp.Controllers
         [HttpGet]
         public async Task<JsonResult> GetCategories()
         {
+            var token = HttpContext.Session.GetString("AccessToken");
+            if (string.IsNullOrEmpty(token))
+            {
+                return Json(new { success = false, message = "Unauthorized. Please login.", redirectUrl = Url.Action("Login", "Account") });
+            }
 
             var response = await _httpClient.GetAsync($"{_apiSettings.Base_Url + "/Dashboard/Category"}");
             var json = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<ApiResponse<List<DropdownVM>>>(json);
-            return Json(result.Data);
+            return Json(new { success = true, result.Data });
+
         }
 
 
@@ -113,10 +117,18 @@ namespace UHSB_Bagalkot.WebApp.Controllers
         [HttpGet]
         public async Task<JsonResult> GetCrops(int catId)
         {
+            var token = HttpContext.Session.GetString("AccessToken");
+            if (string.IsNullOrEmpty(token))
+            {
+                return Json(new { success = false, message = "Unauthorized. Please login.", redirectUrl = Url.Action("Login", "Account") });
+            }
+
             var response = await _httpClient.GetAsync($"{_apiSettings.Base_Url + "/Dashboard/Crops/" + catId}");
             var json = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<ApiResponse<List<DropdownVM>>>(json);
-            return Json(result.Data);
+            
+            return Json(new { success = true, result.Data });
+
         }
 
 
@@ -124,10 +136,15 @@ namespace UHSB_Bagalkot.WebApp.Controllers
         [HttpGet]
         public async Task<JsonResult> GetSections(int cropId)
         {
+            var token = HttpContext.Session.GetString("AccessToken");
+            if (string.IsNullOrEmpty(token))
+            {
+                return Json(new { success = false, message = "Unauthorized. Please login.", redirectUrl = Url.Action("Login", "Account") });
+            }
             var response = await _httpClient.GetAsync($"{_apiSettings.Base_Url + "/Dashboard/section/" + cropId}");
             var json = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<ApiResponse<List<DropdownVM>>>(json);
-            return Json(result.Data);
+            return Json(new { success = true, result.Data });
         }
 
 
@@ -141,18 +158,24 @@ namespace UHSB_Bagalkot.WebApp.Controllers
         }
 
         [HttpGet]
-        public async Task<JsonResult> GetItems(int subSectId)
+        public async Task<JsonResult> GetItems(int sectionId,int cropId)
         {
-            var response = await _httpClient.GetAsync($"{_apiSettings.Base_Url + "/Dashboard/items/" + subSectId}");
+            var token = HttpContext.Session.GetString("AccessToken");
+            if (string.IsNullOrEmpty(token))
+            {
+                return Json(new { success = false, message = "Unauthorized. Please login.", redirectUrl = Url.Action("Login", "Account") });
+            }
+            var response = await _httpClient.GetAsync($"{_apiSettings.Base_Url + "/Dashboard/items/" + sectionId+"/"+ cropId}");
             var json = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<ApiResponse<List<DropdownVM>>>(json);
-            return Json(result.Data);
+            return Json(new { success = true, result.Data });
+
         }
 
 
         //Get CropManage
-        [HttpGet]
-        public async Task<IActionResult> GetgridItems(int subSectId)
+        [HttpPost]
+        public async Task<IActionResult> GetGridContentV1(int currentPage=1, int pageSize=10, GridEnum.FTPDocumentsLogs orderBy = GridEnum.FTPDocumentsLogs.BranchName,bool isDescending = false, string filterDetails = null, string externalFilter = null, int subSectId=0, int cropid = 0)
         {
             try
             {
@@ -164,8 +187,34 @@ namespace UHSB_Bagalkot.WebApp.Controllers
 
                 _httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", token);
+                 
+                if (string.IsNullOrEmpty(token))
+                {
+                    return Json(new { success = false, message = "Unauthorized. Please login." });
+                }
 
-                var response = await _httpClient.GetAsync($"{_apiSettings.Base_Url}/Dashboard/GetGridItems/{subSectId}");
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+                 
+                var query = new Dictionary<string, string>
+                {
+                    ["currentPage"] = currentPage.ToString(),
+                    ["pageSize"] = pageSize.ToString(),
+                    ["orderBy"] = orderBy.ToString(),
+                    ["isDescending"] = isDescending.ToString(),
+                    ["filterDetails"] = filterDetails ?? string.Empty,
+                    ["externalFilter"] = externalFilter ?? string.Empty,
+                    ["subSectId"] = subSectId.ToString(),
+                    ["cropid"]= cropid.ToString(),
+                };
+
+                // Convert to query string
+                var queryString = string.Join("&", query
+                    .Where(kv => !string.IsNullOrEmpty(kv.Value))
+                    .Select(kv => $"{kv.Key}={Uri.EscapeDataString(kv.Value)}"));
+
+                // Make GET request
+                var response = await _httpClient.GetAsync($"{_apiSettings.Base_Url}/Dashboard/GetGridItemsV2?{queryString}");
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -173,11 +222,9 @@ namespace UHSB_Bagalkot.WebApp.Controllers
                 }
 
                 var content = await response.Content.ReadAsStringAsync();
-
-                // Deserialize API response
-                var result = JsonConvert.DeserializeObject<ApiResponse<List<CropContentItems>>>(content);
-
-                if (result?.Data == null || !result.Data.Any())
+                var result = JsonConvert.DeserializeObject<ApiResponse<GenericGridModel<UhsbItemImageVM>>>(content);
+           
+                if (result?.Data == null || !result.Data.ItemDetails.Any())
                 {
                     return Json(new { success = true, data = new List<CropContentItems>() });
                 }
@@ -242,7 +289,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
             if (response.IsSuccessStatusCode)
             {
                 TempData["SuccessMessage"] = "Saved successfully!";
-                return RedirectToAction("Index");
+                return RedirectToAction("CropManage", "Dashboard");
             }
             else
             {

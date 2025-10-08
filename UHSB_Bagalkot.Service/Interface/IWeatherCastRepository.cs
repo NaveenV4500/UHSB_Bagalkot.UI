@@ -13,7 +13,7 @@ namespace UHSB_Bagalkot.Service.Interface
         Task<IEnumerable<DistrictDD>> GetDistrictDropdownAsync();
         Task<IEnumerable<UhsbWeatherCastFileDetail>> GetAllAsync();
         Task<UhsbWeatherCastFileDetail?> GetByIdAsync(int id);
-        bool SaveFileAsync(WeatherFileUploadVM dto,string filePath);
+        bool SaveFileAsync(WeatherFileUploadVM dto);
         Task<List<WeeklyWeatherReportGridVM>> GetWeeklyReportsAsync(int districtId);
 
     }

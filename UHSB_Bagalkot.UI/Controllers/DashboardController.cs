@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using UHSB_Bagalkot.Service.Common;
 using UHSB_Bagalkot.Service.Interface;
 using UHSB_Bagalkot.Service.ViewModels;
-using UHSB_Bagalkot.Service.ViewModels.AdminDashboard;
-using UHSB_Bagalkot.WebService.ViewModels.ManageAdminDashboard;
+using UHSB_Bagalkot.Service.ViewModels.AdminDashboard; 
 
 namespace UHSB_Bagalkot.UI.Controllers
 {
@@ -74,22 +74,60 @@ namespace UHSB_Bagalkot.UI.Controllers
             return Ok(new ApiResponse<object> { Success = true, Data = result });
         }
 
-        [HttpGet("Items/{subsectId}")]
-        public async Task<IActionResult> GetItems(int subsectId)
+        [HttpGet("Items/{sectionId}/{cropId}")]
+        public async Task<IActionResult> GetItems(int sectionId, int cropId)
         {
-            if (subsectId <= 0) return BadRequest(new ApiResponse<object> { Success = false, Message = "SubSection Id is required" });
+            if (sectionId <= 0 || cropId <= 0)
+                return BadRequest(new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Both SectionId and CropId are required"
+                });
 
-            var result = await _dashboardRepository.ItemDeailsDD(subsectId);
-            return Ok(new ApiResponse<object> { Success = true, Data = result });
+            var result = await _dashboardRepository.ItemDeailsDD(sectionId, cropId);
+            return Ok(new ApiResponse<object>
+            {
+                Success = true,
+                Data = result
+            });
         }
 
-        [HttpGet("GetGridItems/{subsectId}")]
-        public async Task<IActionResult> GetGridItems(int subsectId)
-        {
-            if (subsectId <= 0) return BadRequest(new ApiResponse<object> { Success = false, Message = "SubSection Id is required" });
 
-            var result = await _dashboardRepository.GetgridItems(subsectId);
-            return Ok(new ApiResponse<object> { Success = true, Data = result });
+        [HttpGet("GetGridItemsV2")]
+        public async Task<IActionResult> GetGridItemsV2(int currentPage = 1,  int pageSize = 10,  GridEnum.FTPDocumentsLogs orderBy = GridEnum.FTPDocumentsLogs.BranchName,  bool isDescending = false,  string filterDetails = null, string externalFilter = null, int subSectId = 0,int cropid=0)
+        {
+            if (subSectId <= 0)
+                return BadRequest(new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "SubSection Id is required"
+                });
+             
+            var result = await _dashboardRepository.GetGridItemsV2(
+                currentPage, pageSize, orderBy, isDescending, filterDetails, 
+                externalFilter, subSectId, cropid
+            );
+
+            return Ok(new ApiResponse<object>
+            {
+                Success = true,
+                Data = result
+            });
+        }
+
+        [HttpGet("GetGridUsermasterV2")]
+        public async Task<IActionResult> GetGridUsermasterV2(int currentPage = 1, int pageSize = 10, GridEnum.FTPDocumentsLogs orderBy = GridEnum.FTPDocumentsLogs.BranchName, bool isDescending = false, string filterDetails = null, string externalFilter = null)
+        {
+
+            var result = await _dashboardRepository.GetGridUsermasterV2(
+                currentPage, pageSize, orderBy, isDescending, filterDetails, externalFilter
+            );
+
+            return Ok(new ApiResponse<object>
+            {
+                Success = true,
+                Data = result
+            });
         }
 
 

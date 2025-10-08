@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UHSB_MasterService.Common
+namespace UHSB_Bagalkot.Service.Common
 {
     public class CommonEnum
     {
@@ -96,6 +96,32 @@ namespace UHSB_MasterService.Common
             [Display(Name = "Rent paid to Govt or Local authorities")]
             RentpaidtoGovtorLocalauthorities = 21,
         }
+        public enum UserRoleType
+        {
+            [Display(Name = " -- Select-- ", Order = 1)]
+            Select = 0,
+            [Display(Name = "Admin")]
+            Admin = 1,
+            [Display(Name = "Farmer")]
+            Farmer = 2,
+            [Display(Name = "Scientist ")]
+            Scientist = 4
+        }
 
+        public enum UserRoleTypeforSearch
+        {
+            [Display(Name = " -- Select-- ", Order = 1)]
+            Select = 0,
+            [Display(Name = "Maker")]
+            Maker = 1,
+            [Display(Name = "Checker")]
+            Checker = 2,
+            [Display(Name = "Branch Admin")]
+            BranchAdmin = 3,
+            [Display(Name = "Manager")]
+            Manager = 5
+        }
     }
+
+  
 }

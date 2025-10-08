@@ -5,9 +5,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using UHSB_MasterService.ViewModels;
+using UHSB_Bagalkot.Service.ViewModels;
 
-namespace UHSB_MasterService.Common
+namespace UHSB_Bagalkot.Service.Common
 {
     public static class EnumHelper<T>
     {

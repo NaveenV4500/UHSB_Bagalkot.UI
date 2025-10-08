@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UHSB_Bagalkot.Data.Models;
+using UHSB_Bagalkot.Service.Common;
 using UHSB_Bagalkot.Service.Interface;
 using UHSB_Bagalkot.Service.ViewModels;
 
@@ -63,11 +64,11 @@ namespace UHSB_Bagalkot.UI.Controllers
         [HttpPost("upload")]
         public async Task<IActionResult> Upload([FromBody] WeatherFileUploadVM dto)
         {
-            if (dto.FileBytes == null || dto.FileBytes.Length == 0)
-                return BadRequest("File is required.");
-            string filePath = GetFilePath("WeatherReportFiles/TempFiles", dto.FileName);
+            //if (dto.FileBytes == null || dto.FileBytes.Length == 0)
+            //    return BadRequest("File is required.");
+            //string filePath =  GetFilePath("WeatherReportFiles/TempFiles", dto.FileName);
 
-            var result =   _repository.SaveFileAsync(dto, filePath);
+            var result =   _repository.SaveFileAsync(dto);
             return Ok(result);
         }
 

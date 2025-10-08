@@ -4,7 +4,12 @@
 
     var currentDescriptionInput;
     var editorInstance;
-
+    window.alertMessageAfterSavePayment = "";
+    window.GridFilterViewUrl = "FTPDocuments/GetSearchView";
+    window.orderByColumnId = "0";
+    window.isDescendingFilter = false;
+    var pageSizeKey = 'pagesize_taxableinward';
+    GetPageSizeFromStorage(pageSizeKey);
     _init();
 
     function _init() {
@@ -18,11 +23,16 @@
             method: 'GET',
             dataType: 'json',
             success: function (data) {
-                var $dropdown = $(dropdownSelector);
-                $dropdown.empty().append('<option value="">' + defaultText + '</option>');
-                $.each(data, function (i, item) {
-                    $dropdown.append('<option value="' + item.id + '">' + item.name + '</option>');
-                });
+                debugger;
+                if (data.success) {
+                    var $dropdown = $(dropdownSelector);
+                    $dropdown.empty().append('<option value="">' + defaultText + '</option>');
+                    $.each(data.data, function (i, item) {
+                        $dropdown.append('<option value="' + item.id + '">' + item.name + '</option>');
+                    });
+                } else {
+                    window.location.href = data.redirectUrl;
+                }
             },
             error: function (xhr, status, error) { console.error('Error loading data:', error); },
             complete: function () { hideLoader(); }
@@ -43,10 +53,10 @@
         loadDropdown('/Dashboard/GetSections?cropId=' + $(this).val(), '#Sectionstype', '--Select Section--');
     });
 
-    $('#Sectionstype').on('change', function () {
-        resetDropdowns(['#SubSectionstype']);
-        loadDropdown('/Dashboard/GetSubSections?sectId=' + $(this).val(), '#SubSectionstype', '--Select Subsection--');
-    });
+    //$('#Sectionstype').on('change', function () {
+    //    resetDropdowns(['#SubSectionstype']);
+    //    loadDropdown('/Dashboard/GetSubSections?sectId=' + $(this).val(), '#SubSectionstype', '--Select Subsection--');
+    //});
 
     function resetDropdowns(selectors) {
         selectors.forEach(function (sel) {
@@ -55,16 +65,18 @@
     }
 
     // SubSection change → populate table
-    $('#SubSectionstype').on('change', function () {
+    $('#Sectionstype').on('change', function () {
         var subSectId = $(this).val();
+        var Cropstype = $("#Cropstype").val();
         $('#ItemImagesBody tr:gt(1)').remove();
 
         if (!subSectId) return;
 
         $('#ItemImagesBody').find('input, select, textarea, button').prop('disabled', false);
         $('#addRow').prop('disabled', false);
-        loadDropdown('/Dashboard/GetItems?subSectId=' + $(this).val(), '#ItemsIdtype', '--Select Item--');
-        loadItems(subSectId);
+        loadDropdown('/Dashboard/GetItems?sectionId=' + $(this).val() + '&cropId=' + Cropstype, '#ItemsIdtype', '--Select Item--');
+        //loadItems(subSectId);
+        //window.init();
     });
 
     var roletypeNo = parseInt($('#userTypeNo').val() || 0); // Example role type
@@ -78,7 +90,7 @@
         tbody.append('<tr><td colspan="5" class="text-center">Loading...</td></tr>');
 
         $.ajax({
-            url: '/Dashboard/GetgridItems?subSectId=' + subSectId,
+            url: '/Dashboard/GetGridContentV1?subSectId=' + subSectId + '&cropid=' + cropid,
             method: 'GET',
             dataType: 'json',
             success: function (response) {
@@ -134,12 +146,19 @@
     //View Image
 
     // Put this once in your JS, after table exists
-    $('#ItemImagesTable').on('click', '.View', function () {
+    $('#gridContent').on('click', '.View', function () {
+
         var filePath = $(this).data('filepath');
         if (!filePath) {
             alert('No image available.');
             return;
         }
+        var fileBaseUrl = $("#fileBaseUrl").val();
+        if (!fileBaseUrl) {
+            alert('No image available.');
+            return;
+        }
+        fileBaseUrl = fileBaseUrl.replace("api", "");
 
         var modalHtml = `
         <div id="imageModal" class="modal fade" tabindex="-1" role="dialog">
@@ -150,7 +169,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
               </div>
               <div class="modal-body text-center">
-                <img src="${"http://10.255.136.158:15815/" + filePath}" style="max-width:100%; height:auto;" />
+                <img src="${fileBaseUrl + filePath}" style="max-width:100%; height:auto;" />
               </div>
             </div>
           </div>
@@ -221,61 +240,67 @@
         });
     }
 
+
     $('#saveDescription').click(function () {
         if (editorInstance && currentDescriptionInput) {
             currentDescriptionInput.val(editorInstance.getData());
             $('#descriptionModal').modal('hide');
+
+            // ✅ Add green check mark after description is saved
+            var $row = currentDescriptionInput.closest('td');
+            if ($row.find('.descriptionSaved').length === 0) {
+                $row.append('<i class="bi bi-check-circle-fill text-success ms-2 descriptionSaved"></i>');
+            }
         }
     });
 
 
     // Add new row
     $("#addRow").click(function () {
-        // Get the current row count from the correct table body
-        var rowCount = $("#ItemImagesBody tr").length;
+        debugger;
+        var rowCount = $("#ItemImagesBody tr").length - 1;
 
-        // The HTML for the new row. We create it first.
         var newRowHtml = `
-        <tr>
-            <td>
-                <select name="ItemImages[${rowCount}].ItemId" class="form-select itemDropdown">
-                    <option value=''>--Select Item--</option>
-                </select>
-            </td>
-            <td>
-                <button type="button" class="btn btn-outline-secondary btn-sm editDescription" data-index="${rowCount}">
-                    <i class="bi bi-pencil me-1"></i> Edit Description
-                </button>
-                <input type="hidden" name="ItemImages[${rowCount}].Description" class="descriptionHidden" />
-            </td>
-            <td>
-                <input type="file" name="ItemImages[${rowCount}].ImageFile" class="form-control form-control-file" />
-            </td>
-            <td class="text-center">
-                <button type="button" class="btn btn-outline-danger btn-sm removeRow">
-                    <i class="bi bi-trash"></i> Remove
-                </button>
-            </td>
-        </tr>`;
+    <tr>
+        <td>
+            <select name="ItemImages[${rowCount}].ItemId" id="ItemsIdtype${rowCount}" class="form-select itemDropdown">
+                <option value=''>--Select Item--</option>
+            </select>
+        </td>
+        <td>
+            <button type="button" class="btn btn-outline-secondary btn-sm editDescription" data-index="${rowCount}">
+                <i class="bi bi-pencil me-1"></i> Edit Description
+            </button>
+            <input type="hidden" name="ItemImages[${rowCount}].Description" class="descriptionHidden" />
+        </td>
+        <td>
+            <input type="file" name="ItemImages[${rowCount}].ImageFile" class="form-control form-control-file" />
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-outline-danger btn-sm removeRow">
+                <i class="bi bi-trash"></i> Remove
+            </button>
+        </td>
+    </tr>`;
 
-        // 1. Append the new row and get a reference to it
         var $newRow = $(newRowHtml).appendTo('#ItemImagesBody');
-
-        // 2. Find the specific dropdown within the new row you just added
         var $newDropdown = $newRow.find('.itemDropdown');
 
-        // 3. Get the selected Sub Section ID from the main filter dropdown
-        var subSectionId = $('#SubSectionstype').val();
+        var SectionId = $('#Sectionstype').val();
+        var cropId = $("#Cropstype").val();
 
-        // 4. If a sub-section is selected, call loadDropdown for the new dropdown
-        if (subSectionId) {
-            // Assuming 'loadDropdown' is a function you've defined elsewhere
-            loadDropdown('/Dashboard/GetItems?subSectId=' + subSectionId, $newDropdown, '--Select Item--');
-        }
+        loadDropdown('/Dashboard/GetItems?sectionId=' + SectionId + '&cropId=' + cropId, '#ItemsIdtype' + rowCount, '--Select Item--');
+
+    });
+
+    $(document).on("click", "#griddata", function () {
+        window.init();
     });
 
     // Remove row - This can remain the same, but ensure it's inside doc ready
     $(document).on("click", ".removeRow", function () {
+        $(this).closest("tr").remove();
+        resetIndexes();
         $(this).closest("tr").remove();
         resetIndexes();
     });
@@ -304,131 +329,105 @@
 
 
     function GetAjaxOptionsDataAndParameters() {
-        var subSectId = $(this).val();
-        debugger;
+        var subSectId = $("#Sectionstype").val() || 0;
+        var cropid = $("#Cropstype").val() || 0;
+
         return {
-            "currentPage": currentPage,
-            "pageSize": pageSize,
-            "orderBy": window.orderByColumnId,
-            "isDescending": window.isDescendingFilter,
-            "filterDetails": window.filterCollection.length > 0 ? JSON.stringify(window.filterCollection) : "",
-            "externalFilter": window.getExternalFilter,
-            "subSectId": subSectId
-        }
+            currentPage: currentPage,                          // 1
+            pageSize: pageSize,                                // 2
+            orderBy: window.orderByColumnId,                   // 3
+            isDescending: window.isDescendingFilter,           // 4
+            filterDetails: window.filterCollection.length > 0
+                ? JSON.stringify(window.filterCollection)
+                : null,                            // 5
+            externalFilter: window.getExternalFilter || null,  // 6
+            subSectId: subSectId,
+            cropid: cropid
+        };
     }
+
+
+
+
+    window.init = function () {
+        debugger;
+        //LoadAjaxAnimation(true);
+        var tablebody = $('#gridContent table tbody');
+
+        if (!tablebody.children("tr").length) {
+            tablebody.append(tablebody);
+        }
+        if (tablebody.children().children("td").length < 1) {
+            tablebody.append('<tr><td colspan="27"><div style="min-height:120px;"></div></td><tr>');
+        }
+
+        //loader.width(tablebody.width());
+        debugger;
+        $.ajax({
+
+            cache: false,
+            type: "POST",
+            dataType: 'json',
+            url: GetRootPath(window.virtualPath) + '/Dashboard/GetGridContentV1',
+            data: GetAjaxOptionsDataAndParameters(),
+            contentType: 'application/x-www-form-urlencoded; charset=utf-8',
+            success: function (response, successStatusText, responseJqXhrObject) {
+                //window.LogAjaxRequestDetails(responseJqXhrObject);
+                gridJson = response;
+                tablebody.find('tr:gt(0)').remove();
+                var filetext = "Download";
+
+                if (response.data.itemDetails && response.data.itemDetails.length) {
+                    //if (!response.CanEdit && !response.CanViewMultiple && !response.CanDelete) {
+                    //    var f_child = tablebody.children('tr:first').children("th:first");
+                    //f_child.remove();
+
+                    tablebody.children("tr").remove();
+
+                    // }
+
+                    $.each(response.data.itemDetails, function (index, item) {
+                        debugger;
+
+                        var rowContent = "";
+                        var actionCell = `<span class="btn-link View" style="cursor:pointer" data-filepath="${item.imageUrl || ''}">View Image</span> `;
+
+                        rowContent =
+                            '<td class="text-center">' + ((currentPage - 1) * pageSize + (index + 1)) + '</td>' +
+                            '<td class="text-center">' + BindValueToGrid(item.itemName, false, false) + '</td>' +
+                            '<td class="text-justify">' + BindValueToGrid(item.description, false, false) + '</td>' +
+                            '<td class="text-center">' + actionCell + '</td>';
+
+                        tablebody.append('<tr>' + rowContent + '</tr>');
+                    })
+                }
+                else {
+                    tablebody.append('<tr><td colspan="27"><h3 style="width:400px;min-height:120px;">No Data Found!!!</h3></td><tr>');
+                }
+                totalRecords = response.TotalCount;
+                debugger;
+                setupControls();
+                pagingDetails();
+                var elem = $('#pagingButtons li a');
+                $('#pagingButtons li a').removeClass('active');
+                $('#pagingButtons li a:contains(' + currentPage + ')').parent('li').addClass("active")
+                $('#pagingButtons li a:contains(' + currentPage + ')').css("cursor", "not-allowed")
+                //LoadAjaxAnimation(false);
+                //loader.width(tablebody.width());
+            },
+            error: function (error) {
+
+                if (error.status == 302) {
+                    //alert(302);
+                    return
+                }
+                alert(error.statusText + "\n" + error.responseText);
+                //Removed Con_sole logging
+                //LoadAjaxAnimation(false);
+                //loader.width(tablebody.width());
+            }
+        })
+    };
+
+
 });
-
-//    window.init = function () {
-
-//        LoadAjaxAnimation(true);
-//        var tablebody = $('#gridContent table tbody');
-
-//        if (!tablebody.children("tr").length) {
-//            tablebody.append(theadRow);
-//        }
-//        if (tablebody.children().children("td").length < 2) {
-//            tablebody.append('<tr><td colspan="27"><div style="min-height:120px;"></div></td><tr>');
-//        }
-
-//        loader.width(tablebody.width());
-//        debugger;
-//        $.ajax({
-
-//            cache: false,
-//            type: "POST",
-//            dataType: 'json',
-//            url: GetRootPath(window.virtualPath) + '/Dashboard/GetgridItems',
-//            data: GetAjaxOptionsDataAndParameters(),
-//            contentType: 'application/x-www-form-urlencoded; charset=utf-8',
-//            success: function (response, successStatusText, responseJqXhrObject) {
-//                window.LogAjaxRequestDetails(responseJqXhrObject);
-//                gridJson = response;
-//                tablebody.find('tr:gt(0)').remove();
-//                var filetext = "Download";
-
-//                if (response.ItemDetails && response.ItemDetails.length) {
-//                    if (!response.CanEdit && !response.CanViewMultiple && !response.CanDelete) {
-//                        var f_child = tablebody.children('tr:first').children("th:first");
-//                        f_child.remove();
-//                    }
-//                    console.log("Data >>" + JSON.stringify(response.ItemDetails));
-//                    $.each(response.ItemDetails, function (index, item) {
-//                        var rowContent = "";
-//                        if (response.CanEdit || response.CanViewMultiple || response.CanDelete) {
-//                            var edit_span = '';
-//                            var delete_span = '';
-//                            var view_attach_span = "";
-//                            var saperator = '|';
-//                            /*var popupedit = 1;*/
-//                            //var popupdelete = 2;
-//                            //var popupdirectdelete = 3;
-//                            if (roletypeNo == 6) {
-//                                delete_span = '<span id=' + item.Identifier + ' class="btn-link delete" style="cursor:pointer" >Delete</span>';
-//                            }
-
-//                            if (item.FilePath != "" && item.FilePath != null) {
-//                                view_attach_span = '<a href="' + ($.trim($('#rootpath').text()) + 'FTPDocuments/downloadFile?FilePath=' + item.FilePath) +
-//                                    '" target="_blank">' + filetext + '</a>';
-//                            }
-//                        }
-
-//                        rowContent =
-//                            '<td class="text-center">' + ((currentPage - 1) * pageSize + (index + 1)) + '</td>' +
-//                            '<td class="text-center">' + BindValueToGrid(item.UserName, false, false) + '</td>' +
-//                            '<td class="text-center">' + BindValueToGrid(item.BranchName, false, false) + '</td>' +
-//                            '<td class="text-center">' + BindValueToGrid(item.DepartmentName, false, false) + '</td>' +
-//                            '<td class="text-center">' + BindValueToGrid(item.Description, false, false) + '</td>';
-
-//                        if (roletypeNo == 6) {
-//                            rowContent +=
-//                                '<td class="text-center">' +
-//                                '<textarea style="width:350px; height:100px;" class="form-control" id="textarea_' + item.Identifier + '" ' +
-//                                'data-user="' + item.UserId + '" rows="3"></textarea>' +
-//                                '</td>';
-//                        }
-
-
-
-//                        //'<td class="text-center">' + BindValueToGrid(item.FilePath, false, false) + '</td>';
-
-//                        if (roletypeNo == 6) {
-//                            rowContent += "<td class='text-center'>" + delete_span + saperator + view_attach_span + "</td>";
-//                        } else {
-//                            rowContent += "<td class='text-center'>" + view_attach_span + "</td>";
-//                        }
-
-
-//                        tablebody.append('<tr>' + rowContent + '</tr>');
-//                    })
-//                }
-//                else {
-//                    tablebody.append('<tr><td colspan="27"><h3 style="width:400px;min-height:120px;">No Data Found!!!</h3></td><tr>');
-//                }
-//                // $('#btnBack').hide();
-//                totalRecords = response.TotalCount;
-//                debugger;
-//                setupControls();
-//                pagingDetails();
-//                var elem = $('#pagingButtons li a');
-//                $('#pagingButtons li a').removeClass('active');
-//                $('#pagingButtons li a:contains(' + currentPage + ')').parent('li').addClass("active")
-//                $('#pagingButtons li a:contains(' + currentPage + ')').css("cursor", "not-allowed")
-//                LoadAjaxAnimation(false);
-//                loader.width(tablebody.width());
-//            },
-//            error: function (error) {
-
-//                if (error.status == 302) {
-//                    //alert(302);
-//                    return
-//                }
-//                alert(error.statusText + "\n" + error.responseText);
-//                //Removed Con_sole logging
-//                LoadAjaxAnimation(false);
-//                loader.width(tablebody.width());
-//            }
-//        })
-
-     
-
-//});

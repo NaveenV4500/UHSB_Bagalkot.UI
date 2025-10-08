@@ -7,7 +7,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using UHSB_Bagalkot.Data;
-
+using UHSB_Bagalkot.Service.Common;
 using UHSB_Bagalkot.Service.Interface;
 using UHSB_Bagalkot.Service.Repositories;
 using UHSB_Bagalkot.Service.ViewModels;
@@ -34,27 +34,22 @@ namespace UHSB_Bagalkot.UI.Controllers
         {
             try
             {
-              CommonEnum.WriteLog($"[Login] Incoming request: PhoneNumber = {request.PhoneNumber}");
-
+ 
                 if (string.IsNullOrEmpty(request.PhoneNumber))
                 {
-                    CommonEnum.WriteLog("[Login] Phone number is empty or null");
-                    return new JsonResult(new { success = false, message = "Phone number is required." }) { StatusCode = 401 };
+                     return new JsonResult(new { success = false, message = "Phone number is required." }) { StatusCode = 401 };
                 }
 
                 request.PhoneNumber = request.PhoneNumber.Trim('"');
-                CommonEnum.WriteLog($"[Login] Trimmed PhoneNumber: {request.PhoneNumber}");
-
+ 
                 var user = await _accountRepository.GetUserByPhoneAsync(request.PhoneNumber,request.UserName,request.IsFromadmin);
 
                 if (user == null)
                 {
-                    CommonEnum.WriteLog($"[Login] No user found for PhoneNumber: {request.PhoneNumber}");
-                    return new JsonResult(new { success = false, message = "Phone number not registered or inactive." }) { StatusCode = 401 };
+                     return new JsonResult(new { success = false, message = "Phone number not registered or inactive." }) { StatusCode = 401 };
                 }
 
-                CommonEnum.WriteLog($"[Login] User found: UserName = {user.UserName}, UserId = {user.Id}, Role = {user.RoleType}");
-
+ 
                 var claims = new List<Claim>
         {
             new Claim(ClaimTypes.Name, user.UserName),
@@ -64,11 +59,9 @@ namespace UHSB_Bagalkot.UI.Controllers
                 var accessToken = _tokenService.GenerateAccessToken(claims.ToArray());
                 var refreshToken = _tokenService.GenerateRefreshToken();
 
-                CommonEnum.WriteLog("[Login] Tokens generated successfully");
-
+ 
                 _tokenService.SaveRefreshTokenToDb(user.Id, refreshToken);
-                CommonEnum.WriteLog($"[Login] Refresh token saved to DB for UserId: {user.Id}");
-                var count = _accountRepository.GetUsersCount();
+                 var count = _accountRepository.GetUsersCount();
 
                 return Ok(new
                 {
@@ -76,7 +69,7 @@ namespace UHSB_Bagalkot.UI.Controllers
                     AccessToken = accessToken,
                     RefreshToken = refreshToken.Token,
                     UserName = user.UserName,
-                    userRoleType = user.RoleType.ToString(),
+                    userRoleType = user.RoleType,
                     phoneNo = user.PhoneNumber,
                     UserID = user.Id,
                     UserCount = count
@@ -84,8 +77,7 @@ namespace UHSB_Bagalkot.UI.Controllers
             }
             catch (Exception ex)
             {
-                CommonEnum.WriteLog($"[Login] Exception: {ex.Message}");
-                return new JsonResult(new { success = false, message = "An unexpected error occurred." + ex.Message }) { StatusCode = 500 };
+                 return new JsonResult(new { success = false, message = "An unexpected error occurred." + ex.Message }) { StatusCode = 500 };
             }
         }
 
@@ -197,6 +189,20 @@ namespace UHSB_Bagalkot.UI.Controllers
                 AccessToken = newAccessToken,
                 RefreshToken = newRefreshToken.Token
             });
+        }
+
+        [HttpGet("GetAllUserRoleTypeAsDictionary")]
+        public async Task<IActionResult> GetAllUserRoleTypeAsDictionary()
+        {
+            var data = await Task.Run(() => _accountRepository.GetAllUserRoleTypeAsDictionary());
+            return Ok(data);
+        }
+
+        [HttpGet("GetAllDistrictsTypeAsDictionary")]
+        public async Task<IActionResult> GetAllDistrictsTypeAsDictionary()
+        {
+            var data = await Task.Run(() => _accountRepository.GetAllDistrictsTypeAsDictionary());
+            return Ok(data);
         }
 
     }

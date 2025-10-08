@@ -15,6 +15,8 @@ namespace UHSB_Bagalkot.Service.Interface
         Task<UserMaster> GetUserByPhoneAsync(string phoneNumber, string userName = "", bool isFromAdmin = false);
         Task<bool> CreateUserAsync(UserMasterVM user);
         int GetUsersCount();
-        
+        public Dictionary<int, string> GetAllUserRoleTypeAsDictionary();
+        public Dictionary<int, string> GetAllDistrictsTypeAsDictionary
+();
     }
 }

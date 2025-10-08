@@ -1,5 +1,6 @@
-using UHSB_Bagalkot.WebService.AppSettings;
+ 
 using Microsoft.AspNetCore.Authentication.Cookies;
+using UHSB_Bagalkot.Service.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 

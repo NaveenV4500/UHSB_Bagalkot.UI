@@ -4,10 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UHSB_Bagalkot.Service.AppSettings
+namespace UHSB_Bagalkot.Service.Common
 {
-     
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
     public class Logging
     {
         public LogLevel LogLevel { get; set; }
@@ -16,7 +14,7 @@ namespace UHSB_Bagalkot.Service.AppSettings
     public class LogLevel
     {
         public string Default { get; set; }
-         
+
         public string MicrosoftAspNetCore { get; set; }
     }
 
@@ -33,5 +31,4 @@ namespace UHSB_Bagalkot.Service.AppSettings
         public string TempFilesPath { get; set; }
         public string WeatherReportFilesPath { get; set; }
     }
-
 }

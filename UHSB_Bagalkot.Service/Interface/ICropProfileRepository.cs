@@ -16,8 +16,8 @@ namespace UHSB_Bagalkot.Service.Interface
         IEnumerable<UhsbCrop> GetCropDetailsAsync(int categoryId);
         IEnumerable<UhsbSection> GetSectionsByCropId(int cropId);
         IEnumerable<UhsbSubSection> GetSubSectionsBySectionId(int sectionId);
-        Task<IEnumerable<UhsbItemDeail>> GetItemsBySubSectionIdAsync(int subSectionId);
-        Task<List<ItemDto>> GetContentByItemIdAsync(int itemId);
+        Task<IEnumerable<UhsbItemDeail>> GetItemsBySubSectionIdAsync(int SectionId = 0, int cropid = 0);
+        Task<List<ItemImageDto>> GetContentByItemIdAsync(int itemId);
 
 
         Task<IEnumerable<UhsbItemQnA>> GetByItemIdAsync(int itemId);

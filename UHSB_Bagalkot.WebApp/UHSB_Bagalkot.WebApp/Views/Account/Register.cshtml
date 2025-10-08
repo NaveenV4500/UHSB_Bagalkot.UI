@@ -1,0 +1,126 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using UHSB_Bagalkot.Service.Common
+@model UHSB_Bagalkot.Service.ViewModels.UserMasterVM
+
+@{
+    ViewData["Title"] = "User Master";
+    ViewData["PageName"] = "UserMaster";
+
+    var role = Convert.ToInt32(Context.Session.GetString("UserRoleId"));
+}
+
+@if (role == (int)CommonEnum.UserRoleType.Admin ||
+    role == (int)CommonEnum.UserRoleType.Select)
+{
+    <div class="container mt-4">
+        <div class="card shadow-sm border-0">
+            <div class="custom_card card-header text-white">
+                <strong>User Details</strong>
+            </div>
+            <div class="card-body">
+                <form asp-action="Register" asp-controller="Account" method="post" id="form1" role="form">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+
+                    <div asp-validation-summary="All" class="text-danger mb-3" id="error_container"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="UserName" class="form-label"></label><span class="text-danger">*</span>
+                            <input asp-for="UserName" class="form-control" />
+                            <span asp-validation-for="UserName" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="RoleType" class="form-label"></label><span class="text-danger">*</span>
+                            <select asp-for="RoleType" asp-items="@(new SelectList(Model.RoleTypeList, "Key", "Value", Model.RoleType))" class="form-select"></select>
+                            <span asp-validation-for="RoleType" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="DistrictsId" class="form-label"></label><span class="text-danger">*</span>
+                            <select asp-for="DistrictsId" asp-items="@(new SelectList(Model.DistrictsList, "Key", "Value", Model.DistrictsId))" class="form-select"></select>
+                            <span asp-validation-for="DistrictsId" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Village" class="form-label"></label><span class="text-danger">*</span>
+                            <input asp-for="Village" class="form-control" />
+                            <span asp-validation-for="Village" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label"></label>
+                            <input asp-for="PhoneNumber" class="form-control" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 d-flex align-items-center">
+                            <div class="form-check mt-4">
+                                <input asp-for="IsActive" class="form-check-input" />
+                                <label asp-for="IsActive" class="form-check-label"></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (role == (int)CommonEnum.UserRoleType.Admin)
+                    {
+                        <div class="text-end mt-4">
+                            <button type="submit" class="btn btn-primary me-2">Save</button>
+                            <button type="button" class="btn btn-secondary" id="addNew">Add New</button>
+                        </div>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+<section id="gridContent" class="container mt-5">
+    <div class="card shadow-sm border-0">
+        <div class="custom_card card-header text-white">
+            <strong>User List</strong>
+        </div>
+        <div class="card-body">
+            <div class="mb-3" id="multiGridFilter"></div>
+
+            @await Html.PartialAsync("_GridPagingHeader")
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:100px;">Action</th>
+                            <th style="width:60px;">Sl No.</th>
+                            <th>@Html.DisplayNameFor(m => m.UserName)</th>
+                            <th>@Html.DisplayNameFor(m => m.RoleType)</th>
+                            <th>@Html.DisplayNameFor(m => m.DistrictsName)</th>
+                            <th>@Html.DisplayNameFor(m => m.Village)</th>
+                            <th>@Html.DisplayNameFor(m => m.PhoneNumber)</th>
+                            <th>@Html.DisplayNameFor(m => m.IsActive)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gridBody">
+                        @* Populated via AJAX *@
+                    </tbody>
+                </table>
+
+                <div id="ajaxLoader" class="text-center mt-3 d-none">
+                    <img src="~/images/webapploader.gif" alt="Loading..." />
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+    <script src="~/js/register_index.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/paging.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/generic_gridfilter.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/generic.js?version=@Guid.NewGuid()"></script>
+}

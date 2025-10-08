@@ -16,6 +16,7 @@ public partial class UhsbSection
     public string? ImageUrl { get; set; }
 
     public virtual UhsbCrop Crop { get; set; } = null!;
+    public virtual ICollection<UhsbItemDeail> UhsbItemDeails { get; set; } = new List<UhsbItemDeail>();
 
     public virtual ICollection<UhsbSubSection> UhsbSubSections { get; set; } = new List<UhsbSubSection>();
 }

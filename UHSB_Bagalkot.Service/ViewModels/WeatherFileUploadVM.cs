@@ -13,6 +13,8 @@ namespace UHSB_Bagalkot.Service.ViewModels
         public byte[] FileBytes { get; set; } = Array.Empty<byte>();
         public string FileName { get; set; } = string.Empty;
         public int? DistrictId { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
     }
     public class DistrictDD
     {

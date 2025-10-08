@@ -1,11 +1,60 @@
-﻿@model UHSB_Bagalkot.WebService.ViewModels.ManageAdminDashboard.CropContentWithImageVM
+﻿@model UHSB_Bagalkot.Service.ViewModels.AdminDashboard.CropContentWithImageVM
 @using Microsoft.AspNetCore.Mvc.Rendering
+@using UHSB_Bagalkot.Service.Common
+ 
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada&display=swap" rel="stylesheet">
 
 <style>
+     #formPopup #custom_panel .panel-heading {
+        margin: 5px 5px 0 5px;
+        padding: 5px 15px;
+    }
+
+    #formPopup .form_section {
+        margin: 0 0 15px 0;
+    }
+
+    #formPopup #custom_panel .panel-body {
+        padding-bottom: 10px;
+    }
+
+    #table_dropdownlist th {
+        text-align: left;
+        padding: 5px;
+        overflow-wrap: break-word;
+        background-color: #c1dbfa;
+    }
+
+    #table_dropdownlist td {
+        text-align: left;
+        padding: 5px;
+        overflow-wrap: break-word;
+        cursor: pointer;
+    }
+
+    #table_dropdownlist tr:nth-child(even) {
+        background: #f3f3f3;
+    }
+
+    #input_search {
+        background-color: #fff !important;
+    }
+
+    .highlight {
+        background-color: #6da9bd !important;
+        color: #fff;
+    }
+
+    .hideChanges {
+        display: none;
+    }
+
+    .colorChanges {
+        color: red;
+    }
     /* Applying the Kannada font globally */
     body, input, textarea, select, .btn {
         font-family: 'Noto Sans Kannada', Arial, sans-serif;
@@ -37,20 +86,20 @@
         border-radius: .25rem;
     }
 </style>
-
-<div class="card shadow-sm mb-4">
+@Html.Hidden("fileBaseUrl", ViewBag.fileBaseUrl, new { id = "fileBaseUrl" })
+<div class="card shadow-sm mb-4" style="border:1px solid #bebeff;margin-left:50px;margin-right:50px">
     <div id="loader" style="display:none;">
         <img src="~/Images/webapploader.gif" alt="Loading..." />
     </div>
 
-    <div  class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+    <div style="background-color:#bebeff" class="card-header  d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Manage Crop Content</h5>
     </div>
 
     <div class="card-body">
         <form asp-action="CropManage" method="post" enctype="multipart/form-data">
-
-            <h6 class="text-muted mb-3">Step 1: Select Your Crop & Section</h6>
+@* 
+            <h6 class="text-muted mb-3">Step 1: Select Your Crop & Section</h6> *@
             <div class="row mb-4">
                 <div class="col-md-6 col-lg-3 mb-3">
                     <label class="form-label">Category</label>
@@ -64,22 +113,22 @@
                     <label class="form-label">Section</label>
                     @Html.DropDownListFor(m => m.SectionsId, new SelectList(Model.Sections, "Key", "Value", Model.SectionsId), "--Select Section--", new { @class = "form-select", id = "Sectionstype" })
                 </div>
-                <div class="col-md-6 col-lg-3 mb-3">
+              @*   <div class="col-md-6 col-lg-3 mb-3">
                     <label class="form-label">Sub Section</label>
                     @Html.DropDownListFor(m => m.SubSectionsId, new SelectList(Model.SubSections, "Key", "Value", Model.SubSectionsId), "--Select SubSection--", new { @class = "form-select", id = "SubSectionstype" })
-                </div>
+                </div> *@
             </div>
 
             <hr class="my-4" />
 
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="text-muted mb-0">Step 2: Add Content Details</h6>
-                <button type="button" id="addRow" class="btn btn-success"><i class="bi bi-plus-circle me-1"></i> Add New</button>
+            @*<h6 class="text-muted mb-0">Step 2: Add Content Details</h6>*@
+<button type="button" id="addRow" class="btn btn-success"><i class="bi bi-plus-circle me-1"></i> Add New</button>
             </div>
 
             <div class="table-responsive">
                 <table id="ItemImagesBody" class="table table-bordered table-hover">
-                    <thead class="table-light">
+                    <thead class="table-light" style="border:1px solid #bebeff">
                         <tr>
                             <th style="width: 25%;">Item</th>
                             <th style="width: 35%;">Description</th>
@@ -117,7 +166,76 @@
     </div>
 </div>
 
-<div class="card shadow-sm">
+
+<!-- gridContent -->
+<section id="gridContent" class="py-4" style="margin:50px;margin-right:50px">
+    <div class=" ">
+        <div id="custom_panel" class="card shadow-sm">
+            <div class="card-header" style="background-color:#bebeff;display:flex">
+                <h6 class="text-muted">Content Details</h6>
+                <button style="float:right" class="btn btn-primary" type="button" id="griddata" value="">Refresh grid</button>
+            </div>
+
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div id="multiGridFilter" class="_15kxUd">
+                            @await Html.PartialAsync("_GridPagingHeader")
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-3">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr class="table-heading table-header-main">
+                                        <th class="text-center" style="min-width: 60px;">
+                                            <div class="relative">
+                                                <div>Sl No.</div>
+                                            </div>
+                                        </th>
+
+                                        <th style="min-width: 120px;">
+                                            <div class="relative">
+                                                <span class="span-link header_label" sortby="@((byte)GridEnum.FTPDocumentsLogs.UserName)">
+                                                    ItemId
+                                                </span>
+                                            </div>
+                                        </th>
+
+                                        <th style="min-width: 120px;">
+                                            <div class="relative">
+                                                <span class="span-link header_label" sortby="@((byte)GridEnum.FTPDocumentsLogs.BranchName)">
+                                                    Description
+                                                </span>
+                                                <span class="filter-link glyphicon glyphicon-filter" data-placement="bottom" data-html="true"></span>
+                                            </div>
+                                        </th>
+
+                                        <th class="text-center" style="min-width: 50px;">
+                                            <div class="relative">
+                                                <div>Action</div>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+
+                            <div id="ajaxLoader" class="d-none">
+                                <img src="~/Content/images/ajax_loader2.gif" alt="Loading..." style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--End-->
+
+@* <div class="card shadow-sm">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="bi bi-images me-2"></i>Item Images</h5>
     </div>
@@ -145,7 +263,7 @@
             </table>
         </div>
     </div>
-</div>
+</div> *@
 
 
 <div class="modal fade" id="descriptionModal" tabindex="-1" aria-labelledby="descriptionModalLabel" aria-hidden="true">
@@ -170,5 +288,8 @@
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/js/CropManage_Index.js"></script>
+    <script src="~/js/paging.js"></script>
+    <script src="~/js/generic_gridfilter.js"></script>
+    <script src="~/js/generic.js"></script>
     @* The original script logic remains the same and can be placed here or in CropManage_Index.js *@
 }
