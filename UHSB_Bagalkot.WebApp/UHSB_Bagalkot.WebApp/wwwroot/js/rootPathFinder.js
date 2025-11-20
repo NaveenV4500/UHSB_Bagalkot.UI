@@ -2,7 +2,7 @@
 var rootPathList = ["/", "/UHSBWeb"];
 function GetRootPath(virtualPath) {
     if (window.currentTradeId == 7) {
-       
+        //LVB
         var pathIndex = $.inArray(virtualPath, rootPathList);
         if (pathIndex != -1) {
             return (pathIndex == 0) ? rootPathList[pathIndex] : rootPathList[pathIndex] + "/";
@@ -12,6 +12,11 @@ function GetRootPath(virtualPath) {
         return $('#rootpath').text();
     }
 }
+ 
+
+
+
+
 //#region Function to remove query string from URL
 //This function is used while redirecting from view to entry screen.
 function GetCleanURL(virtualPath) {

@@ -15,7 +15,7 @@ namespace UHSB_Bagalkot.Service.Repositories
     {
         private readonly IMapper _mapper;
 
-        public CropRepository(Uhsb2025Context context) : base(context)
+        public CropRepository(Uhsb2025uatContext context) : base(context)
         {
 
         }

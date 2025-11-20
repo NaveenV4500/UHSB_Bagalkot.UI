@@ -18,7 +18,7 @@ namespace UHSB_Bagalkot.Service.Repositories
     {
         private readonly IConfiguration _configuration;
 
-        public TokenService(Uhsb2025Context context, IConfiguration configuration)
+        public TokenService(Uhsb2025uatContext context, IConfiguration configuration)
             : base(context)   
         {
             _configuration = configuration;
@@ -34,7 +34,7 @@ namespace UHSB_Bagalkot.Service.Repositories
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(15),   
+                expires: DateTime.UtcNow.AddMinutes(60),   
                 signingCredentials: creds
             );
 

@@ -48,7 +48,19 @@ namespace UHSB_Bagalkot.Service.Common
             [Display(Name = "No")]
             No = 2,
         }
-
+        public enum FileTypes
+        {
+            [Display(Name = "Category")]
+            Category = 1,
+            [Display(Name = "Crops")]
+            Crops = 2,
+            [Display(Name = "Sections")]
+            Sections = 3,
+            [Display(Name = "Items")]
+            Items = 4,
+            [Display(Name = "ItemContent")]
+            ItemContent = 5,
+        }
         public enum RCMType
         {
             [Display(Name = " -- Select-- ", Order = 1)]
@@ -98,15 +110,28 @@ namespace UHSB_Bagalkot.Service.Common
         }
         public enum UserRoleType
         {
-            [Display(Name = " -- Select-- ", Order = 1)]
+            [Display(Name = "-- Select --", Order = 1)]
             Select = 0,
+
             [Display(Name = "Admin")]
             Admin = 1,
+
             [Display(Name = "Farmer")]
             Farmer = 2,
-            [Display(Name = "Scientist ")]
-            Scientist = 4
+
+            [Display(Name = "Scientist")]
+            Scientist = 3,
+
+            [Display(Name = "Input Dealer")]
+            InputDealer = 4,
+
+            [Display(Name = "Student")]
+            Student = 5,
+
+            [Display(Name = "Others")]
+            Others = 6
         }
+
 
         public enum UserRoleTypeforSearch
         {
@@ -121,6 +146,25 @@ namespace UHSB_Bagalkot.Service.Common
             [Display(Name = "Manager")]
             Manager = 5
         }
+
+        public static void WriteLog(string message)
+        {
+            try
+            {
+                string logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Error_Logs");
+                if (!Directory.Exists(logPath))
+                    Directory.CreateDirectory(logPath);
+
+                string logFile = Path.Combine(logPath, $"Login_{DateTime.Now:yyyyMMdd}.txt");
+                string logMessage = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {message}{Environment.NewLine}";
+                System.IO.File.AppendAllText(logFile, logMessage);
+            }
+            catch
+            {
+                 
+            }
+        }
+
     }
 
   

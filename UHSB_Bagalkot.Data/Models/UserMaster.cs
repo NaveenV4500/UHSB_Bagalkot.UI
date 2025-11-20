@@ -18,13 +18,28 @@ public partial class UserMaster
     public DateTime CreatedAt { get; set; }
 
     public int? RoleType { get; set; }
+
     public byte? DistrictsId { get; set; }
-    public string Village { get; set; }
+
+    public string? Village { get; set; }
+
     public DateTime? ModifiedDate { get; set; }
+
     public byte? ModifiedBy { get; set; }
+
     public byte? CreatedBy { get; set; }
+
+    public string? Address { get; set; }
+
+    public decimal? LandSize { get; set; }
+
+    public int? EmployeeId { get; set; }
+
+    public string? EmailId { get; set; }
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
     public virtual ICollection<UhsbWeatherCastFileDetail> UhsbWeatherCastFileDetails { get; set; } = new List<UhsbWeatherCastFileDetail>();
+
+    public virtual ICollection<UserLogin> UserLogins { get; set; } = new List<UserLogin>();
 }

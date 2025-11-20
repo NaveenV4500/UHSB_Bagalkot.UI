@@ -9,7 +9,7 @@ using UHSB_Bagalkot.Service.ViewModels.CropProfile;
 
 namespace UHSB_Bagalkot.UI.Controllers
 {
-    [Authorize]
+    ////[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CropProfileController : ControllerBase

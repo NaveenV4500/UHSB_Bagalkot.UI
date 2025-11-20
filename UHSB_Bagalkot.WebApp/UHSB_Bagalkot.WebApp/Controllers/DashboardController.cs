@@ -8,6 +8,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Web.Helpers;
 using System.Web.WebPages;
 using UHSB_Bagalkot.Service.Common;
@@ -25,7 +26,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
 
         public DashboardController(IHttpClientFactory httpClientFactory, IConfiguration config, IOptions<ApiSettings> apiSettings)
         {
-            _httpClient = httpClientFactory.CreateClient();
+            _httpClient = httpClientFactory.CreateClient("ApiClient");
             _apiSettings = apiSettings.Value;
         }
 
@@ -90,7 +91,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
                     Description = ""
                 }
             };
-            ViewBag.fileBaseUrl = _apiSettings.Base_Url;
+            ViewBag.fileBaseUrl = _apiSettings.File_Url;
             return View(model);
         }
 
@@ -99,11 +100,11 @@ namespace UHSB_Bagalkot.WebApp.Controllers
         [HttpGet]
         public async Task<JsonResult> GetCategories()
         {
-            var token = HttpContext.Session.GetString("AccessToken");
-            if (string.IsNullOrEmpty(token))
-            {
-                return Json(new { success = false, message = "Unauthorized. Please login.", redirectUrl = Url.Action("Login", "Account") });
-            }
+            //var token = HttpContext.Session.GetString("AccessToken");
+            //if (string.IsNullOrEmpty(token))
+            //{
+            //    return Json(new { success = false, message = "Unauthorized. Please login.", redirectUrl = Url.Action("Login", "Account") });
+            //}
 
             var response = await _httpClient.GetAsync($"{_apiSettings.Base_Url + "/Dashboard/Category"}");
             var json = await response.Content.ReadAsStringAsync();
@@ -117,11 +118,11 @@ namespace UHSB_Bagalkot.WebApp.Controllers
         [HttpGet]
         public async Task<JsonResult> GetCrops(int catId)
         {
-            var token = HttpContext.Session.GetString("AccessToken");
-            if (string.IsNullOrEmpty(token))
-            {
-                return Json(new { success = false, message = "Unauthorized. Please login.", redirectUrl = Url.Action("Login", "Account") });
-            }
+            //var token = HttpContext.Session.GetString("AccessToken");
+            //if (string.IsNullOrEmpty(token))
+            //{
+            //    return Json(new { success = false, message = "Unauthorized. Please login.", redirectUrl = Url.Action("Login", "Account") });
+            //}
 
             var response = await _httpClient.GetAsync($"{_apiSettings.Base_Url + "/Dashboard/Crops/" + catId}");
             var json = await response.Content.ReadAsStringAsync();
@@ -136,11 +137,11 @@ namespace UHSB_Bagalkot.WebApp.Controllers
         [HttpGet]
         public async Task<JsonResult> GetSections(int cropId)
         {
-            var token = HttpContext.Session.GetString("AccessToken");
-            if (string.IsNullOrEmpty(token))
-            {
-                return Json(new { success = false, message = "Unauthorized. Please login.", redirectUrl = Url.Action("Login", "Account") });
-            }
+            //var token = HttpContext.Session.GetString("AccessToken");
+            //if (string.IsNullOrEmpty(token))
+            //{
+            //    return Json(new { success = false, message = "Unauthorized. Please login.", redirectUrl = Url.Action("Login", "Account") });
+            //}
             var response = await _httpClient.GetAsync($"{_apiSettings.Base_Url + "/Dashboard/section/" + cropId}");
             var json = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<ApiResponse<List<DropdownVM>>>(json);
@@ -160,11 +161,11 @@ namespace UHSB_Bagalkot.WebApp.Controllers
         [HttpGet]
         public async Task<JsonResult> GetItems(int sectionId,int cropId)
         {
-            var token = HttpContext.Session.GetString("AccessToken");
-            if (string.IsNullOrEmpty(token))
-            {
-                return Json(new { success = false, message = "Unauthorized. Please login.", redirectUrl = Url.Action("Login", "Account") });
-            }
+            //var token = HttpContext.Session.GetString("AccessToken");
+            //if (string.IsNullOrEmpty(token))
+            //{
+            //    return Json(new { success = false, message = "Unauthorized. Please login.", redirectUrl = Url.Action("Login", "Account") });
+            //}
             var response = await _httpClient.GetAsync($"{_apiSettings.Base_Url + "/Dashboard/items/" + sectionId+"/"+ cropId}");
             var json = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<ApiResponse<List<DropdownVM>>>(json);
@@ -175,15 +176,15 @@ namespace UHSB_Bagalkot.WebApp.Controllers
 
         //Get CropManage
         [HttpPost]
-        public async Task<IActionResult> GetGridContentV1(int currentPage=1, int pageSize=10, GridEnum.FTPDocumentsLogs orderBy = GridEnum.FTPDocumentsLogs.BranchName,bool isDescending = false, string filterDetails = null, string externalFilter = null, int subSectId=0, int cropid = 0)
+        public async Task<IActionResult> GetGridContentV1(int currentPage=1, int pageSize=10, GridEnum.FTPDocumentsLogs orderBy = GridEnum.FTPDocumentsLogs.BranchName,bool isDescending = false, string filterDetails = null, string externalFilter = null, int subSectId=0, int cropid = 0, int categoryid = 0)
         {
             try
             {
                 var token = HttpContext.Session.GetString("AccessToken");
-                if (string.IsNullOrEmpty(token))
-                {
-                    return Json(new { success = false, message = "Unauthorized. Please login." });
-                }
+                //if (string.IsNullOrEmpty(token))
+                //{
+                //    return Json(new { success = false, message = "Unauthorized. Please login." });
+                //}
 
                 _httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", token);
@@ -206,6 +207,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
                     ["externalFilter"] = externalFilter ?? string.Empty,
                     ["subSectId"] = subSectId.ToString(),
                     ["cropid"]= cropid.ToString(),
+                    ["categoryid"] = categoryid.ToString(),
                 };
 
                 // Convert to query string
@@ -251,15 +253,23 @@ namespace UHSB_Bagalkot.WebApp.Controllers
                 {
                     // Folder path: wwwroot/InwardsInvoices/TempFiles (you can change it)
                     //var uploadPath = Path.Combine(env.WebRootPath, "InwardsInvoices", "TempFiles");
-                  
-                    var uploadPath = _apiSettings.UploadSettings.TempFilesPath;
+                   
+                    var uploadPath = Path.Combine(_apiSettings.UploadSettings.TempFilesPath, "Content");
 
                     if (!Directory.Exists(uploadPath))
                         Directory.CreateDirectory(uploadPath);
-
+                    //if (model.filename != null)
+                    //{
+                    //    var existingFilePath = Path.Combine(uploadPath, model.filename);
+                    //    if (System.IO.File.Exists(existingFilePath))
+                    //    {
+                    //        System.IO.File.Delete(existingFilePath);
+                    //    }
+                    //}
                     // Generate unique filename
-                    var extension = Path.GetExtension(item.ImageFile.FileName);
-                    var fileName = $"{Guid.NewGuid()}{extension}";
+                    var extension = Path.GetExtension(item.ImageFile.FileName); 
+                     var fileName = $"N{item.ItemId}_{DateTime.Now:yyyyMMddHHmmss}{extension}";
+                    fileName = fileName.Replace(" ", "_");
                     var filePath = Path.Combine(uploadPath, fileName);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
@@ -268,7 +278,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
                     }
 
                     // Store relative path to send in JSON
-                    obj.ImageUrl = Path.Combine("InwardsInvoices", "TempFiles", fileName).Replace("\\", "/");
+                    obj.ImageUrl =   fileName ;
                     obj.ItemId=item.ItemId??0;
                     obj.Description=item.Description;
                     // Optionally clear the IFormFile to reduce JSON size
@@ -492,6 +502,35 @@ namespace UHSB_Bagalkot.WebApp.Controllers
             }
         }
 
+        [HttpGet]
+        public IActionResult ForwardApiResponse(string action_name = "")
+        {
+            var queryString = HttpContext.Request.QueryString.Value ?? "";
+            var apiUrl = $"{_apiSettings.Base_Url}{action_name}{queryString}";
+            HttpResponseMessage response;
+
+            if (HttpContext.Request.Method == HttpMethods.Post)
+            {
+                using var reader = new StreamReader(HttpContext.Request.Body);
+                var body = reader.ReadToEnd();
+
+                using var content = new StringContent(body, Encoding.UTF8, "application/json");
+                response = _httpClient.PostAsync(apiUrl, content).Result;
+            }
+            else
+            {
+                response = _httpClient.GetAsync(apiUrl).Result;
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return StatusCode((int)response.StatusCode, $"Error calling API: {apiUrl}");
+            }
+
+            var result = response.Content.ReadAsStringAsync().Result;
+            var contentType = response.Content.Headers.ContentType?.ToString() ?? "application/json";
+            return Content(result, contentType);
+        }
 
     }
 

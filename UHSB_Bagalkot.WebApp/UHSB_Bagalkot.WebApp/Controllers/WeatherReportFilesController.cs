@@ -12,7 +12,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
 
         public WeatherReportFilesController(IHttpClientFactory httpClientFactory, IConfiguration config, IOptions<ApiSettings> apiSettings)
         {
-            _httpClient = httpClientFactory.CreateClient();
+            _httpClient = httpClientFactory.CreateClient("ApiClient");
             _apiSettings = apiSettings.Value;
         }
 
@@ -31,19 +31,17 @@ namespace UHSB_Bagalkot.WebApp.Controllers
             ViewBag.Districts = districtList;
             return View();
         }
-
         [HttpPost]
         public async Task<IActionResult> UploadFile(WeatherFileUploadVM model, IFormFile file)
         {
             if (file == null || file.Length == 0)
-                return Json(new { success = false, message = "No file selected" });
-
+            {
+                TempData["Message"] = "No file selected.";
+                return RedirectToAction("Index"); 
+            }
 
             if (file.Length > 0)
             {
-                // Folder path: wwwroot/InwardsInvoices/TempFiles (you can change it)
-                //var uploadPath = Path.Combine(env.WebRootPath, "InwardsInvoices", "TempFiles");
-
                 var uploadPath = _apiSettings.UploadSettings.WeatherReportFilesPath;
                 if (!Directory.Exists(uploadPath))
                     Directory.CreateDirectory(uploadPath);
@@ -58,27 +56,26 @@ namespace UHSB_Bagalkot.WebApp.Controllers
                 }
 
                 model.FileName = Path.Combine("WeatherReportFiles", "TempFiles", fileName).Replace("\\", "/");
-                model.UserId = 1;// Convert.ToInt16(HttpContext.Session.GetString("UserID"));
+                model.UserId = 1;
             }
-            
-            var json = System.Text.Json.JsonSerializer.Serialize(model);
 
+            var json = System.Text.Json.JsonSerializer.Serialize(model);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
             var apiUrl = $"{_apiSettings.Base_Url}/WeatherCast/upload";
-
             var response = await _httpClient.PostAsync(apiUrl, content);
 
             if (response.IsSuccessStatusCode)
             {
-                var result = await response.Content.ReadAsStringAsync();
-                return Json(new { success = true, data = result });
+                TempData["Message"] = "File uploaded successfully!";
             }
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
-                return Json(new { success = false, message = error });
+                TempData["Message"] = $"Upload failed: {error}";
             }
 
+            return RedirectToAction("Index");  
         }
+
     }
 }

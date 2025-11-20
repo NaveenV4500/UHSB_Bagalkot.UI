@@ -73,7 +73,7 @@
             cache: false,
             type: "POST",
             dataType: 'json',
-            url: 'http://localhost:5091/UserMaster/GetGridContentV1',
+            url: GetRootPath(window.virtualPath) +'/UserMaster/GetGridContentV1',
             //url: GetRootPath(window.virtualPath) + 'UserMaster/GetGridContentV1',
             data: {
                 "currentPage": currentPage,

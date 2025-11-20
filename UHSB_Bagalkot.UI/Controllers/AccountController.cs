@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -6,18 +8,19 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
+using System.Web.Helpers;
 using UHSB_Bagalkot.Data;
+using UHSB_Bagalkot.Data.Models;
 using UHSB_Bagalkot.Service.Common;
 using UHSB_Bagalkot.Service.Interface;
 using UHSB_Bagalkot.Service.Repositories;
 using UHSB_Bagalkot.Service.ViewModels;
-using UHSB_Bagalkot.UI.Common;
 
 namespace UHSB_Bagalkot.UI.Controllers
 {
-    [ApiController]
+    [ApiController] 
     [Route("api/[controller]")]
-    public class AccountController  : ControllerBase
+    public class AccountController : ControllerBase
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IConfiguration _configuration;
@@ -29,39 +32,121 @@ namespace UHSB_Bagalkot.UI.Controllers
             _tokenService = tokenService;
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginVM request)
+
+
+        [HttpPost("LoginLog")]
+        public async Task<IActionResult> LoginLog([FromBody] LoginVM request)
         {
+            CommonEnum.WriteLog($"Login attempt for phone: {request.PhoneNumber}");
+
             try
             {
- 
                 if (string.IsNullOrEmpty(request.PhoneNumber))
                 {
-                     return new JsonResult(new { success = false, message = "Phone number is required." }) { StatusCode = 401 };
+                    CommonEnum.WriteLog("Login failed: Phone number is empty.");
+                    return new JsonResult(new { success = false, message = "Phone number is required." }) { StatusCode = 401 };
                 }
 
                 request.PhoneNumber = request.PhoneNumber.Trim('"');
- 
-                var user = await _accountRepository.GetUserByPhoneAsync(request.PhoneNumber,request.UserName,request.IsFromadmin);
+
+                var user = await _accountRepository.GetUserByPhoneAsync(request.PhoneNumber, request.UserName, request.IsFromadmin);
 
                 if (user == null)
                 {
-                     return new JsonResult(new { success = false, message = "Phone number not registered or inactive." }) { StatusCode = 401 };
+                    CommonEnum.WriteLog($"Login failed: Phone number {request.PhoneNumber} not registered or inactive.");
+                    return new JsonResult(new { success = false, message = "Phone number not registered or inactive." }) { StatusCode = 401 };
+                }
+                if (!user.IsActive && (user.RoleType == (byte)CommonEnum.UserRoleType.Scientist))
+                {
+                    return new JsonResult(new
+                    {
+                        success = false,
+                        message = "Registered successfully. Pending for admin approval."
+                    })
+                    { StatusCode = 200 };  
                 }
 
- 
                 var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, user.UserName),
-            new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
-        };
+                {
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
+                };
 
                 var accessToken = _tokenService.GenerateAccessToken(claims.ToArray());
                 var refreshToken = _tokenService.GenerateRefreshToken();
-
- 
                 _tokenService.SaveRefreshTokenToDb(user.Id, refreshToken);
-                 var count = _accountRepository.GetUsersCount();
+
+                var count = _accountRepository.GetUsersCount();
+                CommonEnum.WriteLog($"Login successful for user: {user.UserName}, UserID: {user.Id}");
+
+                return Ok(new
+                {
+                    success = true,
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken.Token,
+                    UserName = user.UserName,
+                    userRoleType = user.RoleType,
+                    phoneNo = user.PhoneNumber,
+                    UserID = user.Id,
+                    UserCount = count,
+                    isactive=user.IsActive
+                });
+            }
+            catch (Exception ex)
+            {
+
+                var errorMessage = $"Login error for phone: {request.PhoneNumber}.\n" +
+                                   $"Exception: {ex.Message}\n" +
+                                   $"Inner Exception: {ex.InnerException?.Message}\n" +
+                                   $"Stack Trace: {ex.StackTrace}";
+
+                CommonEnum.WriteLog(errorMessage);
+
+                return new JsonResult(new
+                {
+                    success = false,
+                    message = errorMessage
+                })
+                { StatusCode = 500 };
+            }
+
+        }
+
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login([FromBody] LoginVM request)
+        {
+            CommonEnum.WriteLog($"Login attempt for phone: {request.PhoneNumber}");
+
+            try
+            {
+                if (string.IsNullOrEmpty(request.PhoneNumber))
+                {
+                    CommonEnum.WriteLog("Login failed: Phone number is empty.");
+                    return new JsonResult(new { success = false, message = "Phone number is required." }) { StatusCode = 401 };
+                }
+
+                request.PhoneNumber = request.PhoneNumber.Trim('"');
+
+                var user = await _accountRepository.GetUserByPhoneAsync(request.PhoneNumber, request.UserName, request.IsFromadmin);
+
+                if (user == null)
+                {
+                    CommonEnum.WriteLog($"Login failed: Phone number {request.PhoneNumber} not registered or inactive.");
+                    return new JsonResult(new { success = false, message = "Phone number not registered or inactive." }) { StatusCode = 401 };
+                }
+
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
+                };
+
+                var accessToken = _tokenService.GenerateAccessToken(claims.ToArray());
+                var refreshToken = _tokenService.GenerateRefreshToken();
+                _tokenService.SaveRefreshTokenToDb(user.Id, refreshToken);
+
+                var count = _accountRepository.GetUsersCount();
+                CommonEnum.WriteLog($"Login successful for user: {user.UserName}, UserID: {user.Id}");
 
                 return Ok(new
                 {
@@ -77,7 +162,75 @@ namespace UHSB_Bagalkot.UI.Controllers
             }
             catch (Exception ex)
             {
-                 return new JsonResult(new { success = false, message = "An unexpected error occurred." + ex.Message }) { StatusCode = 500 };
+
+                var errorMessage = $"Login error for phone: {request.PhoneNumber}.\n" +
+                                   $"Exception: {ex.Message}\n" +
+                                   $"Inner Exception: {ex.InnerException?.Message}\n" +
+                                   $"Stack Trace: {ex.StackTrace}";
+
+                CommonEnum.WriteLog(errorMessage);
+
+                return new JsonResult(new
+                {
+                    success = false,
+                    message = errorMessage
+                })
+                { StatusCode = 500 };
+            }
+
+        }
+
+
+        [HttpPost("loginOriginal")]
+        public async Task<IActionResult> loginOriginal([FromBody] LoginVM request)
+        {
+            try
+            {
+
+                if (string.IsNullOrEmpty(request.PhoneNumber))
+                {
+                    return new JsonResult(new { success = false, message = "Phone number is required." }) { StatusCode = 401 };
+                }
+
+                request.PhoneNumber = request.PhoneNumber.Trim('"');
+
+                var user = await _accountRepository.GetUserByPhoneAsync(request.PhoneNumber, request.UserName, request.IsFromadmin);
+
+                if (user == null)
+                {
+                    return new JsonResult(new { success = false, message = "Phone number not registered or inactive." }) { StatusCode = 401 };
+                }
+
+
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
+                };
+
+                var accessToken = _tokenService.GenerateAccessToken(claims.ToArray());
+                var refreshToken = _tokenService.GenerateRefreshToken();
+
+
+                _tokenService.SaveRefreshTokenToDb(user.Id, refreshToken);
+                var count = _accountRepository.GetUsersCount();
+
+                return Ok(new
+                {
+                    success = true,
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken.Token,
+                    UserName = user.UserName,
+                    userRoleType = user.RoleType,
+                    phoneNo = user.PhoneNumber,
+                    UserID = user.Id,
+                    UserCount = count
+                });
+            }
+            catch (Exception ex)
+            {
+                CommonEnum.WriteLog($"Login error for phone: {request.PhoneNumber}. Exception: {ex.Message}");
+                return new JsonResult(new { success = false, message = "An unexpected error occurred \n ." + ex.Message + "\n Inner msg : " + ex.InnerException }) { StatusCode = 500 };
             }
         }
 
@@ -86,7 +239,7 @@ namespace UHSB_Bagalkot.UI.Controllers
         public async Task<IActionResult> LoginOld([FromBody] LoginVM request)
         {
             if (string.IsNullOrEmpty(request.PhoneNumber))
-                return new JsonResult(new { success = false,message = "Phone number is required." }) { StatusCode = 401 };
+                return new JsonResult(new { success = false, message = "Phone number is required." }) { StatusCode = 401 };
 
 
             request.PhoneNumber = request.PhoneNumber.Trim('"');
@@ -94,8 +247,8 @@ namespace UHSB_Bagalkot.UI.Controllers
             var user = await _accountRepository.GetUserByPhoneAsync(request.PhoneNumber);
 
             if (user == null)
-                return new JsonResult(new { success = false,message = "Phone number not registered or inactive." }) { StatusCode = 401 };
-             
+                return new JsonResult(new { success = false, message = "Phone number not registered or inactive." }) { StatusCode = 401 };
+
 
             // build claims
             var claims = new List<Claim>
@@ -120,10 +273,52 @@ namespace UHSB_Bagalkot.UI.Controllers
                 RefreshToken = refreshToken.Token,
                 UserName = user.UserName,
                 userRoleType = user.RoleType.ToString(),
-                phoneNo=user.PhoneNumber,
-                UserID=user.Id,
-                UserCount=count
+                phoneNo = user.PhoneNumber,
+                UserID = user.Id,
+                UserCount = count
             });
+        }
+
+        [HttpPost("registernew")]
+        public async Task<IActionResult> RegisterNew([FromBody] UserMasterRequestmobile request)
+        {
+            string msg = string.Empty;
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);  
+
+
+            if(request.RoleType == (byte)CommonEnum.UserRoleType.Select)
+                return BadRequest(new { success = false, message = "Please select a valid role type." });
+
+            if (request.RoleType == (byte)CommonEnum.UserRoleType.Scientist)
+            {
+                if (!request.EmployeeId.HasValue || request.EmployeeId.Value.ToString().Length != 5)
+                    return BadRequest(new { success = false, message = "Please provide a valid Employee ID for Scientist role." });
+
+                if (string.IsNullOrEmpty(request.EmailId))
+                {
+                    return BadRequest(new { success = false, message = "Email ID is required for Scientist role." });
+                }
+
+                request.IsActive = false;
+                msg= "Registered successfully !. Pending for admin approval.";
+            }
+            else
+            {
+                msg= "Registration successful!";
+            }
+
+            var existingUser = await _accountRepository.GetUserByPhoneAsync(request.PhoneNumber);
+            if (existingUser != null)
+                return Conflict(new { success = false, message = "User already exists with this phone number." });
+
+            request.PasswordHash = ComputeSha256Hash(request.UserName);
+
+            var result = await _accountRepository.CreateOrUpdateUserAsync(request);
+            if (!result)
+                return StatusCode(500, new { success = false, message = "Failed to register user." });
+
+            return Ok(new { success = true, message = msg });
         }
 
 
@@ -141,11 +336,11 @@ namespace UHSB_Bagalkot.UI.Controllers
 
             // Hash the password
             var passwordHash = ComputeSha256Hash(request.UserName);
-            request.PasswordHash= passwordHash;
+            request.PasswordHash = passwordHash;
             // Create user
 
 
-            await _accountRepository.CreateUserAsync(request);
+            //await _accountRepository.CreateUserAsync(request);
 
             return Ok(new { Message = "User registered successfully." });
         }
@@ -163,9 +358,9 @@ namespace UHSB_Bagalkot.UI.Controllers
         }
 
         [HttpPost("refresh")]
-        public IActionResult Refresh([FromBody] string refreshToken)
+        public IActionResult Refresh([FromBody] RefreshVM model)
         {
-            var storedToken = _tokenService.GetRefreshTokenFromDb(refreshToken);
+            var storedToken = _tokenService.GetRefreshTokenFromDb(model.RefreshToken);
 
             if (storedToken == null)
                 return Unauthorized("Invalid or expired refresh token");
@@ -205,6 +400,31 @@ namespace UHSB_Bagalkot.UI.Controllers
             return Ok(data);
         }
 
-    }
 
+        #region profile update and get 
+        [HttpGet("GetProfile")]
+        public async Task<IActionResult> GetProfile(string phone)
+        {
+            var profile = await _accountRepository.GetUserByPhoneAsync(phone);
+            if (profile == null)
+                return NotFound(new { success = false, message = "Profile not found" });
+
+            return Ok(profile);
+        }
+
+        [HttpPost("UpdateProfile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UserMasterRequestmobile profile)
+        {
+            if (profile == null || string.IsNullOrEmpty(profile.PhoneNumber))
+                return BadRequest(new { success = false, message = "Invalid data" });
+
+            var result = await _accountRepository.CreateOrUpdateUserAsync(profile);
+            if (!result)
+                return BadRequest(new { success = false, message = "Failed to update profile" });
+
+            return Ok(new { success = true, message = "Profile updated successfully" });
+        }
+        #endregion
+    }
 }
+ 

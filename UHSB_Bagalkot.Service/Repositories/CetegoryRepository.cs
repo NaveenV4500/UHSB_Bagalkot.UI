@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using UHSB_Bagalkot.Data.Models;
+using UHSB_Bagalkot.Service.Common;
 using UHSB_Bagalkot.Service.Interface;
 using UHSB_Bagalkot.Service.ViewModels;
 
@@ -15,7 +18,7 @@ namespace UHSB_Bagalkot.Service.Repositories
     {
         private readonly IMapper _mapper;
 
-        public CetegoryRepository(Uhsb2025Context context) : base(context)
+        public CetegoryRepository(Uhsb2025uatContext context) : base(context)
         {
 
         }
@@ -52,18 +55,66 @@ namespace UHSB_Bagalkot.Service.Repositories
                 ImageUrl = existing.ImageUrl
             };
         }
-
-        public async Task<IEnumerable<CategoryVM>> GetAllAsync()
+        #region Category 
+        public async Task<GenericGridModel<CategoryVM>> GetGridCategoryV2(int currentPage = 1, int pageSize = 10, GridEnum.FTPDocumentsLogs orderBy = GridEnum.FTPDocumentsLogs.BranchName, bool isDescending = false, string filterDetails = null, string externalFilter = null)
         {
-            return await _context.UhsbCategories
-                .Select(c => new CategoryVM
+            var relativePath = "";
+
+            IQueryable<CategoryVM> query = from um in _context.UhsbCategories
+                                             select new CategoryVM
+                                             {
+                                                 CategoryId = um.CategoryId,
+                                                 Name = um.Name,
+                                                 ImageUrl = um.ImageUrl 
+                                             };
+
+            List<GridFilterModel> filters = null;
+            if (!string.IsNullOrEmpty(filterDetails))
+            {
+                filters = JsonConvert.DeserializeObject<List<GridFilterModel>>(filterDetails);
+                if (filters != null && filters.Count > 0)
                 {
-                    CategoryId = c.CategoryId,
-                    Name = c.Name,
-                    ImageUrl = c.ImageUrl
-                })
-                .ToListAsync();
+                    foreach (var filter in filters)
+                    {
+                        
+                    }
+                }
+            }
+
+            var totalCount = await query.CountAsync();
+
+
+            var dataList = await query.Skip((currentPage - 1) * pageSize)
+                                      .Take(pageSize).OrderByDescending(x => x.CategoryId)
+                                      .ToListAsync();
+
+            var data = new GenericGridModel<CategoryVM>
+            {
+                ItemDetails = dataList,
+                TotalCount = totalCount,
+                currentPage = currentPage,
+                CanAdd = true,
+                CanEdit = true,
+                CanDelete = true,
+                CanViewSingle = true,
+                CanViewMultiple = true
+            };
+
+            return data;
         }
+
+        #endregion 
+        //public async Task<IEnumerable<CategoryVM>> GetAllAsync()
+        //{
+        //    return await _context.UhsbCategories
+        //        .Select(c => new CategoryVM
+        //        {
+        //            CategoryId = c.CategoryId,
+        //            Name = c.Name,
+        //            ImageUrl = c.ImageUrl
+        //        })
+        //        .ToListAsync();
+        //}
 
         public async Task<CategoryVM?> GetByIdAsync(int id)
         {

@@ -16,7 +16,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
 
         public UserMasterController(IHttpClientFactory httpClientFactory, IConfiguration config, IOptions<ApiSettings> apiSettings)
         {
-            _httpClient = httpClientFactory.CreateClient();
+            _httpClient = httpClientFactory.CreateClient("ApiClient");
             _apiSettings = apiSettings.Value;
         }
 

@@ -24,10 +24,12 @@ namespace UHSB_Bagalkot.Service.Common
         public UploadSettings UploadSettings { get; set; }
         public string AllowedHosts { get; set; }
         public string Base_Url { get; set; }
+        public string File_Url { get; set; }
     }
 
     public class UploadSettings
     {
+        public string UHSBPath { get; set; }
         public string TempFilesPath { get; set; }
         public string WeatherReportFilesPath { get; set; }
     }

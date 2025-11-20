@@ -14,7 +14,7 @@ namespace UHSB_Bagalkot.Service.Repositories
 {
     public class AccountRepository : CommonConnection, IAccountRepository
     {
-        public AccountRepository(Uhsb2025Context context) : base(context)
+        public AccountRepository(Uhsb2025uatContext context) : base(context)
         {
         }
 
@@ -26,37 +26,97 @@ namespace UHSB_Bagalkot.Service.Repositories
         }
 
 
-        public async Task<bool> CreateUserAsync(UserMasterVM user)
+        public async Task<bool> CreateOrUpdateUserAsync(UserMasterRequestmobile user)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
-                    var users = new UserMaster
+                    UserMaster existingUser = null;
+                    FarmersProfile existingFarmerProfile = null;
+
+                    // Check if user exists by Id or PhoneNumber
+                    if (user.Id > 0)
                     {
-                        UserName = user.UserName,
-                        PhoneNumber = user.PhoneNumber,
-                        PasswordHash = user.PasswordHash,
-                        RoleType = user.RoleType,
-                        IsActive = true,
-                        CreatedAt = DateTime.UtcNow,
-                    };
-                    _context.UserMasters.Add(users);
-                    await _context.SaveChangesAsync();
-
-                    FarmersProfile farmerProfile = new FarmersProfile
+                        existingUser = await _context.UserMasters
+                            .FirstOrDefaultAsync(u => u.Id == user.Id);
+                    }
+                    else
                     {
-                        Name = user.UserName,
-                        Mobile = user.PhoneNumber,
-                        CreatedDate = DateTime.UtcNow,
-                        LandSize = user.LandSize,
-                        Village = user.Village
-                        
-                    };
+                        existingUser = await _context.UserMasters
+                            .FirstOrDefaultAsync(u => u.PhoneNumber == user.PhoneNumber);
+                    }
 
-                    _context.FarmersProfiles.Add(farmerProfile);
+                    if (existingUser != null)
+                    {
+                        // Update existing user
+                        existingUser.UserName = user.UserName;
+                        existingUser.PhoneNumber = user.PhoneNumber;
+                        existingUser.PasswordHash = user.PasswordHash;
+                        existingUser.RoleType = user.RoleType;
+                        existingUser.DistrictsId = (byte)user.DistrictsId;
+                        existingUser.ModifiedDate = DateTime.UtcNow;
+                        existingUser.ModifiedBy = 0;
+                        existingUser.IsActive = user.IsActive;
+
+                        _context.UserMasters.Update(existingUser);
+
+                        //existingFarmerProfile = await _context.FarmersProfiles
+                        //    .FirstOrDefaultAsync(f => f.Mobile == existingUser.PhoneNumber);
+
+                        //if (existingFarmerProfile != null)
+                        //{
+                        //    existingFarmerProfile.Name = user.UserName;
+                        //    existingFarmerProfile.LandSize = user.LandSize;
+                        //    existingFarmerProfile.Village = user.Village;
+ 
+                        //    _context.FarmersProfiles.Update(existingFarmerProfile);
+                        //}
+                        //else
+                        //{
+                        //    // If farmer profile doesn't exist, create new
+                        //    var newFarmerProfile = new FarmersProfile
+                        //    {
+                        //        Name = user.UserName,
+                        //        Mobile = user.PhoneNumber,
+                        //        CreatedDate = DateTime.UtcNow,
+                        //        LandSize = user.LandSize,
+                        //        Village = user.Village
+                        //    };
+                        //    _context.FarmersProfiles.Add(newFarmerProfile);
+                        //}
+                    }
+                    else
+                    {
+                        // Create new user
+                        var newUser = new UserMaster
+                        {
+                            UserName = user.UserName,
+                            PhoneNumber = user.PhoneNumber,
+                            PasswordHash = user.PasswordHash,
+                            RoleType = user.RoleType,
+                            DistrictsId = (byte)user.DistrictsId, 
+                            IsActive=user.IsActive,
+                            CreatedAt = DateTime.UtcNow,
+                            ModifiedDate = DateTime.UtcNow,
+                            CreatedBy = 0,
+                            ModifiedBy = 0,
+                        };
+                        _context.UserMasters.Add(newUser);
+                        await _context.SaveChangesAsync();
+
+                        //var newFarmerProfile = new FarmersProfile
+                        //{
+                        //    Name = user.UserName,
+                        //    Mobile = user.PhoneNumber,
+                        //    CreatedDate = DateTime.UtcNow,
+                        //    LandSize = user.LandSize,
+                        //    Village = user.Village
+                        //};
+                        //_context.FarmersProfiles.Add(newFarmerProfile);
+                    }
+
                     await _context.SaveChangesAsync();
-
                     await transaction.CommitAsync();
                     return true;
                 }
@@ -67,6 +127,7 @@ namespace UHSB_Bagalkot.Service.Repositories
                 }
             }
         }
+
 
         public int GetUsersCount()
         {
@@ -87,5 +148,8 @@ namespace UHSB_Bagalkot.Service.Repositories
                 .Select(x => new { x.Id, x.RoleName })
                 .ToDictionary(x => x.Id, x => x.RoleName);
         }
+
+        
+
     }
 }

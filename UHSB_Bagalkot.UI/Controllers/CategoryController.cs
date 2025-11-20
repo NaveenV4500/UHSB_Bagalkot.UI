@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using UHSB_Bagalkot.Service.Common;
 using UHSB_Bagalkot.Service.Interface;
+using UHSB_Bagalkot.Service.Repositories;
 using UHSB_Bagalkot.Service.ViewModels;
 
 namespace UHSB_Bagalkot.UI.Controllers
@@ -16,12 +18,28 @@ namespace UHSB_Bagalkot.UI.Controllers
             _repository = repository;
         }
 
-        [HttpGet("getallCategory")]
-        public async Task<IActionResult> GetAll()
+        [HttpGet("GetGridallCategoryV2")]
+        public async Task<IActionResult> GetGridCategoryV2(int currentPage = 1, int pageSize = 10, GridEnum.FTPDocumentsLogs orderBy = GridEnum.FTPDocumentsLogs.BranchName, bool isDescending = false, string filterDetails = null, string externalFilter = null)
         {
-            var categories = await _repository.GetAllAsync();
-            return Ok(categories);
+
+            var result = await _repository.GetGridCategoryV2(
+                currentPage, pageSize, orderBy, isDescending, filterDetails, externalFilter
+            );
+
+            return Ok(new ApiResponse<object>
+            {
+                Success = true,
+                Data = result
+            });
         }
+
+
+        //[HttpGet("getallCategory")]
+        //public async Task<IActionResult> GetAll()
+        //{
+        //    var categories = await _repository.GetAllAsync();
+        //    return Ok(categories);
+        //}
 
         [HttpGet("categoryby{id}")]
         public async Task<IActionResult> GetById(int id)

@@ -34,7 +34,40 @@
             alert("Please upload a file.");
             return;
         }
+        this.submit();
 
     });
+
+
+    function formatDate(date) {
+        var d = new Date(date);
+        var month = (d.getMonth() + 1).toString().padStart(2, '0');
+        var day = d.getDate().toString().padStart(2, '0');
+        var year = d.getFullYear();
+        return year + '-' + month + '-' + day;
+    }
+
+    var today = new Date();
+
+    // Monday of current week
+    var firstDayOfWeek = new Date(today);
+    firstDayOfWeek.setDate(today.getDate() - today.getDay() + 1);
+
+    // Sunday of current week
+    var lastDayOfWeek = new Date(firstDayOfWeek);
+    lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
+
+    var minDate = "2000-01-01"; // any past date
+    var maxDate = formatDate(lastDayOfWeek);
+
+    // Apply limits to date inputs
+    $("#StartDate, #EndDate").attr("min", minDate);
+    $("#StartDate, #EndDate").attr("max", maxDate);
+
+    // When user selects a date
+    //$("#StartDate, #EndDate").on("change", function () {
+    //    var selectedDate = $(this).val();
+    //    alert("You selected: " + selectedDate);
+    //});
 
 });

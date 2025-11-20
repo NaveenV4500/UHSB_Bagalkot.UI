@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
 using UHSB_Bagalkot.Data;
 using UHSB_Bagalkot.Service.Interface;
+using UHSB_Bagalkot.Service.ViewModels.Crop;
 using UHSB_Bagalkot.Service.ViewModels.Sections;
 
 namespace UHSB_Bagalkot.UI.Controllers
@@ -18,13 +21,33 @@ namespace UHSB_Bagalkot.UI.Controllers
             _horticultureHandbookRepository = horticultureHandbookRepository;
         }
 
-        [HttpGet("categories")]
-        public async Task<IActionResult> GetHorticultureHandbook()
+        [HttpGet("getgridContentcategories")]
+        public async Task<IActionResult> GetgridContentCategories()
         {
-            var handbook = await _horticultureHandbookRepository.GetHorticultureHandbookAsync();
+            var handbook = await _horticultureHandbookRepository.GetGridContentCategories();
             return Ok(handbook);
         }
 
+        [HttpGet("getgridContentcrop")]
+        public async Task<IActionResult> GetgridContentCrop()
+        {
+            var handbook = await _horticultureHandbookRepository.GetgridContentCrop();
+            return Ok(handbook);
+        }
+
+        [HttpGet("GetgridContentSection")]
+        public async Task<IActionResult> GetgridContentSection()
+        {
+            var handbook = await _horticultureHandbookRepository.GetgridContentSection();
+            return Ok(handbook);
+        }
+
+        [HttpGet("GetgridContentItemDetails")]
+        public async Task<IActionResult> GetgridContentItemDetails(int categoryId=0,int cropId=0,int sectionId=0)
+        {
+            var handbook = await _horticultureHandbookRepository.GetgridContentItemDetails(categoryId, cropId, sectionId);
+            return Ok(handbook);
+        }
         [HttpGet("items/{categoryId}")]
         public async Task<IActionResult> GetHorticultureHandbookItemsAsync(int categoryId)
         {
@@ -39,7 +62,7 @@ namespace UHSB_Bagalkot.UI.Controllers
             return Ok(crops);
         }
 
-        [HttpGet("sections")]
+        [HttpGet("GetgridContentSections")]
         public async Task<IActionResult> GetAllSectionsAsync()
         {
             var sections = await _horticultureHandbookRepository.GetAllSectionsAsync();
@@ -88,6 +111,68 @@ namespace UHSB_Bagalkot.UI.Controllers
                 return NotFound();
 
             return Ok(updatedSection);
+        }
+         
+        [HttpPost("saveOrEditCrops")]
+        public async Task<IActionResult> saveOrEditCrops([FromBody] CropDetailsVM model)
+        {
+            if (!ModelState.IsValid) return BadRequest();
+
+            var result = await _horticultureHandbookRepository.SaveOrEditCrops(model);
+            if (result == null) return NotFound("Update failed. Crop not found.");
+
+            return Ok(result);
+        }
+        [HttpPost("SaveOrEditItemDetails")]
+        public async Task<IActionResult> SaveOrEditItemDetails([FromBody] RequestItemDetailsVM model)
+        {
+            if (!ModelState.IsValid) return BadRequest();
+
+            var result = await _horticultureHandbookRepository.SaveOrEditItemDetails(model);
+            if (result == null) return NotFound("Update failed. Items not found.");
+
+            return Ok(result);
+        }
+
+
+        [HttpPost("SaveOrEditSectionDetails")]
+        public async Task<IActionResult> SaveOrEditSectionDetails([FromBody] RequestSectionDetailsVM model)
+        {
+            if (!ModelState.IsValid) return BadRequest();
+
+            var result = await _horticultureHandbookRepository.SaveOrEditSectionDetails(model);
+            if (result == null) return NotFound("Update failed. Items not found.");
+
+            return Ok(result);
+        }
+
+        [HttpPost("SaveOrEditCategoryDetails")]
+        public async Task<IActionResult> SaveOrEditCategoryDetails([FromBody] RequestCategoryDetailsVM model)
+        {
+            if (!ModelState.IsValid) return BadRequest();
+
+            var result = await _horticultureHandbookRepository.SaveOrEditCategoryDetails(model);
+            if (result == null) return NotFound("Update failed. Items not found.");
+
+            return Ok(result);
+        }
+        
+        [HttpPost("DeleteallpageItems")]
+        public async Task<IActionResult> DeleteallpageItems([FromBody] DeleteItemVM delmodel)
+        {
+            if (!ModelState.IsValid) return BadRequest();
+
+            var result = await _horticultureHandbookRepository.DeleteallpageItems(delmodel);
+
+            return Ok(new
+            {
+                success = result.Success,
+                message = result.Success
+                       ? "Item(s) deleted successfully."
+                       : (result.LinkedItems != null && result.LinkedItems.Count > 0
+                           ? $"{string.Join(", ", result.LinkedItems)}"
+                           : "Failed to delete item.")
+            });
         }
     }
 }

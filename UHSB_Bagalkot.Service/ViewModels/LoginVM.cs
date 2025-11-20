@@ -13,6 +13,10 @@ namespace UHSB_Bagalkot.Service.ViewModels
         public string PhoneNumber { get; set; }
         public bool IsFromadmin { get; set; }
     }
+    public class RefreshVM
+    {
+        public string RefreshToken { get; set; }
+    }
     public class LoginResponse
     {
         public bool success { get; set; }

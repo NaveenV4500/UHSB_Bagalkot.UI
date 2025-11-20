@@ -7,7 +7,7 @@ public partial class UhsbCategory
 {
     public int CategoryId { get; set; }
 
-    public string Name { get; set; } = null!;
+    public string? Name { get; set; }
 
     public string? ImageUrl { get; set; }
 

@@ -94,18 +94,18 @@ namespace UHSB_Bagalkot.UI.Controllers
 
 
         [HttpGet("GetGridItemsV2")]
-        public async Task<IActionResult> GetGridItemsV2(int currentPage = 1,  int pageSize = 10,  GridEnum.FTPDocumentsLogs orderBy = GridEnum.FTPDocumentsLogs.BranchName,  bool isDescending = false,  string filterDetails = null, string externalFilter = null, int subSectId = 0,int cropid=0)
+        public async Task<IActionResult> GetGridItemsV2(int currentPage = 1,  int pageSize = 10,  GridEnum.FTPDocumentsLogs orderBy = GridEnum.FTPDocumentsLogs.BranchName,  bool isDescending = false,  string filterDetails = null, string externalFilter = null, int subSectId = 0,int cropid=0, int categoryid = 0)
         {
-            if (subSectId <= 0)
-                return BadRequest(new ApiResponse<object>
-                {
-                    Success = false,
-                    Message = "SubSection Id is required"
-                });
+            //if (subSectId <= 0)
+            //    return BadRequest(new ApiResponse<object>
+            //    {
+            //        Success = false,
+            //        Message = "SubSection Id is required"
+            //    });
              
             var result = await _dashboardRepository.GetGridItemsV2(
                 currentPage, pageSize, orderBy, isDescending, filterDetails, 
-                externalFilter, subSectId, cropid
+                externalFilter, subSectId, cropid, categoryid
             );
 
             return Ok(new ApiResponse<object>
@@ -116,7 +116,7 @@ namespace UHSB_Bagalkot.UI.Controllers
         }
 
         [HttpGet("GetGridUsermasterV2")]
-        public async Task<IActionResult> GetGridUsermasterV2(int currentPage = 1, int pageSize = 10, GridEnum.FTPDocumentsLogs orderBy = GridEnum.FTPDocumentsLogs.BranchName, bool isDescending = false, string filterDetails = null, string externalFilter = null)
+        public async Task<IActionResult> GetGridUsermasterV2(int currentPage = 1, int pageSize = 10, GridEnum.UserMasterColumns orderBy = GridEnum.UserMasterColumns.CreatedDate, bool isDescending = false, string filterDetails = null, string externalFilter = null)
         {
 
             var result = await _dashboardRepository.GetGridUsermasterV2(
@@ -145,5 +145,13 @@ namespace UHSB_Bagalkot.UI.Controllers
             return StatusCode(500, new { success = false, message = "Error saving data." });
         }
         #endregion
+
+         
+         [HttpGet("GetByIdImageConentDetails/{imagecontentid}")]
+        public async Task<IActionResult> GetByIdImageConentDetails(int imagecontentid)
+        {
+            var result = await _dashboardRepository.GetByIdImageConentDetails(imagecontentid);
+            return Ok(new ApiResponse<object> { Success = true, Data = result });
+        }
     }
 }

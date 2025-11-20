@@ -13,10 +13,11 @@ namespace UHSB_Bagalkot.Service.Interface
     public interface IAccountRepository
     {
         Task<UserMaster> GetUserByPhoneAsync(string phoneNumber, string userName = "", bool isFromAdmin = false);
-        Task<bool> CreateUserAsync(UserMasterVM user);
+        Task<bool> CreateOrUpdateUserAsync(UserMasterRequestmobile user);
         int GetUsersCount();
         public Dictionary<int, string> GetAllUserRoleTypeAsDictionary();
-        public Dictionary<int, string> GetAllDistrictsTypeAsDictionary
-();
+        public Dictionary<int, string> GetAllDistrictsTypeAsDictionary();
+
+  
     }
 }

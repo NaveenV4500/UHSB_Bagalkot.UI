@@ -12,7 +12,7 @@ namespace UHSB_Bagalkot.Service.Interface
 {
     public interface ICropProfileRepository
     {
-        IEnumerable<UhsbCategory> GetCategoryItems();
+        IEnumerable<CategoryVM> GetCategoryItems();
         IEnumerable<UhsbCrop> GetCropDetailsAsync(int categoryId);
         IEnumerable<UhsbSection> GetSectionsByCropId(int cropId);
         IEnumerable<UhsbSubSection> GetSubSectionsBySectionId(int sectionId);

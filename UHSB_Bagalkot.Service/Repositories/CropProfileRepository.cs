@@ -11,6 +11,7 @@ using UHSB_Bagalkot.Service.Common;
 using UHSB_Bagalkot.Service.Dto;
 using UHSB_Bagalkot.Service.Interface;
 using UHSB_Bagalkot.Service.ViewModels;
+using UHSB_Bagalkot.Service.ViewModels.AdminDashboard;
 using UHSB_Bagalkot.Service.ViewModels.CropProfile;
 
 namespace UHSB_Bagalkot.Service.Repositories
@@ -20,16 +21,27 @@ namespace UHSB_Bagalkot.Service.Repositories
         private readonly ApiSettings _apiSettings;
         private readonly IMapper _mapper;
 
-        public CropProfileRepository(Uhsb2025Context context, IOptions<ApiSettings> apiSettings) : base(context)
+        public CropProfileRepository(Uhsb2025uatContext context, IOptions<ApiSettings> apiSettings) : base(context)
         {
             _apiSettings = apiSettings.Value;
         }
 
 
-        public IEnumerable<UhsbCategory> GetCategoryItems()
+        public IEnumerable<CategoryVM> GetCategoryItems()
         {
-            return _context.UhsbCategories.ToList();
+            var result = _context.UhsbCategories
+                .Select(c => new CategoryVM
+                {
+                    CategoryId = c.CategoryId,
+                    Name = c.Name,
+                    ImageUrl=c.ImageUrl,
+                    TotalCrops = _context.UhsbCrops.Count(x => x.CategoryId == c.CategoryId)
+                })
+                .ToList();
+
+            return result;
         }
+
 
         public IEnumerable<UhsbCrop> GetCropDetailsAsync(int categoryId = 0)
         {
@@ -38,9 +50,14 @@ namespace UHSB_Bagalkot.Service.Repositories
 
         public IEnumerable<UhsbSection> GetSectionsByCropId(int cropId)
         {
-            return _context.UhsbSections
-                .Where(s => s.CropId == cropId)
-                .ToList();
+            //return _context.UhsbSections
+            //    .Where(s => s.CropId == cropId)
+            //    .ToList();
+
+            //need to show all section to crops
+            return _context.UhsbSections 
+              .ToList();
+
         }
 
         public IEnumerable<UhsbSubSection> GetSubSectionsBySectionId(int sectionId)
@@ -51,17 +68,26 @@ namespace UHSB_Bagalkot.Service.Repositories
         }
 
         public async Task<IEnumerable<UhsbItemDeail>> GetItemsBySubSectionIdAsync(int SectionId=0,int cropid=0)
-        { 
-            var result = await (from map in _context.UHSB_SectionsMappings
-                                join section in _context.UhsbSections
-                                    on map.SectionId equals section.SectionId
-                                join items in _context.UhsbItemDeails
-                                    on map.SectionMapId equals items.SectionMapId
-                                where map.CropId == cropid &&  section.SectionId == SectionId
+        {
+            //var result = await (from map in _context.UhsbSectionsMappings
+            //                    join section in _context.UhsbSections
+            //                        on map.SectionId equals section.SectionId
+            //                    join items in _context.UhsbItemDeails
+            //                        on map.SectionMapId equals items.SectionMapId
+            //                    where map.CropId == cropid &&  section.SectionId == SectionId
+            //                    select new UhsbItemDeail
+            //                    {
+            //                        ItemId = items.ItemId,
+            //                        Name = items.Name, 
+            //                    }).ToListAsync();
+            var result = await (from items in _context.UhsbItemDeails
+                                where items.CropId == cropid && items.SectionId == SectionId
                                 select new UhsbItemDeail
                                 {
                                     ItemId = items.ItemId,
-                                    Name = items.Name, 
+                                    Name = items.Name,
+                                    ImageUrl=items.ImageUrl,
+                                    
                                 }).ToListAsync();
 
             return result;

@@ -1,4 +1,4 @@
- 
+﻿ 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using UHSB_Bagalkot.Service.Common;
 
@@ -26,9 +26,23 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Account/Login";   // Redirect here if not logged in
         options.LogoutPath = "/Account/Logout";
-        options.ExpireTimeSpan = TimeSpan.FromHours(1);
+        options.ExpireTimeSpan = TimeSpan.FromHours(120);
     });
 
+// ✅ Global HttpClient that ignores SSL in Development
+builder.Services.AddHttpClient("ApiClient")
+    .ConfigurePrimaryHttpMessageHandler(() =>
+    {
+        var handler = new HttpClientHandler();
+
+        if (builder.Environment.IsDevelopment())
+        {
+            // ⚠️ Ignore SSL certificate only in development
+            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+        }
+
+        return handler;
+    });
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

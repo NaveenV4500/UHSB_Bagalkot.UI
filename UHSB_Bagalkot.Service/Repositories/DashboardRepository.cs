@@ -1,8 +1,10 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -18,12 +20,18 @@ namespace UHSB_Bagalkot.Service.Repositories
 {
     public class DashboardRepository : CommonConnection, IDashboardRepository
     {
+        private readonly IConfiguration _configuration;
+        private readonly string _connectionString;
 
-        public DashboardRepository(Uhsb2025Context context) : base(context)
+        public DashboardRepository(Uhsb2025uatContext context) : base(context)
         {
 
-        }
+        } 
 
+        public string GetConnectionString()
+        {
+            return _context.Database.GetDbConnection().ConnectionString;
+        }
         public async Task<DashboardSummaryVM> GetSummaryAsync()
         {
             return new DashboardSummaryVM
@@ -73,7 +81,6 @@ namespace UHSB_Bagalkot.Service.Repositories
         public async Task<IEnumerable<DropdownVM>> SectionDD(int cropId)
         {
             return await _context.UhsbSections
-                .Where(s => s.CropId == cropId)
                 .Select(s => new DropdownVM { Id = s.SectionId, Name = s.Name })
                 .ToListAsync();
         }
@@ -88,18 +95,25 @@ namespace UHSB_Bagalkot.Service.Repositories
 
         public async Task<IEnumerable<DropdownVM>> ItemDeailsDD(int sectionId,int cropId)
         {
-                 //var details = await (
-                 //    from item in _context.UhsbItemDeails
-                 //    where !_context.UhsbItemImages.Any(img => img.ItemId == item.ItemId)
-                 //          && item.SectionId == sectionId
-                 //    select new DropdownVM
-                 //    {
-                 //        Id = item.ItemId,
-                 //        Name = item.Name
-                 //    }
-                 //).ToListAsync();
+            //var details = await (
+            //    from item in _context.UhsbItemDeails
+            //    where !_context.UhsbItemImages.Any(img => img.ItemId == item.ItemId)
+            //          && item.SectionId == sectionId
+            //    select new DropdownVM
+            //    {
+            //        Id = item.ItemId,
+            //        Name = item.Name
+            //    }
+            //).ToListAsync();
 
-            var result = await (from map in _context.UHSB_SectionsMappings
+            var result = await (from items in   _context.UhsbItemDeails 
+                                where items.CropId == cropId && items.SectionId == sectionId
+                                select new DropdownVM
+                                {
+                                    Id = items.ItemId,
+                                    Name = items.Name,
+                                }).ToListAsync();
+            var result1 = await (from map in _context.UhsbSectionsMappings
                                 join section in _context.UhsbSections
                                     on map.SectionId equals section.SectionId
                                 join items in _context.UhsbItemDeails
@@ -133,41 +147,98 @@ namespace UHSB_Bagalkot.Service.Repositories
 
         public async Task<GenericGridModel<UhsbItemImageVM>> GetGridItemsV2(int currentPage = 1, int pageSize = 10,  GridEnum.FTPDocumentsLogs orderBy = GridEnum.FTPDocumentsLogs.BranchName,
             bool isDescending = false,  string filterDetails = null, string externalFilter = null, 
-            int subSectId = 0,int cropid=0)
+            int subSectId = 0,int cropid=0,int categoryid=0)
         {
             var relativePath = "";
 
             // Base query
-            //IQueryable<UhsbItemImageVM> query1 = from d in _context.UhsbItemDeails
-            //                                    join img in _context.UhsbItemImages
-            //                                    on d.ItemId equals img.ItemId
-            //                                    where d.SectionId == subSectId
+
+            //IQueryable<UhsbItemImageVM> queryold = from map in _context.UhsbSectionsMappings
+            //                                    join section in _context.UhsbSections
+            //                on map.SectionId equals section.SectionId
+            //            join item in _context.UhsbItemDeails
+            //                on map.SectionMapId equals item.SectionMapId
+            //            join img in _context.UhsbItemImages
+            //                on item.ItemId equals img.ItemId
+            //            where item.CropId == cropid && item.SectionId == subSectId
             //                                    select new UhsbItemImageVM
-            //                                    {
-            //                                        ImageId = img.ImageId,
-            //                                        ItemId = d.ItemId,
-            //                                        ImageUrl = relativePath + (img.ImageUrl ?? string.Empty).Replace("\\", "/"),
-            //                                        Description = img.Description,
-            //                                        ItemName = _context.UhsbItemDeails.Where(c=>c.ItemId == d.ItemId).Select(c=>c.Name).FirstOrDefault()
-            //                                    };
+            //            {
+            //                ImageId = img.ImageId,
+            //                ItemId = item.ItemId,
+            //                ImageUrl = relativePath + (img.ImageUrl ?? string.Empty).Replace("\\", "/"),
+            //                Description = img.Description,
+            //                ItemName = item.Name
+            //            };
+            var result = new GenericGridModel<UhsbItemImageVM>();
+            var items = new List<UhsbItemImageVM>();
+      
+            string connectionString = GetConnectionString();
+
+            using SqlConnection con = new(connectionString);
+            using SqlCommand cmd = new("SP_GetUhsb_FinalContent", con)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            cmd.Parameters.AddWithValue("@CategoryId", categoryid);
+            cmd.Parameters.AddWithValue("@CropId", cropid);
+            cmd.Parameters.AddWithValue("@SectionId", subSectId);
+
+            await con.OpenAsync();
+
+            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                items.Add(new UhsbItemImageVM
+                {
+                    ImageId = reader["ImageId"] as int?,
+                    ItemId = reader["ItemId"] as int?,
+                    ImageUrl = relativePath + (reader["ImageUrl"]?.ToString() ?? string.Empty),
+                    Description = reader["Description"]?.ToString() ?? string.Empty,
+                    ItemName = reader["ItemName"]?.ToString() ?? string.Empty,
+                    CategoryName = reader["CategoryName"]?.ToString() ?? string.Empty,
+                    CategoryId = reader["CategoryId"] as int?,
+                    CropName = reader["CropName"]?.ToString() ?? string.Empty,
+                    CropId = reader["CropId"] as int?,
+                    SectionName = reader["SectionName"]?.ToString() ?? string.Empty,
+                    SectionId = reader["SectionId"] as int?
+                });
+            }
+
+            // Convert to IQueryable for filtering
+            var query = items.AsQueryable();
+
+            //IQueryable<UhsbItemImageVM> query =
+            //                             from item in _context.UhsbItemDeails
+            //                             join img in _context.UhsbItemImages
+            //                                 on item.ItemId equals img.ItemId
+            //                             //where item.CropId == cropid && item.SectionId == subSectId
+            //                             select new UhsbItemImageVM
+            //                             {
+            //                                 ImageId = img.ImageId,
+            //                                 ItemId = item.ItemId,
+            //                                 ImageUrl = relativePath + (img.ImageUrl ?? string.Empty).Replace("\\", "/"),
+            //                                 Description = img.Description,
+            //                                 ItemName = item.Name,
+            //                                 CategoryId=item.CategoryId,
+            //                                 CropId=item.CropId,
+            //                                 SectionId=item.SectionId,
+            //                             };
+
+            if (categoryid > 0)
+            {
+                query= query.Where(x=> x.CategoryId == cropid);
+            }else if(cropid > 0)
+            {
+                query = query.Where(x => x.CropId == cropid);
+            }
+            else if (subSectId > 0)
+            {
+                query = query.Where(x => x.SectionId == subSectId);
+
+            }
 
 
-            IQueryable<UhsbItemImageVM> query = from map in _context.UHSB_SectionsMappings
-                        join section in _context.UhsbSections
-                            on map.SectionId equals section.SectionId
-                        join item in _context.UhsbItemDeails
-                            on map.SectionMapId equals item.SectionMapId
-                        join img in _context.UhsbItemImages
-                            on item.ItemId equals img.ItemId
-                        where map.CropId == cropid && section.SectionId == subSectId
-                                                select new UhsbItemImageVM
-                        {
-                            ImageId = img.ImageId,
-                            ItemId = item.ItemId,
-                            ImageUrl = relativePath + (img.ImageUrl ?? string.Empty).Replace("\\", "/"),
-                            Description = img.Description,
-                            ItemName = item.Name
-                        };
 
             // Apply filters if any
             List<GridFilterModel> filters = null;
@@ -189,7 +260,7 @@ namespace UHSB_Bagalkot.Service.Repositories
             }
 
             // Total count before paging
-            var totalCount = await query.CountAsync();
+            var totalCount =   query.Count();
 
             // Ordering (example, can extend for more fields)
             //query = orderBy switch
@@ -199,9 +270,9 @@ namespace UHSB_Bagalkot.Service.Repositories
             //};
 
             // Paging
-            var dataList = await query.Skip((currentPage - 1) * pageSize)
+            var dataList =   query.Skip((currentPage - 1) * pageSize)
                                       .Take(pageSize)
-                                      .ToListAsync();
+                                      .ToList();
              
             var data = new GenericGridModel<UhsbItemImageVM>
             {
@@ -217,6 +288,32 @@ namespace UHSB_Bagalkot.Service.Repositories
 
             return data;
         }
+
+        #region GetByIdImageConentDetails
+
+        public async Task<UhsbItemImageVM> GetByIdImageConentDetails(int imagecontentid)
+        { 
+
+            var data = await (from img in _context.UhsbItemImages
+                              join item in _context.UhsbItemDeails
+                                  on img.ItemId equals item.ItemId
+                              where img.ImageId == imagecontentid
+                              select new UhsbItemImageVM
+                              {
+                                  ImageId = img.ImageId,
+                                  ItemId = item.ItemId,
+                                  ImageUrl = img.ImageUrl?? "",
+                                  Description = img.Description??"",
+                                  CropId = item.CropId,
+                                  SectionId = item.SectionId,
+                                  CategoryId= item.CategoryId,
+                              }).FirstOrDefaultAsync();
+            return data;
+        }
+
+        #endregion
+
+
 
         public Expression<Func<UhsbItemImageVM, bool>> GetWherePrediction(GridEnum.FTPDocumentsLogs filterBy, string filterTxt, GridEnum.FilterTypeEnum filterType)
         {
@@ -286,7 +383,7 @@ namespace UHSB_Bagalkot.Service.Repositories
         }
 
         #region Usermaster 
-        public async Task<GenericGridModel<UserMasterVM>> GetGridUsermasterV2(int currentPage = 1, int pageSize = 10, GridEnum.FTPDocumentsLogs orderBy = GridEnum.FTPDocumentsLogs.BranchName, bool isDescending = false, string filterDetails = null, string externalFilter = null)
+        public async Task<GenericGridModel<UserMasterVM>> GetGridUsermasterV2(int currentPage = 1, int pageSize = 10, GridEnum.UserMasterColumns orderBy = GridEnum.UserMasterColumns.CreatedDate, bool isDescending = false, string filterDetails = null, string externalFilter = null)
         {
             var relativePath = "";
              
@@ -329,7 +426,7 @@ namespace UHSB_Bagalkot.Service.Repositories
 
 
             var dataList = await query.Skip((currentPage - 1) * pageSize)
-                                      .Take(pageSize).OrderByDescending(x => x.UserName)
+                                      .Take(pageSize).OrderByDescending(x => x.CreatedDate)
                                       .ToListAsync();
 
             var data = new GenericGridModel<UserMasterVM>
@@ -355,13 +452,18 @@ namespace UHSB_Bagalkot.Service.Repositories
             if (model == null) return false;
                
             foreach (var item in model)
-            { 
+            {
                 var cropItem = new UhsbItemImage
-                { 
-                    ItemId = item.ItemId,
+                {
+                    ItemId = item.ItemId ?? 0,
                     Description = item.Description,
-                    ImageUrl = item.ImageUrl
+                    ImageUrl = item.ImageUrl,
+                    CreatedBy = 1,
+                    ModifiedBy = 1,
+                    CreatedDate = DateTime.Now,
+                    ModifiedDate=DateTime.Now
                 };
+
 
                 _context.UhsbItemImages.Add(cropItem);
             }

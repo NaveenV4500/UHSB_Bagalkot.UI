@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace UHSB_Bagalkot.Service.ViewModels.CropProfile
-{ 
+{  
     public   class UhsbItemQnAVM
     {
         public int QnAid { get; set; }

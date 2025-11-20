@@ -17,7 +17,7 @@ namespace UHSB_Bagalkot.Service.Repositories
     {
         private readonly IWeatherCastRepository _repository;
 
-        public WeatherCastRepository(Uhsb2025Context context) : base(context)
+        public WeatherCastRepository(Uhsb2025uatContext context) : base(context)
         {
 
         }
@@ -48,27 +48,26 @@ namespace UHSB_Bagalkot.Service.Repositories
 
         public bool SaveFileAsync(WeatherFileUploadVM dto)
         {
-            // Save file asynchronously
-            //CommonHelper.SaveFileAsync(filePath+".pdf", dto.FileBytes);
-            //var filename = Path.GetFileName(filePath);
+             
             // Calculate start and end of week
-            var startOfWeek = StartOfWeek(DateTime.Now, DayOfWeek.Monday);
-            var endOfWeek = startOfWeek.AddDays(6);
-
+            //var startOfWeek = StartOfWeek(DateTime.Now, DayOfWeek.Monday);
+            //var endOfWeek = startOfWeek.AddDays(6);
+            var startOfWeek = dto.StartDate;
+            var endOfWeek = dto.EndDate;
             var entity = new UhsbWeatherCastFileDetail
             {
                 UserId = dto.UserId,
                 DistrictId = dto.DistrictId,
                 FilePath = dto.FileName,
                 Description = dto.Description,
-                WeekStartDate = DateOnly.FromDateTime(startOfWeek),
-                WeekEndDate = DateOnly.FromDateTime(endOfWeek),
+                WeekStartDate = DateOnly.FromDateTime(startOfWeek.Value),
+                WeekEndDate = DateOnly.FromDateTime(endOfWeek.Value),
                 CreatedDate = DateOnly.FromDateTime(DateTime.Now)
             };
 
 
             _context.UhsbWeatherCastFileDetails.Add(entity);
-            _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             return true;
         }

@@ -12,8 +12,15 @@ namespace UHSB_Bagalkot.Service.Interface
 {
     public interface IHorticultureHandbookRepository
     {
-        Task<IEnumerable<UhsbCategory>> GetHorticultureHandbookAsync();  
-        Task<IEnumerable<UhsbCrop>> GetHorticultureHandbookItemsAsync(int categoryId);
+         Task<IEnumerable<UhsbCrop>> GetHorticultureHandbookItemsAsync(int categoryId);
+
+        Task<List<CategoryGridVM>> GetGridContentCategories();
+
+        Task<List<CropGridVM>> GetgridContentCrop();
+
+        Task<List<UhsbSectionVM>> GetgridContentSection();
+        Task<List<ItemDetailsVM>> GetgridContentItemDetails(int categoryId = 0, int cropId = 0, int sectionId = 0);
+
         #region Section Details
         Task<List<DropdownItemCropVM>> GetCropsForDD();
         Task<IEnumerable<UhsbSectionVM>> GetAllSectionsAsync();
@@ -23,7 +30,13 @@ namespace UHSB_Bagalkot.Service.Interface
         // WRITE
         Task<UhsbSectionVM> AddSectionAsync(UhsbSectionCreateUpdateVM model);
         Task<UhsbSectionVM?> UpdateSectionAsync(int id, UhsbSectionCreateUpdateVM model);
-         
+        Task<bool> SaveOrEditCrops(CropDetailsVM cropVM);  
+        Task<bool> SaveOrEditItemDetails(RequestItemDetailsVM cropVM);  
+        Task<bool> SaveOrEditSectionDetails(RequestSectionDetailsVM SectionVM); 
+        Task<bool> SaveOrEditCategoryDetails(RequestCategoryDetailsVM categoryVM);
+        Task<(bool Success, List<string> LinkedItems)> DeleteallpageItems(DeleteItemVM delmodel);
+
+
         #endregion
     }
 }

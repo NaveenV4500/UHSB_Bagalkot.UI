@@ -9,17 +9,21 @@ public partial class UhsbItemDeail
 
     public int SubSectionId { get; set; }
 
-    public string Name { get; set; } = null!;
+    public string? Name { get; set; }
 
     public string? ImageUrl { get; set; }
-    public int SectionId { get; set; }
+
     public int SectionMapId { get; set; }
-    
+
+    public int CropId { get; set; }
+
+    public int CategoryId { get; set; }
+
+    public int SectionId { get; set; }
+
     public virtual ICollection<ItemContent> ItemContents { get; set; } = new List<ItemContent>();
 
-    public virtual UhsbSubSection SubSection { get; set; } = null!;
-    public virtual UhsbSection Section { get; set; } = null!;
-    public virtual uhsbSectionsMapping SectionsMapping { get; set; } = null!;
+    public virtual UhsbSectionsMapping SectionMap { get; set; } = null!;
 
     public virtual ICollection<UhsbItemImage> UhsbItemImages { get; set; } = new List<UhsbItemImage>();
 

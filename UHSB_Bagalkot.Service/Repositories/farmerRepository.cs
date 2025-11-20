@@ -12,7 +12,7 @@ namespace UHSB_Bagalkot.Service.Repositories
 {
     public class farmerRepository : CommonConnection
     {
-        public farmerRepository(Uhsb2025Context context) : base(context)
+        public farmerRepository(Uhsb2025uatContext context) : base(context)
         {
         }
         public async Task<IEnumerable<FarmersProfile>> GetFarmerProfilesAsync()

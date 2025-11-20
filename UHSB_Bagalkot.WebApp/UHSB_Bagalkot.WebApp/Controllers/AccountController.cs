@@ -18,7 +18,9 @@ namespace UHSB_Bagalkot.WebApp.Controllers
 
         public AccountController(IHttpClientFactory httpClientFactory, IConfiguration config, IOptions<ApiSettings> apiSettings)
         {
-            _httpClient = httpClientFactory.CreateClient();
+
+            _httpClient = httpClientFactory.CreateClient("ApiClient");
+
             _apiSettings = apiSettings.Value;
         }
 
@@ -38,7 +40,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
             var jsonContent = JsonConvert.SerializeObject(loginData);
            
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync($"{_apiSettings.Base_Url}/Account/login", content);
+            var response = await _httpClient.PostAsync($"{_apiSettings.Base_Url}/Account/LoginLog", content);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -69,7 +71,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
             return RedirectToAction("AdminHome", "Dashboard");
         }
 
-        [HttpGet]
+        [HttpPost]
         public IActionResult Logout()
         {
             HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

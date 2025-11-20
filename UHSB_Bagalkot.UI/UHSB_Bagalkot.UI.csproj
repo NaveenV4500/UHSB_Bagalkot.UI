@@ -9,12 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Logs\**" />
     <Compile Remove="publish\**" />
     <Compile Remove="UploadedWeatherFiles\**" />
+    <Content Remove="Logs\**" />
     <Content Remove="publish\**" />
     <Content Remove="UploadedWeatherFiles\**" />
+    <EmbeddedResource Remove="Logs\**" />
     <EmbeddedResource Remove="publish\**" />
     <EmbeddedResource Remove="UploadedWeatherFiles\**" />
+    <None Remove="Logs\**" />
     <None Remove="publish\**" />
     <None Remove="UploadedWeatherFiles\**" />
   </ItemGroup>
@@ -27,12 +31,18 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+    <PackageReference Include="Serilog" Version="4.3.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\UHSB_Bagalkot.Service\UHSB_Bagalkot.Service.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Common\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties properties_4launchsettings_1json__JsonSchema="https://app.gitpod.io/jsonschema/v1/automations_file.jsonschema.json" /></VisualStudio></ProjectExtensions>

@@ -1,7 +1,8 @@
 ﻿$(document).ready(function () {
     $('#ItemImagesBody').find('input, select, textarea, button').prop('disabled', true);
     $('#addRow').prop('disabled', true);
-
+    var fileBaseUrl = $("#fileBaseUrl").val();
+    fileBaseUrl = fileBaseUrl.replace("api", "");
     var currentDescriptionInput;
     var editorInstance;
     window.alertMessageAfterSavePayment = "";
@@ -13,7 +14,7 @@
     _init();
 
     function _init() {
-        loadDropdown('/Dashboard/GetCategories', '#Categoriestype', '--Select Category--');
+        loadDropdown(GetRootPath(window.virtualPath) + '/Dashboard/GetCategories', '#Categoriestype', '--Select Category--');
     }
 
     function loadDropdown(url, dropdownSelector, defaultText) {
@@ -45,17 +46,17 @@
     // Cascading dropdowns
     $('#Categoriestype').on('change', function () {
         resetDropdowns(['#Cropstype', '#Sectionstype', '#SubSectionstype']);
-        loadDropdown('/Dashboard/GetCrops?catId=' + $(this).val(), '#Cropstype', '--Select Crop--');
+        loadDropdown(GetRootPath(window.virtualPath) + '/Dashboard/GetCrops?catId=' + $(this).val(), '#Cropstype', '--Select Crop--');
     });
 
     $('#Cropstype').on('change', function () {
         resetDropdowns(['#Sectionstype', '#SubSectionstype']);
-        loadDropdown('/Dashboard/GetSections?cropId=' + $(this).val(), '#Sectionstype', '--Select Section--');
+        loadDropdown(GetRootPath(window.virtualPath) + '/Dashboard/GetSections?cropId=' + $(this).val(), '#Sectionstype', '--Select Section--');
     });
 
     //$('#Sectionstype').on('change', function () {
     //    resetDropdowns(['#SubSectionstype']);
-    //    loadDropdown('/Dashboard/GetSubSections?sectId=' + $(this).val(), '#SubSectionstype', '--Select Subsection--');
+    //    loadDropdown(GetRootPath(window.virtualPath) +'/Dashboard/GetSubSections?sectId=' + $(this).val(), '#SubSectionstype', '--Select Subsection--');
     //});
 
     function resetDropdowns(selectors) {
@@ -74,7 +75,7 @@
 
         $('#ItemImagesBody').find('input, select, textarea, button').prop('disabled', false);
         $('#addRow').prop('disabled', false);
-        loadDropdown('/Dashboard/GetItems?sectionId=' + $(this).val() + '&cropId=' + Cropstype, '#ItemsIdtype', '--Select Item--');
+        loadDropdown(GetRootPath(window.virtualPath) + '/Dashboard/GetItems?sectionId=' + $(this).val() + '&cropId=' + Cropstype, '#ItemsIdtype', '--Select Item--');
         //loadItems(subSectId);
         //window.init();
     });
@@ -90,7 +91,7 @@
         tbody.append('<tr><td colspan="5" class="text-center">Loading...</td></tr>');
 
         $.ajax({
-            url: '/Dashboard/GetGridContentV1?subSectId=' + subSectId + '&cropid=' + cropid,
+            url: GetRootPath(window.virtualPath) + '/Dashboard/GetGridContentV1?subSectId=' + subSectId + '&cropid=' + cropid,
             method: 'GET',
             dataType: 'json',
             success: function (response) {
@@ -120,7 +121,10 @@
                     var row = `
                     <tr>
                         <td class="text-center">${(currentPage - 1) * pageSize + (index + 1)}</td>
-                        <td class="text-center">${item.itemId}</td>
+                        <td class="text-center">${item.categoryName}</td>
+                        <td class="text-center">${item.cropName}</td> 
+                        <td class="text-center">${item.sectionName}</td>
+                        <td class="text-center">${item.itemName}</td>
                         <td class="text-justify">${item.description}</td> 
                         <td class="text-center">${actionCell}</td>
                     </tr>
@@ -143,6 +147,12 @@
             // Add AJAX delete call here
         }
     }
+
+    //Edit Data 
+    $('#gridContent').on('click', '.Editdata', function () {
+        var itemId = $(this).data('itemid');
+        alert('Edit functionality for Item ID: ' + itemId);
+    });
     //View Image
 
     // Put this once in your JS, after table exists
@@ -151,14 +161,14 @@
         var filePath = $(this).data('filepath');
         if (!filePath) {
             alert('No image available.');
-            return;
+            
         }
-        var fileBaseUrl = $("#fileBaseUrl").val();
+      
         if (!fileBaseUrl) {
             alert('No image available.');
-            return;
+           
         }
-        fileBaseUrl = fileBaseUrl.replace("api", "");
+       
 
         var modalHtml = `
         <div id="imageModal" class="modal fade" tabindex="-1" role="dialog">
@@ -169,7 +179,9 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
               </div>
               <div class="modal-body text-center">
-                <img src="${fileBaseUrl + filePath}" style="max-width:100%; height:auto;" />
+                <img src="${fileBaseUrl}InwardsInvoices/TempFiles/Content/${filePath}" style="max-width:100%; height:auto;" />
+         
+
               </div>
             </div>
           </div>
@@ -261,27 +273,27 @@
         var rowCount = $("#ItemImagesBody tr").length - 1;
 
         var newRowHtml = `
-    <tr>
-        <td>
-            <select name="ItemImages[${rowCount}].ItemId" id="ItemsIdtype${rowCount}" class="form-select itemDropdown">
-                <option value=''>--Select Item--</option>
-            </select>
-        </td>
-        <td>
-            <button type="button" class="btn btn-outline-secondary btn-sm editDescription" data-index="${rowCount}">
-                <i class="bi bi-pencil me-1"></i> Edit Description
-            </button>
-            <input type="hidden" name="ItemImages[${rowCount}].Description" class="descriptionHidden" />
-        </td>
-        <td>
-            <input type="file" name="ItemImages[${rowCount}].ImageFile" class="form-control form-control-file" />
-        </td>
-        <td class="text-center">
-            <button type="button" class="btn btn-outline-danger btn-sm removeRow">
-                <i class="bi bi-trash"></i> Remove
-            </button>
-        </td>
-    </tr>`;
+                  <tr>
+                      <td>
+                          <select name="ItemImages[${rowCount}].ItemId" id="ItemsIdtype${rowCount}" class="form-select itemDropdown">
+                              <option value=''>--Select Item--</option>
+                          </select>
+                      </td>
+                      <td>
+                          <button type="button" class="btn btn-outline-secondary btn-sm editDescription" data-index="${rowCount}">
+                              <i class="bi bi-pencil me-1"></i> Edit Description
+                          </button>
+                          <input type="hidden" name="ItemImages[${rowCount}].Description" class="descriptionHidden" />
+                      </td>
+                      <td>
+                          <input type="file" name="ItemImages[${rowCount}].ImageFile" class="form-control form-control-file" />
+                      </td>
+                      <td class="text-center">
+                          <button type="button" class="btn btn-outline-danger btn-sm removeRow">
+                              <i class="bi bi-trash"></i> Remove
+                          </button>
+                      </td>
+                  </tr>`;
 
         var $newRow = $(newRowHtml).appendTo('#ItemImagesBody');
         var $newDropdown = $newRow.find('.itemDropdown');
@@ -289,9 +301,40 @@
         var SectionId = $('#Sectionstype').val();
         var cropId = $("#Cropstype").val();
 
-        loadDropdown('/Dashboard/GetItems?sectionId=' + SectionId + '&cropId=' + cropId, '#ItemsIdtype' + rowCount, '--Select Item--');
+        loadDropdown(GetRootPath(window.virtualPath) + '/Dashboard/GetItems?sectionId=' + SectionId + '&cropId=' + cropId, '#ItemsIdtype' + rowCount, '--Select Item--');
 
     });
+
+    //image preview
+    // Image preview event
+    $(document).on('change', 'input[type="file"]', function (event) {
+        var input = this;
+        var file = input.files && input.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                // Remove existing preview if any
+                $(input).closest('td').find('.img-preview').remove();
+
+                // Create preview image element
+                var imgPreview = $('<img>')
+                    .attr('src', e.target.result)
+                    .addClass('img-preview mt-2 rounded')
+                    .css({
+                        width: '80px',
+                        height: '80px',
+                        objectFit: 'cover',
+                        border: '1px solid #ccc'
+                    });
+
+                // Append preview below file input
+                $(input).after(imgPreview);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+
 
     $(document).on("click", "#griddata", function () {
         window.init();
@@ -342,7 +385,8 @@
                 : null,                            // 5
             externalFilter: window.getExternalFilter || null,  // 6
             subSectId: subSectId,
-            cropid: cropid
+            cropid: cropid,
+            categoryid: $("#Categoriestype").val() || 0
         };
     }
 
@@ -390,16 +434,20 @@
                         debugger;
 
                         var rowContent = "";
-                        var actionCell = `<span class="btn-link View" style="cursor:pointer" data-filepath="${item.imageUrl || ''}">View Image</span> `;
+                        var actionCell = `<button type="button" class="btn btn-sm btn-primary View" data-filepath="${item.imageUrl}">View</button>`;
+                        var actionedit = `<button type="button" class="btn btn-sm btn-warning btn-edit" data-id="${item.imageId || ''}">Edit</button>`;
 
                         rowContent =
                             '<td class="text-center">' + ((currentPage - 1) * pageSize + (index + 1)) + '</td>' +
+                            '<td class="text-center">' + BindValueToGrid(item.categoryName, false, false) + '</td>' +
+                            '<td class="text-center">' + BindValueToGrid(item.cropName, false, false) + '</td>' +
+                            '<td class="text-center">' + BindValueToGrid(item.sectionName, false, false) + '</td>' +
                             '<td class="text-center">' + BindValueToGrid(item.itemName, false, false) + '</td>' +
                             '<td class="text-justify">' + BindValueToGrid(item.description, false, false) + '</td>' +
-                            '<td class="text-center">' + actionCell + '</td>';
-
+                            '<td class="text-center">' + actionCell  + actionedit + '</td>';
                         tablebody.append('<tr>' + rowContent + '</tr>');
                     })
+
                 }
                 else {
                     tablebody.append('<tr><td colspan="27"><h3 style="width:400px;min-height:120px;">No Data Found!!!</h3></td><tr>');
@@ -428,6 +476,124 @@
             }
         })
     };
+
+
+    $('body').on('click', '.btn-edit', function () {
+        var imagecontentid = $(this).data('id');
+
+        if (!imagecontentid || imagecontentid == "undefined") {
+            alert("Internal server error!");
+            return false;
+        }
+
+        var actionurl = `Dashboard/GetByIdImageConentDetails/${imagecontentid}`;
+
+        $.ajax({
+            cache: false,
+            url: GetRootPath(window.virtualPath) + '/CommonApi/ForwardApiResponse?action_name=' + actionurl,
+            type: "GET",
+            responseType: "application/json",
+            success: function (response) {
+                if (!response || !response.success || !response.data) {
+                    alert("Invalid response received.");
+                    return;
+                }
+
+                var data = response.data;
+                ClearForm();
+
+                // Dropdown binding
+                $("#Categoriestype").val(data.categoryId).trigger('change');
+
+                // Load dependent dropdowns with delays to ensure data loads in correct order
+                setTimeout(function () {
+                    $("#Cropstype").val(data.cropId).trigger('change');
+                }, 500);
+
+                setTimeout(function () {
+                    $("#Sectionstype").val(data.sectionId).trigger('change');
+                }, 1000);
+
+                // Load item list and select the correct item
+                setTimeout(function () {
+                    var sectionId = data.sectionId;
+                    var cropId = data.cropId;
+                    loadDropdown(
+                        GetRootPath(window.virtualPath) + '/Dashboard/GetItems?sectionId=' + sectionId + '&cropId=' + cropId,
+                        '#ItemsIdtype',
+                        '--Select Item--'
+                    );
+                }, 100);
+           
+                setTimeout(function () {
+                    $("#ItemsIdtype").val(data.itemId).trigger('change');
+                }, 2000);
+                 // Description
+                $("input[name='ItemImages[0].Description']").val(data.description || '');
+
+                // Image preview
+                $("#filename").val(data.imageUrl || "");
+                $("#ImageId").val(data.imageId || "");  // <-- use correct field from API
+             
+
+                if (data.imageUrl) {
+                     const fullUrl = fileBaseUrl +"InwardsInvoices/TempFiles/Content/" + data.imageUrl;
+
+                    // Remove old preview if any
+                    $(".img-preview").remove();
+
+                    // Create new preview
+                    var imgPreview = $('<img>')
+                        .attr('src', fullUrl)
+                        .addClass('img-preview mt-2 rounded')
+                        .css({
+                            width: '100px',
+                            height: '100px',
+                            objectFit: 'cover',
+                            border: '1px solid #ccc'
+                        });
+
+                    // Append preview below file input
+                    $("input[type='file']").after(imgPreview);
+                }
+            },
+            error: function () {
+                alert("Failed to fetch details!");
+            }
+        });
+    });
+
+
+    function ClearForm() {
+
+        // Reset all dropdowns
+        $("#Categoriestype").val("").trigger('change');
+        $("#Cropstype").val("").trigger('change');
+        $("#Sectionstype").val("").trigger('change');
+        $("#ItemsIdtype").empty().append('<option value="">--Select Item--</option>');
+
+        // Clear text fields
+        $("input[type='text']").val("");
+
+        // Clear description
+        $("input[name='ItemImages[0].Description']").val("");
+
+        // Clear file input
+        $("input[type='file']").val("");
+
+        // Remove all previous image previews
+        $(".img-preview").remove();
+
+        // Clear hidden fields
+        $("#CropId").val("");
+        $("#ItemId").val("");
+        $("#SectionId").val("");
+        $("#CategoryId").val("");
+        $("#itemType").val("");
+        $("#filename").val("");
+        $(".img-preview").val("");
+
+    }
 
 
 });

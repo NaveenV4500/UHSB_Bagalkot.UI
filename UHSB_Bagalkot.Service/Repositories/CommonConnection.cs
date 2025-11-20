@@ -11,9 +11,9 @@ namespace UHSB_Bagalkot.Service.Repositories
     
         public abstract class CommonConnection
         {
-            protected readonly Uhsb2025Context _context;
+            protected readonly Uhsb2025uatContext _context;
 
-            protected CommonConnection(Uhsb2025Context context)
+            protected CommonConnection(Uhsb2025uatContext context)
             {
                 _context = context;
             }

@@ -160,6 +160,42 @@ namespace UHSB_Bagalkot.Service.Common
             [DropDownAttribute(typeof(byte))]
             DatastatusName = 10,
         }
+        public enum AvailabilityToolsFilterBy
+        {
+            Select = 0,
+
+            // Main searchable fields
+            [DropDownAttribute(typeof(string))]
+            AvailToolNameKnd = 1,          // ಸಸಿಯ ಹೆಸರು (ಕನ್ನಡ)
+
+            [DropDownAttribute(typeof(string))]
+            RecordHeadKnd = 2,             // ವರ್ಗ (ಸಸಿ, ಪರಿಕರ, ಗೊಬ್ಬರ...)
+
+            [DropDownAttribute(typeof(string))]
+            AvailToolNameEng = 3,          // English name (optional)
+
+            [DropDownAttribute(typeof(string))]
+            Unit = 4,                      // ಘಟಕ (piece, kg, etc.)
+
+            [DropDownAttribute(typeof(decimal?))]
+            Price = 5,                     // ಬೆಲೆ (for range filter)
+
+            [DropDownAttribute(typeof(int?))]
+            Quantity = 6,                  // ಲಭ್ಯ ಪ್ರಮಾಣ
+
+            [DropDownAttribute(typeof(string))]
+            Remarks = 7,                   // ಟಿಪ್ಪಣಿ
+
+            [DropDownAttribute(typeof(DateTime?))]
+            CreatedDate = 8,               // ದಿನಾಂಕ
+
+            [DropDownAttribute(typeof(DateTime?))]
+            AvailabilityDate = 9,          // ಲಭ್ಯತೆ ದಿನಾಂಕ
+
+            [DropDownAttribute(typeof(string))]
+            CenterNameKnd = 10,            // ಕೇಂದ್ರದ ಹೆಸರು
+        }
+
         public enum UserMasterColumns
         {
             Select = 0,

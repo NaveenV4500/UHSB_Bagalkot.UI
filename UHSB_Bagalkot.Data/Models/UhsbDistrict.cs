@@ -7,9 +7,11 @@ public partial class UhsbDistrict
 {
     public int DistrictId { get; set; }
 
-    public string DistrictName { get; set; } = null!;
+    public string? DistrictName { get; set; }
 
     public bool? IsActive { get; set; }
+
+    public virtual ICollection<UhsbSeedPlantingCenterMaster> UhsbSeedPlantingCenterMasters { get; set; } = new List<UhsbSeedPlantingCenterMaster>();
 
     public virtual ICollection<UhsbWeatherCastFileDetail> UhsbWeatherCastFileDetails { get; set; } = new List<UhsbWeatherCastFileDetail>();
 }

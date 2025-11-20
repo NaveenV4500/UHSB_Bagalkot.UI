@@ -10,6 +10,4 @@ public partial class UserRole
     public string RoleName { get; set; } = null!;
 
     public string? Description { get; set; }
-
-    public DateTime CreatedAt { get; set; }
 }

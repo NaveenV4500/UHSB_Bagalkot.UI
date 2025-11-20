@@ -10,8 +10,8 @@ using UHSB_Bagalkot.Data.Models;
 
 namespace UHSB_Bagalkot.Data.Migrations
 {
-    [DbContext(typeof(Uhsb2025Context))]
-    partial class Uhsb2025ContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(Uhsb2025uatContext))]
+    partial class Uhsb2025uatContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {

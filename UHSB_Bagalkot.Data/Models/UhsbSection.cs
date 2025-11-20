@@ -9,14 +9,13 @@ public partial class UhsbSection
 
     public int CropId { get; set; }
 
-    public string Name { get; set; } = null!;
+    public string? Name { get; set; }
 
     public string? Description { get; set; }
 
     public string? ImageUrl { get; set; }
 
     public virtual UhsbCrop Crop { get; set; } = null!;
-    public virtual ICollection<UhsbItemDeail> UhsbItemDeails { get; set; } = new List<UhsbItemDeail>();
 
     public virtual ICollection<UhsbSubSection> UhsbSubSections { get; set; } = new List<UhsbSubSection>();
 }
