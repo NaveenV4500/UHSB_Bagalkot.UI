@@ -42,4 +42,6 @@ public partial class UserMaster
     public virtual ICollection<UhsbWeatherCastFileDetail> UhsbWeatherCastFileDetails { get; set; } = new List<UhsbWeatherCastFileDetail>();
 
     public virtual ICollection<UserLogin> UserLogins { get; set; } = new List<UserLogin>();
+
+    public virtual ICollection<UserOtp> UserOtps { get; set; } = new List<UserOtp>();
 }

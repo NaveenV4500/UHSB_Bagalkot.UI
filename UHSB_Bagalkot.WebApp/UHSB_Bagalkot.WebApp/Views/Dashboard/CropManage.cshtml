@@ -3,8 +3,13 @@
 @using UHSB_Bagalkot.Service.Common
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+@* <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script> *@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada&display=swap" rel="stylesheet">
+ 
+
+
+<script src="https://cdn.ckeditor.com/4.22.1/full-all/ckeditor.js"></script>
+
 
 <style>
     #formPopup #custom_panel .panel-heading {
@@ -93,10 +98,8 @@
 
 <div class="container">
 
-    @Html.Hidden("fileBaseUrl", ViewBag.fileBaseUrl, new { id = "fileBaseUrl" })
-    @Html.Hidden("filename", "", new { id = "filename" })
-    @Html.Hidden("ImageId", "", new { id = "ImageId" })
-
+  
+   
     <div class="card shadow-sm mb-4" style="border:1px solid #bebeff;">
         <div id="loader" style="display:none;">
             <img src="~/Images/webapploader.gif" alt="Loading..." />
@@ -108,7 +111,9 @@
 
         <div class="card-body">
             <form asp-action="CropManage" method="post" enctype="multipart/form-data" id="form">
-             
+                @Html.Hidden("fileBaseUrl", ViewBag.fileBaseUrl, new { id = "fileBaseUrl" })
+                @Html.Hidden("filename", "", new { id = "filename" })
+                @Html.HiddenFor(x => x.ImageId, new { id = "ImageId" })
 
                 <div class="row mb-4">
                     <div class="col-md-6 col-lg-3 mb-3">
@@ -227,7 +232,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <textarea id="editorDescription"></textarea>
+                    <textarea id="editorDescription" class="editorDescription"></textarea>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>

@@ -131,7 +131,13 @@ namespace UHSB_Bagalkot.Service.Common
             [Display(Name = "Others")]
             Others = 6
         }
-
+        public enum RecordHeadType
+        {
+            [Display(Name = "-- Select --", Order = 1)]
+            Select = 0, 
+            [Display(Name = "Center Variates")]
+            Centervariates = 1
+        }
 
         public enum UserRoleTypeforSearch
         {
@@ -145,6 +151,13 @@ namespace UHSB_Bagalkot.Service.Common
             BranchAdmin = 3,
             [Display(Name = "Manager")]
             Manager = 5
+        }
+
+        public enum UnitType
+        {
+            Select = 0,
+            Nos = 2,
+            Packets = 3
         }
 
         public static void WriteLog(string message)

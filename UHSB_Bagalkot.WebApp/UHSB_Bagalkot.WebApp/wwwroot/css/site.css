@@ -28,3 +28,108 @@ body {
 .card-body {
     border: 1px solid #bebeff;
 }
+
+
+/* Pagination Container */
+#pagingNavigation,
+#pagingNavigation_ChildGrid {
+    margin-top: 20px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+/* Paging Details */
+#pagingDetails,
+#pagingDetails_ChildGrid {
+    color: #333;
+}
+
+/* Pagination Buttons */
+#pagingButtons,
+#pagingButtons_ChildGrid {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+    #pagingButtons li,
+    #pagingButtons_ChildGrid li {
+        margin: 0 2px;
+    }
+
+        #pagingButtons li a,
+        #pagingButtons_ChildGrid li a {
+            display: block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            color: #007bff;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            /* Hover effect */
+            #pagingButtons li a:hover,
+            #pagingButtons_ChildGrid li a:hover {
+                background-color: #007bff;
+                color: white;
+                border-color: #007bff;
+            }
+
+        /* Active page */
+        #pagingButtons li.active a,
+        #pagingButtons_ChildGrid li.active a {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+            cursor: default;
+        }
+
+        /* Disabled buttons */
+        #pagingButtons li a[style*="not-allowed"],
+        #pagingButtons_ChildGrid li a[style*="not-allowed"] {
+            color: #aaa;
+            cursor: not-allowed;
+            background-color: #f5f5f5;
+            border-color: #ddd;
+        }
+
+        /* Glyphicon Buttons */
+        #pagingButtons li a.glyphicon,
+        #pagingButtons_ChildGrid li a.glyphicon {
+            font-size: 14px;
+        }
+
+/* Dropdown for page size */
+#gridmemberCount,
+#gridmemberCount_ChildGrid {
+    display: inline-block;
+    width: auto;
+    padding: 4px 8px;
+    margin-left: 5px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background-color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #pagingNavigation,
+    #pagingNavigation_ChildGrid {
+        text-align: center;
+    }
+
+    #pagingButtons,
+    #pagingButtons_ChildGrid {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    #gridmemberCount,
+    #gridmemberCount_ChildGrid {
+        margin: 5px 0;
+    }
+}

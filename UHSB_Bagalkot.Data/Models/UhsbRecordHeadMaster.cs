@@ -15,5 +15,7 @@ public partial class UhsbRecordHeadMaster
 
     public DateTime? ModifiedDate { get; set; }
 
+    public int? DataType { get; set; }
+
     public virtual ICollection<UhsbAvailabilityToolsDetail> UhsbAvailabilityToolsDetails { get; set; } = new List<UhsbAvailabilityToolsDetail>();
 }

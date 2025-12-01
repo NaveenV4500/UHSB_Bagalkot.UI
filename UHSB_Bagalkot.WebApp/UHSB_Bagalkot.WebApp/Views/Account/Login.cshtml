@@ -4,7 +4,6 @@
 }
 <head>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="~/script/login_index.js"></script>
 </head>
 
 <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
@@ -15,7 +14,7 @@
             <p class="text-muted">University of Horticultural Sciences, Bagalkot</p>
         </div>
 
-        <form id="loginForm" asp-action="Login" method="post">
+        <form id="loginForm">
             <div class="mb-3">
                 <label asp-for="UserName" class="form-label"></label>
                 <input asp-for="UserName" id="UserName" class="form-control" placeholder="Enter username" />
@@ -33,35 +32,135 @@
                 <label class="form-check-label" for="rememberMe">Remember Me</label>
             </div>
 
+            <!-- OTP field hidden initially -->
+            <div class="mb-3" id="otpContainer" style="display:none;">
+                <label class="form-label">Enter OTP</label>
+                <input type="text" id="Otp" class="form-control" placeholder="Enter OTP" />
+                <span id="otpError" class="text-danger"></span>
+            </div>
+
+            <!-- Display sent email -->
+            <div id="otpInfo" class="text-success mb-2" style="display:none;"></div>
+
             <div class="d-grid">
-                <button id="saveUserBtn" type="submit" class="btn btn-primary btn-block">Login</button>
+                <button type="button" id="sendOtpBtn" class="btn btn-primary btn-block">Login</button>
+                <button type="button" id="verifyOtpBtn" class="btn btn-success btn-block mt-2" style="display:none;">Verify OTP & Login</button>
             </div>
         </form>
     </div>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-
     <script>
         $(document).ready(function () {
-            // Auto-fill if localStorage has saved values
+
+            // Load Remember Me
             if (localStorage.getItem("UserName")) {
                 $('#UserName').val(localStorage.getItem("UserName"));
                 $('#PhoneNumber').val(localStorage.getItem("PhoneNumber"));
                 $('#rememberMe').prop('checked', true);
             }
 
-            // On form submit, save to localStorage if "Remember Me" is checked
-            $('#loginForm').submit(function () {
+            let timerInterval;
+            const startTimer = () => {
+                let time = 60;
+                $('#resendOtp').hide();
+                $('#countdown').show();
+                timerInterval = setInterval(() => {
+                    $('#countdown').text("Resend OTP in " + time + " sec");
+                    time--;
+                    if (time < 0) {
+                        clearInterval(timerInterval);
+                        $('#countdown').hide();
+                        $('#resendOtp').show();
+                    }
+                }, 1000);
+            };
+
+            // Mask email
+            const maskEmail = (email) => {
+                if (!email) return "";
+                let [name, domain] = email.split("@@");
+                return name[0] + "***" + name.slice(-1) + "@@" + domain;
+            };
+
+            const sendOtpRequest = () => {
+                let obj = {
+                    UserName: $('#UserName').val(),
+                    PhoneNumber: $('#PhoneNumber').val(),
+                    IsFromadmin: true
+                };
+
+                $("#sendOtpBtn").prop("disabled", true).html(`<span class='spinner-border spinner-border-sm'></span> Sending...`);
+
+                $.ajax({
+                    url: '/UHSBweb/Account/SendOtp',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(obj),
+                    success: function (res) {
+                        $("#sendOtpBtn").prop("disabled", false).text("Send OTP");
+
+                        if (!res.success) { alert(res.message); return; }
+
+                        // Show OTP field and email
+                        $("#otpContainer").show();
+                        $("#otpInfo").text("OTP sent to: " + maskEmail(res.email)).show();
+                        $("#verifyOtpBtn").show();
+                        $("#sendOtpBtn").hide();
+
+                        // Save userId for verification
+                        $("#verifyOtpBtn").data("userId", res.userId);
+
+                        startTimer();
+                    },
+                    error: () => alert("Unable to send OTP.")
+                });
+            };
+
+            $('#sendOtpBtn').click(function () {
                 if ($('#rememberMe').is(':checked')) {
                     localStorage.setItem("UserName", $('#UserName').val());
                     localStorage.setItem("PhoneNumber", $('#PhoneNumber').val());
                 } else {
-                    localStorage.removeItem("UserName");
-                    localStorage.removeItem("PhoneNumber");
+                    localStorage.clear();
                 }
+                sendOtpRequest();
             });
+
+            $('#Otp').on("input", () => $('#otpError').text(""));
+
+            $('#verifyOtpBtn').click(function () {
+                let otp = $('#Otp').val();
+                let userId = $(this).data('userId');
+
+                if (!otp) return $('#otpError').text("Please enter OTP");
+
+                $("#verifyOtpBtn").prop("disabled", true).html(`<span class='spinner-border spinner-border-sm'></span> Verifying...`);
+
+                let obj = {
+                    UserId: userId,
+                    Otp: otp,
+                    UserName: $('#UserName').val(),
+                    PhoneNumber: $('#PhoneNumber').val(),
+                    IsFromadmin: true
+                };
+
+                $.ajax({
+                    url: "/UHSBweb/Account/VerifyOtpPost",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(obj),
+                    success: function (res) {
+                        if (res.success) {
+                            window.location.href = res.redirectUrl; // <-- redirect here
+                        } else {
+                            alert(res.message);
+                        }
+                    }
+                });
+
+        });
         });
     </script>
 }

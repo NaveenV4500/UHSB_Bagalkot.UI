@@ -92,7 +92,72 @@ GO
 
 ALTER TABLE [dbo].[UHSB_AvailabilityToolsDetails] CHECK CONSTRAINT [FK_UHSB_AvailabilityToolsDetails_UHSB_SeedPlantingCenterMaster]
 GO
+ 
+--exec USP_GetAvailabilityToolsDetails 1,1,1
 
+CREATE PROCEDURE [dbo].[USP_GetAvailabilityToolsDetails]
+    @DistrictId INT = 0,
+    @CenterId   INT = 0,
+	@pagetype int=0
+AS
+BEGIN
+    SET NOCOUNT ON;
 
+    ;WITH CTE_Tools AS
+    (
+        SELECT 
+            ATD.identifier,
+            ATD.CenterId,
+            SCM.Centername_eng,
+            SCM.Centername_knd,
+            SCM.DistrictId,
+            ATD.HeadId,
+            RHM.RecordHead_eng,
+            RHM.RecordHead_knd,
+            ATD.AvailToolname_eng,
+            ATD.AvailToolname_knd,
+            ATD.Quantity,
+            ATD.Unit,
+            ATD.Price,
+            ATD.AvailabilityDate,
+            ATD.Remarks,
+            ATD.CreatedBy,
+            ATD.CreatedDate,
+            ATD.ModifiedBy,
+            ATD.ModifiedDate
+        FROM 
+            UHSB_AvailabilityToolsDetails ATD
+            INNER JOIN UHSB_SeedPlantingCenterMaster SCM 
+                ON ATD.CenterId = SCM.CenterId
+            INNER JOIN UHSB_RecordHeadMaster RHM 
+                ON ATD.HeadId = RHM.HeadId
+			where   (@pagetype = 0 OR ATD.HeadID = @pagetype)
+    )
+    SELECT *
+    FROM CTE_Tools
+    WHERE 
+        (@DistrictId = 0 OR DistrictId = @DistrictId)
+        AND (@CenterId = 0 OR CenterId = @CenterId)
+    ORDER BY 
+        CreatedDate DESC;
+END
+GO
  
 
+ --=============================== 23-11-2025 ==============================
+  alter table UHSB_RecordHeadMaster
+  add DataType int 
+  Go
+  update UHSB_RecordHeadMaster set DataType=1
+  --============================== 23-11-2025 ==============================
+  CREATE TABLE [dbo].[UserOtp] (
+    [OtpId] INT IDENTITY(1,1) PRIMARY KEY,
+    [UserId] INT NOT NULL,
+    [OTP] INT NOT NULL,
+    [ExpiryTime] DATETIME NOT NULL,
+    [IsUsed] BIT NOT NULL DEFAULT(0),
+    [CreatedOn] DATETIME NOT NULL DEFAULT(GETDATE())
+);
+ALTER TABLE [dbo].[UserOtp]
+ADD CONSTRAINT FK_UserOtp_usermaster
+FOREIGN KEY (UserId) REFERENCES usermaster(Id);

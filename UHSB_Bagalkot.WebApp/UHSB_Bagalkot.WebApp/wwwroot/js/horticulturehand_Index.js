@@ -83,7 +83,7 @@
             <td>${category.name}</td>
             <td>
                 <img src="${fileBaseUrl}InwardsInvoices/TempFiles/Category/${category.imageUrl}" 
-                     width="80" class="rounded" 
+                     width="30" class="rounded" 
                      onerror="this.onerror=null;this.src='https://placehold.co/80x80/E9ECEF/6c757d?text=No+Image';" />
             </td>
             <td>
@@ -112,7 +112,7 @@
                  <td>${index + 1}</td>
                  <td>${section.name}</td>
                  <td>
-                     <img src="${fileBaseUrl}InwardsInvoices/TempFiles/Sections/${section.imageUrl}" width="80" />
+                     <img src="${fileBaseUrl}InwardsInvoices/TempFiles/Sections/${section.imageUrl}" width="30" />
                  </td>
                  <td> 
                       <button class="btn btn-sm btn-outline-primary edit-btn-section" data-type="section" title="Edit">
@@ -140,7 +140,7 @@
             <td>${crop.name}</td>
             <td>${crop.categoryName}</td>
             <td>
-                <img src="${fileBaseUrl}InwardsInvoices/TempFiles/Crops/${crop.imageUrl}" width="80" />
+                <img src="${fileBaseUrl}InwardsInvoices/TempFiles/Crops/${crop.imageUrl}" width="30" />
             </td>
             <td>
                  
@@ -175,7 +175,7 @@
             <td>${item.sectionName || ''}</td>
             <td>${item.cropName || ''}</td>
             <td>${item.name || ''}</td>
-            <td><img src="${fileBaseUrl}InwardsInvoices/TempFiles/CropsItems/${item.imageUrl}" width="80" /></td>
+            <td><img src="${fileBaseUrl}InwardsInvoices/TempFiles/CropsItems/${item.imageUrl}" width="30" /></td>
             <td> 
                  <button class="btn btn-sm btn-outline-primary edit-btn-items" data-id="${item.itemId}" data-type="crop" title="Edit">
                     <i class="bi bi-pencil-square"></i>

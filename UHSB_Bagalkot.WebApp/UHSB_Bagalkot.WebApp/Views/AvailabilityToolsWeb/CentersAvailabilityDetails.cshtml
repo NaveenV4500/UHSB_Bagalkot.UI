@@ -1,0 +1,347 @@
+﻿@model UHSB_Bagalkot.Service.ViewModels.AvailabilityTools.AvailabilityToolsDetailsVM
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using UHSB_Bagalkot.Service.Common
+@using static UHSB_Bagalkot.Service.Common.CommonEnum
+ 
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada&display=swap" rel="stylesheet">
+
+<style>
+    #formPopup #custom_panel .panel-heading {
+        margin: 5px 5px 0 5px;
+        padding: 5px 15px;
+    }
+
+    #formPopup .form_section {
+        margin: 0 0 15px 0;
+    }
+
+    #formPopup #custom_panel .panel-body {
+        padding-bottom: 10px;
+    }
+
+    #table_dropdownlist th {
+        text-align: left;
+        padding: 5px;
+        overflow-wrap: break-word;
+        background-color: #c1dbfa;
+    }
+
+    #table_dropdownlist td {
+        text-align: left;
+        padding: 5px;
+        overflow-wrap: break-word;
+        cursor: pointer;
+    }
+
+    #table_dropdownlist tr:nth-child(even) {
+        background: #f3f3f3;
+    }
+
+    #input_search {
+        background-color: #fff !important;
+    }
+
+    .highlight {
+        background-color: #6da9bd !important;
+        color: #fff;
+    }
+
+    .hideChanges {
+        display: none;
+    }
+
+    .colorChanges {
+        color: red;
+    }
+
+    /* Kannada font globally */
+    body, input, textarea, select, .btn {
+        font-family: 'Noto Sans Kannada', Arial, sans-serif;
+    }
+
+    /* Loader style */
+    #loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        z-index: 1050;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .table td, .table th {
+        vertical-align: middle;
+    }
+
+    .form-control-file {
+        border: 1px solid #ced4da;
+        padding: .375rem .75rem;
+        border-radius: .25rem;
+    }
+
+    /* Smaller controls */
+    .form-select-sm, .btn-sm {
+        font-size: 0.85rem;
+        padding: 0.25rem 0.5rem;
+    }
+</style>
+
+<div class="container">
+
+    <div class="card shadow-sm mb-4" style="border:1px solid #bebeff;">
+        <div id="loader" style="display:none;">
+            <img src="~/Images/webapploader.gif" alt="Loading..." />
+        </div>
+
+        <div style="background-color:#bebeff" class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Manage Crop Content</h5>
+        </div>
+
+        <div class="card-body">
+            <form asp-action="CentersAvailabilityDetails" method="post" enctype="multipart/form-data" id="form">
+                @Html.Hidden("fileBaseUrl", ViewBag.fileBaseUrl, new { id = "fileBaseUrl" })
+                @Html.Hidden("filename", "", new { id = "filename" })
+                @Html.Hidden("ImageId", "", new { id = "ImageId" })
+                <!-- TOP FILTER ROW -->
+                <div class="row g-3 mb-4">
+
+                    <!-- District -->
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="form-label">Select District</label>
+                            </div>
+                            <div class="col-sm-8">
+                                @Html.DropDownListFor(m => m.DistrictId,
+                                                                new SelectList(Model.DistrictType, "Key", "Value", Model.DistrictId),
+                                                                "--Please Select--",
+                                                                new { @class = "form-select form-select-sm", id = "DistrictType" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Center Name -->
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="form-label">Center Name</label>
+                            </div>
+                            <div class="col-sm-8">
+                                @Html.DropDownListFor(m => m.CenterId,
+                                                                new SelectList(Model.Centerstype, "Key", "Value", Model.CenterId),
+                                                                "--Please Select--",
+                                                                new { @class = "form-select form-select-sm", id = "Centerstype" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Types -->
+                    <div class="col-sm-6">
+                        <div class="row mt-3 mt-sm-0">
+                            <div class="col-sm-4">
+                                <label class="form-label">Types</label>
+                            </div>
+                            <div class="col-sm-8">
+                                @Html.DropDownListFor(m => m.HeadId,
+                                                                new SelectList(Model.Centervariatestype, "Key", "Value", Model.HeadId),
+                                                                "--Please Select--",
+                                                                new { @class = "form-select form-select-sm", id = "Centervariatestype" })
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <hr class="my-4" />
+
+                <!-- MAIN TWO COLUMN GRID -->
+                <div class="row g-4">
+
+                    <!-- Available Tool English -->
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="form-label">Product Name (English)</label>
+                            </div>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(m => m.AvailToolname_eng, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Available Tool Kannada -->
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="form-label">Product Name (Kannada)</label>
+                            </div>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(m => m.AvailToolname_knd, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="form-label">Quantity</label>
+                            </div>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(m => m.Quantity,
+                                                                new { @class = "form-control", type = "number", min = "0" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Unit -->
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="form-label">Unit</label>
+                            </div>
+                            <div class="col-sm-8">
+                                @Html.DropDownListFor(
+                                                                m => m.Unit,
+                                                                new SelectList(Enum.GetValues(typeof(UnitType))),
+                                                                "--Select Unit--",
+                                                                new { @class = "form-select" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="form-label">Price</label>
+                            </div>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(m => m.Price,
+                                                                new { @class = "form-control", type = "number", step = "0.01" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Availability Date -->
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="form-label">Availability Date</label>
+                            </div>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(m => m.AvailabilityDate, "{0:yyyy-MM-dd}",
+                                                                new { @class = "form-control", type = "date" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Remarks -->
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="form-label">Remarks</label>
+                            </div>
+                            <div class="col-sm-8">
+                                @Html.TextAreaFor(m => m.Remarks,
+                                                                new { @class = "form-control", rows = 3 })
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Submit Button -->
+                <div class="mt-4 text-end">
+                    <button type="submit" class="btn btn-primary btn-sm px-3">
+                        <i class="bi bi-check-circle me-2"></i>Submit
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+
+    </div>
+
+    <!-- gridContent -->
+    <section id="gridContent" class="py-4">
+        <div>
+            <div id="custom_panel" class="card shadow-sm">
+                <div class="card-header" style="background-color:#bebeff;display:flex;justify-content:space-between;align-items:center;">
+                    <h6 class="text-muted mb-0">Content Details</h6>
+                    <button class="btn btn-primary btn-sm" type="button" id="griddata">
+                        <i class="bi bi-arrow-repeat me-1"></i> Refresh  
+                    </button>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div id="multiGridFilter" class="_15kxUd">
+                                @await Html.PartialAsync("_GridPagingHeader")
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr class="table-heading table-header-main">
+                                            <th class="text-center" style="min-width: 60px;">Sl. No.</th>
+                                            <th style="min-width: 150px;">Category   - ವರ್ಗ</th>
+                                            <th style="min-width: 150px;">Crop   - ಬೆಳೆ</th>
+                                            <th style="min-width: 150px;">Section   - ವಿಭಾಗ</th>
+                                            <th style="min-width: 150px;">Item   - ಉಪವಿಭಾಗ</th>
+                                            <th style="min-width: 180px;">Description - ವಿವರಣೆ / ಮಾಹಿತಿ</th>
+                                            <th class="text-center" style="min-width: 80px;">Action - ಕ್ರಿಯೆ</th>
+                                        </tr>
+
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+
+                                <div id="ajaxLoader" class="d-none">
+                                    <img src="~/Content/images/ajax_loader2.gif" alt="Loading..." style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- End -->
+
+    <div class="modal fade" id="descriptionModal" tabindex="-1" aria-labelledby="descriptionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="descriptionModalLabel"><i class="bi bi-card-text me-2"></i>Edit Description</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="editorDescription"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="saveDescription" class="btn btn-primary btn-sm"><i class="bi bi-save me-1"></i>Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/CentersAvailabilityDetails_Index.js"></script>
+    <script src="~/js/paging.js"></script>
+    <script src="~/js/generic_gridfilter.js"></script>
+    <script src="~/js/generic.js"></script>
+    <script src="~/js/rootpathfinder.js"></script>
+}

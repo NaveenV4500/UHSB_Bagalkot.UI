@@ -29,6 +29,7 @@ namespace UHSB_Bagalkot.Service.Interface
         //Save
         Task<bool> SaveCropContentAsync(List<UhsbItemImageVM> model);
 
+       
         #endregion
 
     }

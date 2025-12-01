@@ -18,6 +18,13 @@ namespace UHSB_Bagalkot.Service.Interface
         public Dictionary<int, string> GetAllUserRoleTypeAsDictionary();
         public Dictionary<int, string> GetAllDistrictsTypeAsDictionary();
 
-  
+         //del usermaster
+        bool DeleteUser(int userid, out string errorMessage);
+
+        //OTP
+        Task SaveOtpAsync(int userId, int otp);
+        Task<UserOtp> GetLatestOtpAsync(int userId);
+        Task UpdateOtpAsync(UserOtp otpRecord); 
+
     }
 }

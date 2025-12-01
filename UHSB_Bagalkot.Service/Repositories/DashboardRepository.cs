@@ -225,18 +225,19 @@ namespace UHSB_Bagalkot.Service.Repositories
             //                                 SectionId=item.SectionId,
             //                             };
 
-            if (categoryid > 0)
-            {
-                query= query.Where(x=> x.CategoryId == cropid);
-            }else if(cropid > 0)
-            {
-                query = query.Where(x => x.CropId == cropid);
-            }
-            else if (subSectId > 0)
-            {
-                query = query.Where(x => x.SectionId == subSectId);
+            //filters 
+            //if (categoryid > 0)
+            //{
+            //    query= query.Where(x=> x.CategoryId == cropid);
+            //}else if(cropid > 0)
+            //{
+            //    query = query.Where(x => x.CropId == cropid);
+            //}
+            //else if (subSectId > 0)
+            //{
+            //    query = query.Where(x => x.SectionId == subSectId);
 
-            }
+            //}
 
 
 
@@ -288,6 +289,8 @@ namespace UHSB_Bagalkot.Service.Repositories
 
             return data;
         }
+
+
 
         #region GetByIdImageConentDetails
 
@@ -444,32 +447,53 @@ namespace UHSB_Bagalkot.Service.Repositories
             return data;
         }
 
-        #endregion 
+        #endregion
 
         //save
         public async Task<bool> SaveCropContentAsync(List<UhsbItemImageVM> model)
         {
             if (model == null) return false;
-               
+
             foreach (var item in model)
             {
-                var cropItem = new UhsbItemImage
+                var existingCrop = await _context.UhsbItemImages
+                    .FirstOrDefaultAsync(x => x.ImageId == item.ImageId);
+
+                // If record exists → update
+                if (existingCrop != null)
                 {
-                    ItemId = item.ItemId ?? 0,
-                    Description = item.Description,
-                    ImageUrl = item.ImageUrl,
-                    CreatedBy = 1,
-                    ModifiedBy = 1,
-                    CreatedDate = DateTime.Now,
-                    ModifiedDate=DateTime.Now
-                };
+                    if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        existingCrop.ImageUrl = item.ImageUrl;
 
+                    }
+                    existingCrop.ItemId = item.ItemId ?? 0;
 
-                _context.UhsbItemImages.Add(cropItem);
+                    existingCrop.Description = item.Description;
+                    existingCrop.ModifiedBy = 1;
+                    existingCrop.ModifiedDate = DateTime.Now;
+                }
+                else
+                {
+                    // If record not found → insert new (optional)
+                    var newCrop = new UhsbItemImage
+                    {
+                        ItemId = item.ItemId ?? 0,
+                        Description = item.Description,
+                        ImageUrl = item.ImageUrl,
+                        CreatedBy = 1,
+                        ModifiedBy = 1,
+                        CreatedDate = DateTime.Now,
+                        ModifiedDate = DateTime.Now
+                    };
+                    _context.UhsbItemImages.Add(newCrop);
+                }
             }
+
             await _context.SaveChangesAsync();
             return true;
         }
+
         #endregion
     }
 }

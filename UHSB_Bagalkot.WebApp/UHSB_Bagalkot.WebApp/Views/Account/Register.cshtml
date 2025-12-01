@@ -11,7 +11,7 @@
     var role = Convert.ToInt32(Context.Session.GetString("UserRoleId"));
 }
 
-@if (role == (int)CommonEnum.UserRoleType.Admin ||
+@if (role == (int)CommonEnum.UserRoleType.Admin &&
     role == (int)CommonEnum.UserRoleType.Select)
 {
     <div class="container mt-4">
@@ -65,7 +65,7 @@
                         </div>
                     </div>
 
-                    @if (role == (int)CommonEnum.UserRoleType.Admin)
+                    @if (ViewBag.Role == (int)CommonEnum.UserRoleType.Admin)
                     {
                         <div class="text-end mt-4">
                             <button type="submit" class="btn btn-primary me-2">Save</button>
@@ -100,6 +100,7 @@
                             <th>@Html.DisplayNameFor(m => m.Village)</th>
                             <th>@Html.DisplayNameFor(m => m.PhoneNumber)</th>
                             <th>@Html.DisplayNameFor(m => m.IsActive)</th>
+                            <th>@Html.DisplayNameFor(m => m.CreatedDate)</th>
                         </tr>
                     </thead>
                     <tbody id="gridBody">

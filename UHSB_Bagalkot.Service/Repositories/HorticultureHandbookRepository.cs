@@ -80,7 +80,7 @@ namespace UHSB_Bagalkot.Service.Repositories
                 else
                     item.Files = new List<UhsbImageFileGridVM>();
             }
-
+         
             return mapdata;
         }
 
@@ -162,7 +162,7 @@ namespace UHSB_Bagalkot.Service.Repositories
                 else
                     item.Files = new List<UhsbImageFileGridVM>();
             }
-
+ 
             return mapdata;
 
         }

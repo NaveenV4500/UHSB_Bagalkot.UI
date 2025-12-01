@@ -53,13 +53,14 @@ public partial class Uhsb2025uatContext : DbContext
 
     public virtual DbSet<UserMaster> UserMasters { get; set; }
 
+    public virtual DbSet<UserOtp> UserOtps { get; set; }
+
     public virtual DbSet<UserRole> UserRoles { get; set; }
 
- protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-       /*UHSBGUIDE*/ //=> optionsBuilder.UseSqlServer("Server=D465PTN3;Database=UHSB_GUIDEUAT;Trusted_Connection=True;TrustServerCertificate=True;");
+        /*UHSBGUIDE*/ //=> optionsBuilder.UseSqlServer("Server=D465PTN3;Database=UHSB_GUIDEUAT;Trusted_Connection=True;TrustServerCertificate=True;");
         => optionsBuilder.UseSqlServer("Server=DESKTOP-5GU02OK;Database=UHSB2025UAT;Trusted_Connection=True;TrustServerCertificate=True;");
-
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -377,6 +378,24 @@ public partial class Uhsb2025uatContext : DbContext
             entity.Property(e => e.PhoneNumber).HasMaxLength(20);
             entity.Property(e => e.UserName).HasMaxLength(100);
             entity.Property(e => e.Village).HasMaxLength(250);
+        });
+
+        modelBuilder.Entity<UserOtp>(entity =>
+        {
+            entity.HasKey(e => e.OtpId).HasName("PK__UserOtp__3143C4A3BB668B5E");
+
+            entity.ToTable("UserOtp");
+
+            entity.Property(e => e.CreatedOn)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.ExpiryTime).HasColumnType("datetime");
+            entity.Property(e => e.Otp).HasColumnName("OTP");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserOtps)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserOtp_usermaster");
         });
 
         modelBuilder.Entity<UserRole>(entity =>

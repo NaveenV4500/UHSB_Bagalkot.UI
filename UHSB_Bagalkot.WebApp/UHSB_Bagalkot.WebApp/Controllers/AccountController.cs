@@ -2,11 +2,14 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Security.Claims;
 using System.Text;
 using UHSB_Bagalkot.Service.Common;
+using UHSB_Bagalkot.Service.Interface;
+using UHSB_Bagalkot.Service.Repositories;
 using UHSB_Bagalkot.Service.ViewModels; 
 
 namespace UHSB_Bagalkot.WebApp.Controllers
@@ -14,8 +17,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
     public class AccountController : Controller
     {
         private readonly ApiSettings _apiSettings;
-        private readonly HttpClient _httpClient;
-
+        private readonly HttpClient _httpClient; 
         public AccountController(IHttpClientFactory httpClientFactory, IConfiguration config, IOptions<ApiSettings> apiSettings)
         {
 
@@ -162,6 +164,131 @@ namespace UHSB_Bagalkot.WebApp.Controllers
                 return RedirectToAction("Login");
             }
         }
+
+        [HttpPost]
+        public async Task<JsonResult> DeleteUser([FromBody] int userid) 
+        {
+            var token = HttpContext.Session.GetString("AccessToken");
+            if (string.IsNullOrEmpty(token))
+            {
+                return Json(new { success = false, message = "Session expired" });
+            }
+
+            try
+            {
+                using var httpClient = new HttpClient();
+
+                // API URL with query string
+                var apiUrl = _apiSettings.Base_Url+$"/Account/deleteuser?userid={userid}";
+
+                var response = await httpClient.PostAsync(apiUrl, null); // no body needed
+                var responsetext = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Json(new { success = false, message = "Delete failed", details = responsetext });
+                }
+
+                return Json(new { success = responsetext });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error occurred", details = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> SendOtp([FromBody] LoginVM obj)
+        {
+            try
+            {
+                CommonEnum.WriteLog($"SendOtp request received for email: {obj.UserName}");
+
+                var json = JsonConvert.SerializeObject(obj);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync($"{_apiSettings.Base_Url}/Account/SendOtp", content);
+                CommonEnum.WriteLog($"SendOtp API response status: {response.StatusCode}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    CommonEnum.WriteLog($"Unable to send OTP for email: {obj.UserName}");
+                    return Json(new OtpResponse
+                    {
+                        Success = false,
+                        Message = "Unable to send OTP."
+                    });
+                }
+
+                var result = await response.Content.ReadAsStringAsync();
+                CommonEnum.WriteLog($"SendOtp API response: {result}");
+
+                var apiRes = JsonConvert.DeserializeObject<OtpResponse>(result);
+                apiRes.Email = apiRes.Email?.Trim();
+
+                return Json(apiRes);
+            }
+            catch (Exception ex)
+            {
+                CommonEnum.WriteLog($"Exception in SendOtp for email: {obj.UserName} - {ex.Message}");
+                return Json(new OtpResponse
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyOtpPost([FromBody] VerifyOtpVM obj)
+        {
+            try
+            {
+                CommonEnum.WriteLog($"VerifyOtpPost request received for UserID: {obj.UserId}");
+
+                var json = JsonConvert.SerializeObject(obj);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync($"{_apiSettings.Base_Url}/Account/VerifyOtpPost", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Json(new { success = false, message = "OTP verification failed" });
+                }
+
+                var jsonString = await response.Content.ReadAsStringAsync();
+                var loginResponse = JsonConvert.DeserializeObject<LoginResponse>(jsonString);
+
+                if (!loginResponse.success)
+                {
+                    return Json(new { success = false, message = loginResponse.userName });
+                }
+
+                HttpContext.Session.SetString("AccessToken", loginResponse.accessToken);
+                HttpContext.Session.SetString("RefreshToken", loginResponse.refreshToken);
+                HttpContext.Session.SetString("UserName", loginResponse.userName);
+                HttpContext.Session.SetInt32("UserID", loginResponse.userID);
+                HttpContext.Session.SetInt32("userRoleType", Convert.ToInt16(loginResponse.userRoleType));
+
+                var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, loginResponse.userName),
+            new Claim("UserID", loginResponse.userID.ToString())
+        };
+
+                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var principal = new ClaimsPrincipal(identity);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+                return Json(new { success = true, redirectUrl = Url.Action("AdminHome", "Dashboard") });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+
 
     }
 }

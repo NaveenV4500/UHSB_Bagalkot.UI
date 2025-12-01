@@ -29,6 +29,8 @@ builder.Services.AddScoped<IWeatherCastRepository, WeatherCastRepository>();
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 builder.Services.AddScoped<ICetegoryRepository, CetegoryRepository>();
 builder.Services.AddScoped<IAvailabilityToolsRepository, AvailabilityToolsRepository>();
+
+builder.Services.AddScoped<IEmailService, EmailService>(); 
 builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddProfile<AutoMapperConfig>();

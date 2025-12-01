@@ -276,14 +276,16 @@ namespace UHSB_Bagalkot.WebApp.Controllers
                     {
                         await item.ImageFile.CopyToAsync(stream);
                     }
-
                     // Store relative path to send in JSON
-                    obj.ImageUrl =   fileName ;
-                    obj.ItemId=item.ItemId??0;
-                    obj.Description=item.Description;
-                    // Optionally clear the IFormFile to reduce JSON size
-                    jsonModel.Add(obj);
+                    obj.ImageUrl = fileName;
+
                 }
+               
+                obj.ItemId = item.ItemId ?? 0;
+                obj.Description = item.Description;
+                obj.ImageId = model.ImageId;
+                // Optionally clear the IFormFile to reduce JSON size
+                jsonModel.Add(obj);
             }
 
             // Serialize model to JSON

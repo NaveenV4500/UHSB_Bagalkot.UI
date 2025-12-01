@@ -91,10 +91,14 @@ function setupControls() {
         eventTextForLast = "return pageGrid('last');";
     }
     //#endregion
-    var eleString = $("<li class=\"paginate_button previous\"><a class=\"glyphicon glyphicon-backward\" href=\"javascript:void(0)\" onclick=\"" + eventTextForFirst + "\"  " + disableTextForPrev + "></a></li>")
+    // First
+    var eleString = $("<li class=\"paginate_button previous\"><a class=\"bi bi-skip-start-fill\" href=\"javascript:void(0)\" onclick=\"" + eventTextForFirst + "\" " + disableTextForPrev + "></a></li>");
     navButtons.append(eleString);
-    eleString = $("<li class=\"paginate_button previous\"><a href=\"javascript:void(0)\" class=\"glyphicon glyphicon-step-backward\" onclick=\"" + eventTextForPrev + "\" " + disableTextForPrev + "></a></li>")
+
+    // Previous
+    eleString = $("<li class=\"paginate_button previous\"><a href=\"javascript:void(0)\" class=\"bi bi-caret-left-fill\" onclick=\"" + eventTextForPrev + "\" " + disableTextForPrev + "></a></li>");
     navButtons.append(eleString);
+
     var numberButtonCount = 5;
     var start = currentPage - Math.floor(numberButtonCount / 2);
     if (start < 1) {
@@ -116,13 +120,18 @@ function setupControls() {
         }
     }
     for (var i = start; i <= end; i++) {
-        eleString = $("<li class=\"paginate_button\"><a href=\"javascript:void(0)\" onclick=\"return pageGrid(" + i + ");\">" + i + "</a></li>")
+        eleString = $("<li class=\"paginate_button\"><a href=\"javascript:void(0)\" onclick=\"return pageGrid(" + i + ");\">" + i + "</a></li>");
         navButtons.append(eleString);
     }
-    eleString = $("<li class=\"paginate_button next\"><a class=\"glyphicon glyphicon-step-forward\" href=\"javascript:void(0)\" onclick=\"" + eventTextForNext + "\" " + disableTextForNext + "></a></li>")
+
+    // Next
+    eleString = $("<li class=\"paginate_button next\"><a class=\"bi bi-caret-right-fill\" href=\"javascript:void(0)\" onclick=\"" + eventTextForNext + "\" " + disableTextForNext + "></a></li>");
     navButtons.append(eleString);
-    eleString = $("<li class=\"paginate_button previous\"><a class=\"glyphicon glyphicon-forward\" href=\"javascript:void(0)\" onclick=\"" + eventTextForLast + "\" " + disableTextForNext + "></a></li>")
+
+    // Last
+    eleString = $("<li class=\"paginate_button previous\"><a class=\"bi bi-skip-end-fill\" href=\"javascript:void(0)\" onclick=\"" + eventTextForLast + "\" " + disableTextForNext + "></a></li>");
     navButtons.append(eleString);
+
     //pagingDetails();
 }
 function pagingDetails() {
@@ -192,10 +201,14 @@ function setupControls_ChildGrid() {
         eventTextForLast = "return pageGrid_ChildGrid('last');";
     }
     //#endregion
-    var eleString = $("<li class=\"paginate_button previous\"><a class=\"glyphicon glyphicon-backward\" href=\"javascript:void(0)\" onclick=\"" + eventTextForFirst + "\"  " + disableTextForPrev + "></a></li>")
+    // First
+    var eleString = $("<li class=\"paginate_button previous\"><a class=\"bi bi-skip-start-fill\" href=\"javascript:void(0)\" onclick=\"" + eventTextForFirst + "\" " + disableTextForPrev + "></a></li>");
     navButtons.append(eleString);
-    eleString = $("<li class=\"paginate_button previous\"><a href=\"javascript:void(0)\" class=\"glyphicon glyphicon-step-backward\" onclick=\"" + eventTextForPrev + "\" " + disableTextForPrev + "></a></li>")
+
+    // Previous
+    eleString = $("<li class=\"paginate_button previous\"><a href=\"javascript:void(0)\" class=\"bi bi-caret-left-fill\" onclick=\"" + eventTextForPrev + "\" " + disableTextForPrev + "></a></li>");
     navButtons.append(eleString);
+
     var numberButtonCount = 5;
     var start = currentPage_ChildGrid - Math.floor(numberButtonCount / 2);
     if (start < 1) {

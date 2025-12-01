@@ -4,13 +4,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using System.Web.Helpers;
 using UHSB_Bagalkot.Data;
 using UHSB_Bagalkot.Data.Models;
+using UHSB_Bagalkot.Service.AppSettings;
 using UHSB_Bagalkot.Service.Common;
 using UHSB_Bagalkot.Service.Interface;
 using UHSB_Bagalkot.Service.Repositories;
@@ -25,11 +28,14 @@ namespace UHSB_Bagalkot.UI.Controllers
         private readonly IAccountRepository _accountRepository;
         private readonly IConfiguration _configuration;
         private readonly TokenService _tokenService;
-        public AccountController(IAccountRepository accountRepository, IConfiguration configuration, TokenService tokenService)
+        private readonly HttpClient _httpClient = new HttpClient(); 
+        private readonly IEmailService _emailService;
+        public AccountController(IAccountRepository accountRepository, IConfiguration configuration, TokenService tokenService,IEmailService emailService)
         {
             _accountRepository = accountRepository;
             _configuration = configuration;
             _tokenService = tokenService;
+            _emailService = emailService;
         }
 
 
@@ -322,7 +328,7 @@ namespace UHSB_Bagalkot.UI.Controllers
         }
 
 
-        [HttpPost("register")]
+        [HttpPost("registerold")]
         public async Task<IActionResult> Register([FromBody] UserMasterVM request)
         {
             if (string.IsNullOrEmpty(request.UserName) ||
@@ -424,6 +430,137 @@ namespace UHSB_Bagalkot.UI.Controllers
 
             return Ok(new { success = true, message = "Profile updated successfully" });
         }
+        #endregion
+
+        #region Delete Userid
+        [HttpPost("deleteuser")]
+        public async Task<IActionResult> DeleteUser([FromQuery] int userid)
+        {
+            string errorMessage = string.Empty;
+            var data = await Task.Run(() => _accountRepository.DeleteUser(userid, out errorMessage));
+            return Ok(errorMessage);
+        }
+
+
+
+        #endregion
+
+
+
+        #region OTP Master
+        [HttpPost("SendOtp")]
+        public async Task<IActionResult> SendOtp([FromBody] LoginVM obj)
+        {
+            try
+            {
+                CommonEnum.WriteLog($"SendOtp request received: UserName={obj.UserName}, PhoneNumber={obj.PhoneNumber}");
+
+                if (string.IsNullOrWhiteSpace(obj.UserName) || string.IsNullOrWhiteSpace(obj.PhoneNumber))
+                {
+                    CommonEnum.WriteLog("SendOtp validation failed: Username or Phone Number missing.");
+                    return BadRequest(new { success = false, message = "Username and Phone Number are required." });
+                }
+
+                obj.UserName = obj.UserName.Trim();
+                obj.PhoneNumber = obj.PhoneNumber.Trim();
+
+                var user = await _accountRepository.GetUserByPhoneAsync(obj.PhoneNumber, obj.UserName, obj.IsFromadmin);
+                if (user == null)
+                {
+                    CommonEnum.WriteLog($"SendOtp failed: User not found or inactive for PhoneNumber={obj.PhoneNumber}");
+                    return Ok(new { success = false, message = "User not found or inactive." });
+                }
+
+                int otp = new Random().Next(100000, 999999);
+                CommonEnum.WriteLog($"Generated OTP {otp} for UserID={user.Id}");
+
+                await _accountRepository.SaveOtpAsync(user.Id, otp);
+                CommonEnum.WriteLog($"Saved OTP for UserID={user.Id}");
+
+                await _emailService.SendEmailAsync(
+                    user.EmailId,
+                    "UHSB Horti Guide Login OTP",
+                    $"Hello {user.UserName},\n\nYour OTP for login is {otp}. It is valid for 5 minutes.\n\nRegards,\nUHSB Bagalkot"
+                );
+                CommonEnum.WriteLog($"OTP email sent to {user.EmailId} for UserID={user.Id}");
+
+                return Ok(new { success = true, userId = user.Id, email = user.EmailId, message = "OTP sent successfully." });
+            }
+            catch (Exception ex)
+            {
+                CommonEnum.WriteLog($"Exception in SendOtp: {ex.Message}\n{ex.StackTrace}");
+                return StatusCode(500, new { success = false, message = "Internal server error." });
+            }
+        }
+
+
+        [HttpPost("VerifyOtpPost")]
+        public async Task<IActionResult> VerifyOtpPost([FromBody] VerifyOtpVM obj)
+        {
+            if (obj.UserId <= 0 || string.IsNullOrWhiteSpace(obj.Otp))
+                return BadRequest(new { success = false, message = "Invalid request." });
+
+            var otpRecord = await _accountRepository.GetLatestOtpAsync(obj.UserId);
+            if (otpRecord == null)
+                return Ok(new { success = false, message = "OTP not found. Please request again." });
+
+            if (otpRecord.IsUsed)
+                return Ok(new { success = false, message = "OTP already used. Request a new OTP." });
+
+            if (otpRecord.ExpiryTime < DateTime.Now)
+                return Ok(new { success = false, message = "OTP expired. Request a new OTP." });
+
+            if (otpRecord.Otp.ToString() != obj.Otp)
+                return Ok(new { success = false, message = "Invalid OTP." });
+
+            // Mark OTP as used
+            otpRecord.IsUsed = true;
+            await _accountRepository.UpdateOtpAsync(otpRecord);
+
+            // ⬇️ Prepare login request payload for internal login API call
+            var loginRequest = new LoginVM
+            {
+                PhoneNumber = obj.PhoneNumber,
+                UserName = obj.UserName,
+                IsFromadmin = true
+            };
+
+            // 🔥 Instead of HTTP call, invoke login API logic directly
+            var loginResult = await LoginInternal(loginRequest);
+            if (!loginResult.success)
+                return Ok(loginResult);
+
+            return Ok(loginResult);
+        }
+        private async Task<dynamic> LoginInternal(LoginVM request)
+        {
+            var user = await _accountRepository.GetUserByPhoneAsync(request.PhoneNumber, request.UserName, request.IsFromadmin);
+            if (user == null)
+                return new { success = false, message = "Phone number not registered or inactive." };
+
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, user.UserName),
+        new Claim(ClaimTypes.MobilePhone, user.PhoneNumber)
+    };
+
+            var accessToken = _tokenService.GenerateAccessToken(claims.ToArray());
+            var refreshToken = _tokenService.GenerateRefreshToken();
+            _tokenService.SaveRefreshTokenToDb(user.Id, refreshToken);
+
+            return new
+            {
+                success = true,
+                accessToken = accessToken,
+                refreshToken = refreshToken.Token,
+                userName = user.UserName,
+                userId = user.Id,
+                userRoleType = user.RoleType,
+                phoneNo = user.PhoneNumber,
+                isactive = user.IsActive
+            };
+        }
+
         #endregion
     }
 }

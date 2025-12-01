@@ -58,7 +58,10 @@ namespace UHSB_Bagalkot.Service.Repositories
                         existingUser.ModifiedDate = DateTime.UtcNow;
                         existingUser.ModifiedBy = 0;
                         existingUser.IsActive = user.IsActive;
-
+                        existingUser.Village = user.Village;
+                        existingUser.Address = user.Address;
+                        existingUser.EmailId = user.EmailId;
+                        existingUser.EmployeeId = user.EmployeeId;
                         _context.UserMasters.Update(existingUser);
 
                         //existingFarmerProfile = await _context.FarmersProfiles
@@ -101,6 +104,10 @@ namespace UHSB_Bagalkot.Service.Repositories
                             ModifiedDate = DateTime.UtcNow,
                             CreatedBy = 0,
                             ModifiedBy = 0,
+                            Village = user.Village,
+                            Address = user.Address,
+                            EmailId=user.EmailId,
+                            EmployeeId=user.EmployeeId
                         };
                         _context.UserMasters.Add(newUser);
                         await _context.SaveChangesAsync();
@@ -149,7 +156,59 @@ namespace UHSB_Bagalkot.Service.Repositories
                 .ToDictionary(x => x.Id, x => x.RoleName);
         }
 
-        
+        //del usermaster
+        public  bool DeleteUser(int userid, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            try
+            {
+                var delusers =   _context.UserMasters.Find(userid);
+                if (delusers != null)
+                {
+                    _context.UserMasters.Remove(delusers);
+                    _context.SaveChanges(); 
+                    errorMessage = "User Delete Successfully";
+
+                    return true;
+                }
+                errorMessage = "User not found";
+                return false;
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+                return false;
+            }
+        }
+
+        public async Task SaveOtpAsync(int userId, int otp)
+        {
+            var entity = new UserOtp
+            {
+                UserId = userId,
+                Otp = otp,
+                ExpiryTime = DateTime.Now.AddMinutes(5), // OTP valid for 5 minutes
+                IsUsed = false,
+                CreatedOn = DateTime.Now
+            };
+
+            _context.UserOtps.Add(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<UserOtp> GetLatestOtpAsync(int userId)
+        {
+            return await _context.UserOtps
+                .Where(o => o.UserId == userId && !o.IsUsed)
+                .OrderByDescending(o => o.CreatedOn)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task UpdateOtpAsync(UserOtp otpRecord)
+        {
+            _context.UserOtps.Update(otpRecord);
+            await _context.SaveChangesAsync();
+        }
 
     }
 }

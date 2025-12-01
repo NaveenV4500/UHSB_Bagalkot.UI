@@ -64,7 +64,7 @@
         LoadAjaxAnimation(true);
         var tablebody = $('#gridContent table tbody');
         if (!tablebody.children().children("td").length < 2) {
-            tablebody.append('<tr><td colspan="27"><div style="min-height:120px;"></div></td><tr>');
+            //tablebody.append('<tr><td colspan="27"><div style="min-height:120px;"></div></td><tr>');
         }
         debugger;
         loader.width(tablebody.width());
@@ -86,12 +86,12 @@
             success: function (response, successStatusText, responseJqXhrObject) {
                 //window.LogAjaxRequestDetails(responseJqXhrObject);
                 debugger;
-                //alert("success");
+                debugger;
                 gridJson = response;
-                ;
+                console.log(JSON.stringify(gridJson));
+
                 tablebody.find('tr:gt(0)').remove();
-
-
+                 
                 if (response.data.itemDetails && response.data.itemDetails.length) {
                     
 
@@ -102,14 +102,14 @@
                         if (response.CanEdit || response.CanDelete) {
                             var edit_span = '';
                             var delete_span = '';
-                            var saperator = '';
+                            var saperator = '|';
 
 
                             if (response.CanEdit) {
                                 edit_span = '<span id=' + item.UserId + ' class="btn-link edit " style="cursor:pointer" >Edit</span>';
                             }
                             if (response.CanDelete) {
-                                delete_span = '<span id=' + item.UserId + ' class="btn-link delete " style="cursor:pointer" >Delete</span></td>';
+                                delete_span = '<span id=' + item.UserId + ' class="btn-link delete" style="cursor:pointer" >Delete</span></td>';
                             }
                             if (response.CanEdit && response.CanDelete) {
                                 saperator = '|';
@@ -117,8 +117,10 @@
                             rowContent = "<td class='text-center'>" + view_span + edit_span + saperator + delete_span + "</td>";
                         }
                         if (!response.CanEdit && !response.CanDelete) {
-                            view_span = '<span id=' + item.UserId + ' class="btn-link view" style="cursor:pointer" >View</span>';
-                            rowContent = "<td class='text-center'>" + view_span + "</td>";
+                            delete_span = '<span id=' + item.id + ' class="btn-link delete" style="cursor:pointer" >Delete</span></td>';
+
+                            view_span = '<span id=' + item.id + ' class="btn-link view" style="cursor:pointer" >View</span>';
+                            rowContent = "<td class='text-center'>" + view_span + '|' +delete_span+ "</td>";
                         }
                         rowContent +=
                             '<td class="text-center">' + (parseInt((currentPage - 1) * pageSize) + parseInt(index + 1)) + '</td>' +
@@ -126,10 +128,12 @@
                             '<td>' + BindValueToGrid(item.roleTypeName || '', false, false) + '</td>' +
 
                             '<td>' + BindValueToGrid(item.districtsName || '', false, false) + '</td>' +
-                        '<td>' + BindValueToGrid(item.village || '', false, false) + '</td>' +
-                        '<td>' + BindValueToGrid(item.phoneNumber || '', false, false) + '</td>' +
+                            '<td>' + BindValueToGrid(item.village || '', false, false) + '</td>' +
+                            '<td>' + BindValueToGrid(item.phoneNumber || '', false, false) + '</td>' +
 
-                            '<td>' + BindValueToGrid(item.isActive, false, true) + '</td>' ;
+                        '<td>' + BindValueToGrid(item.isActive, false, true) + '</td>' +
+
+                        '<td>' + BindValueToGrid(item.createdDate, true, false) + '</td>' ;
                             //'<td>' + BindValueToGrid(item.isResetRequested || false, false, true) + '</td>';
 
                         tablebody.append('<tr>' + rowContent + '</tr>');
@@ -138,7 +142,7 @@
                 else {
                     tablebody.append('<tr><td colspan="27"><h3 style="width:400px;min-height:120px;">No Data Found!!!</h3></td><tr>');
                 }
-                totalRecords = response.totalCount;
+                totalRecords = response.data.totalCount;
                 setupControls();
                 pagingDetails();
                 var elem = $('#pagingButtons li a');
@@ -288,40 +292,29 @@
     //#region Delete
     $('body').on('click', 'span.delete', function (e) {
         var rowId = $(this).attr("id");
-        var flag = confirm('Are you sure to delete?');
-        if (flag) {
+        if (confirm('Are you sure to delete?')) {
             e.preventDefault();
-            var model = { "UserId": rowId };
 
             $.ajax({
-                cache: false,
                 type: "POST",
+                url: GetRootPath(window.virtualPath) + '/Account/DeleteUser',
                 contentType: "application/json; charset=utf-8",
-                url: GetRootPath(window.virtualPath) + 'UserMaster/UserDelete',
-                data: JSON.stringify(model),
+                data: JSON.stringify(rowId),   // send only number
                 dataType: "json",
-                beforeSend: function () { },
-                success: function (data, successStatusText, responseJqXhrObject) {
-                    //window.LogAjaxRequestDetails(responseJqXhrObject);
-                    if (data == true) {
-                        alert("record deleted succesfully!")
-                        setTimeout(function () { location.reload(); }, 100);
-                    }
-                    else {
-                        alert('There is some error');
-                    }
+                success: function (data) {
+                    debugger
+                    
+                        alert(data.success);
+                        setTimeout(() => location.reload(), 100);
+                    
                 },
-                error: function (error, b, c) {
-                    if (error.status == 302) {
-                        //alert(302);
-                        return
-                    }
-                    alert(error.statusText);
-                    //Removed Con_sole logging
+                error: function (xhr) {
+                    alert(xhr.statusText);
                 }
             });
         }
     });
+
     //#endregion
 
     //#region AddNew

@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UHSB_Bagalkot.Data.Models;
 using UHSB_Bagalkot.Service.Common;
+using UHSB_Bagalkot.Service.Dto;
 using UHSB_Bagalkot.Service.Interface;
 using UHSB_Bagalkot.Service.ViewModels.AvailabilityTools;
 using UHSB_Bagalkot.Service.ViewModels.Sections;
@@ -31,6 +32,17 @@ namespace UHSB_Bagalkot.Service.Repositories
         {
             return _context.Database.GetDbConnection().ConnectionString;
         }
+        public async Task<List<UhsbSeedPlantingCenterMasterVM>> GetRecordHeadMaster(int districtId = 0)
+        {
+            var entity = await _context.UhsbSeedPlantingCenterMasters
+                                       .Where(x => x.DistrictId == districtId)
+                                       .ToListAsync();
+
+            if (entity == null || entity.Count == 0)
+                return new List<UhsbSeedPlantingCenterMasterVM>();
+
+            return _mapper.Map<List<UhsbSeedPlantingCenterMasterVM>>(entity);
+        }
         public async Task<List<UhsbSeedPlantingCenterMasterVM>> GetCenterByDistrict(int districtId = 0)
         {
             var entity = await _context.UhsbSeedPlantingCenterMasters
@@ -42,14 +54,21 @@ namespace UHSB_Bagalkot.Service.Repositories
 
             return _mapper.Map<List<UhsbSeedPlantingCenterMasterVM>>(entity);
         }
-
         //getgridcontentavailabilitytools
-        public async Task<GenericGridModel<AvailabilityToolsDetailsVM>> getgridcontentavailabilitytools(int currentPage = 1, int pageSize = 10, GridEnum.AvailabilityToolsFilterBy orderBy = GridEnum.AvailabilityToolsFilterBy.CreatedDate, bool isDescending = false, string filterDetails = null, string externalFilter = null, int centerid = 0, int districtid = 0, int pagetype =0)
+        public async Task<GenericGridModel<AvailabilityToolsDetailsVM>> getgridcontentavailabilitytools(
+            int currentPage = 1,
+            int pageSize = 10,
+            GridEnum.AvailabilityToolsFilterBy orderBy = GridEnum.AvailabilityToolsFilterBy.CreatedDate,
+            bool isDescending = false,
+            string filterDetails = null,
+            string externalFilter = null,
+            int centerid = 0,
+            int districtid = 0,
+            int pagetype = 0)
         {
-             
-            var result = new GenericGridModel<AvailabilityToolsDetailsVM>();
-            var items = new List<AvailabilityToolsDetailsVM>();
+            CommonEnum.WriteLog($"Repository: Fetching AvailabilityTools | DistrictId={districtid}, CenterId={centerid}, PageType={pagetype}");
 
+            var items = new List<AvailabilityToolsDetailsVM>();
             string connectionString = GetConnectionString();
 
             using SqlConnection con = new(connectionString);
@@ -59,8 +78,8 @@ namespace UHSB_Bagalkot.Service.Repositories
             };
 
             cmd.Parameters.AddWithValue("@DistrictId", districtid);
-            cmd.Parameters.AddWithValue("@CenterId", centerid);  
-            cmd.Parameters.AddWithValue("@pagetype", pagetype); 
+            cmd.Parameters.AddWithValue("@CenterId", centerid);
+            cmd.Parameters.AddWithValue("@pagetype", pagetype);
 
             await con.OpenAsync();
 
@@ -71,69 +90,58 @@ namespace UHSB_Bagalkot.Service.Repositories
                 {
                     Identifier = reader["identifier"] != DBNull.Value ? Convert.ToInt32(reader["identifier"]) : 0,
                     CenterId = reader["CenterId"] != DBNull.Value ? Convert.ToInt32(reader["CenterId"]) : 0,
-
                     Centername_eng = reader["Centername_eng"]?.ToString() ?? string.Empty,
                     Centername_knd = reader["Centername_knd"]?.ToString() ?? string.Empty,
-
                     DistrictId = reader["DistrictId"] != DBNull.Value ? Convert.ToInt32(reader["DistrictId"]) : 0,
-
                     HeadId = reader["HeadId"] != DBNull.Value ? Convert.ToInt32(reader["HeadId"]) : 0,
                     RecordHead_eng = reader["RecordHead_eng"]?.ToString() ?? string.Empty,
                     RecordHead_knd = reader["RecordHead_knd"]?.ToString() ?? string.Empty,
-
                     AvailToolname_eng = reader["AvailToolname_eng"]?.ToString() ?? string.Empty,
                     AvailToolname_knd = reader["AvailToolname_knd"]?.ToString() ?? string.Empty,
-
                     Quantity = reader["Quantity"] != DBNull.Value ? Convert.ToInt32(reader["Quantity"]) : (int?)null,
                     Unit = reader["Unit"]?.ToString() ?? string.Empty,
-
                     Price = reader["Price"] != DBNull.Value ? Convert.ToDecimal(reader["Price"]) : (decimal?)null,
-
-                    AvailabilityDate = reader["AvailabilityDate"] != DBNull.Value
-                                        ? Convert.ToDateTime(reader["AvailabilityDate"])
-                                        : (DateTime?)null,
-
+                    AvailabilityDate = reader["AvailabilityDate"] != DBNull.Value ? Convert.ToDateTime(reader["AvailabilityDate"]) : (DateTime?)null,
                     Remarks = reader["Remarks"]?.ToString() ?? string.Empty,
-
                     CreatedBy = reader["CreatedBy"] != DBNull.Value ? Convert.ToInt32(reader["CreatedBy"]) : (int?)null,
                     CreatedDate = reader["CreatedDate"] != DBNull.Value ? Convert.ToDateTime(reader["CreatedDate"]) : (DateTime?)null,
-
                     ModifiedBy = reader["ModifiedBy"] != DBNull.Value ? Convert.ToInt32(reader["ModifiedBy"]) : (int?)null,
                     ModifiedDate = reader["ModifiedDate"] != DBNull.Value ? Convert.ToDateTime(reader["ModifiedDate"]) : (DateTime?)null
                 });
             }
-             
+
+            CommonEnum.WriteLog($"Repository: Raw items fetched = {items.Count}");
+
             var query = items.AsQueryable();
-   
-            // Apply filters if any
-            List<GridFilterModel> filters = null;
+
             if (!string.IsNullOrEmpty(filterDetails))
             {
-                filters = JsonConvert.DeserializeObject<List<GridFilterModel>>(filterDetails);
+                var filters = JsonConvert.DeserializeObject<List<GridFilterModel>>(filterDetails);
                 if (filters != null && filters.Count > 0)
                 {
                     foreach (var filter in filters)
                     {
-                        Expression<Func<AvailabilityToolsDetailsVM, bool>> predicate =
-                            GetWherePrediction((GridEnum.AvailabilityToolsFilterBy)filter.filterBy,
-                                               (filter.filterTxt ?? "").Trim(),
-                                               (GridEnum.FilterTypeEnum)filter.filterType);
+                        var predicate = GetWherePrediction(
+                            (GridEnum.AvailabilityToolsFilterBy)filter.filterBy,
+                            (filter.filterTxt ?? "").Trim(),
+                            (GridEnum.FilterTypeEnum)filter.filterType
+                        );
+
                         if (predicate != null)
                             query = query.Where(predicate);
                     }
                 }
             }
 
-            // Total count before paging
             var totalCount = query.Count();
 
-             
-            // Paging
-            var dataList = query.Skip((currentPage - 1) * pageSize)
-                                      .Take(pageSize)
-                                      .ToList();
+            CommonEnum.WriteLog($"Repository: After filtering rows = {totalCount}");
 
-            var data = new GenericGridModel<AvailabilityToolsDetailsVM>
+            var dataList = query.Skip((currentPage - 1) * pageSize)
+                                .Take(pageSize)
+                                .ToList();
+
+            return new GenericGridModel<AvailabilityToolsDetailsVM>
             {
                 ItemDetails = dataList,
                 TotalCount = totalCount,
@@ -144,8 +152,6 @@ namespace UHSB_Bagalkot.Service.Repositories
                 CanViewSingle = true,
                 CanViewMultiple = true
             };
-
-            return data;
         }
 
         // Filtering logic
@@ -202,5 +208,33 @@ namespace UHSB_Bagalkot.Service.Repositories
             return predicate;
         }
 
+        /// <summary>
+        /// plantingcentersDD
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<DropdownItemDto>> plantingcentersDD()
+        {
+            return await _context.UhsbSeedPlantingCenterMasters
+                .OrderBy(c => c.CenternameEng)
+                .Select(c => new DropdownItemDto
+                {
+                    Id = c.CenterId,
+                    Name = c.CenternameEng +" - "+ c.CenternameKnd,
+                })
+                .ToListAsync();
+        }
+
+       
+        public async Task<List<DropdownItemDto>> RecordHeadTypeDD()
+        {
+            return await _context.UhsbRecordHeadMasters
+                .OrderBy(c => c.RecordHeadEng)
+                .Select(c => new DropdownItemDto
+                {
+                    Id = c.HeadId,
+                    Name = c.RecordHeadEng + " - " + c.RecordHeadKnd,
+                })
+                .ToListAsync();
+        }
     }
 }

@@ -27,19 +27,27 @@ namespace UHSB_Bagalkot.UI.Controllers
         }
 
         [HttpGet("getgridcontentavailabilitytools")]
-        public async Task<IActionResult> getgridcontentavailabilitytools(int currentPage = 1, int pageSize = 10, GridEnum.AvailabilityToolsFilterBy orderBy = GridEnum.AvailabilityToolsFilterBy.CreatedDate, bool isDescending = false, string filterDetails = null, string externalFilter = null, int centerid = 0, int districtid = 0, int pagetype = 0)
+        public async Task<IActionResult> getgridcontentavailabilitytools(int currentPage = 1, int pageSize = 10,GridEnum.AvailabilityToolsFilterBy orderBy = GridEnum.AvailabilityToolsFilterBy.CreatedDate, bool isDescending = false,string filterDetails = null,string externalFilter = null, int centerid = 0, int districtid = 0, int pagetype = 0)
         {
-            var result = await _repository.getgridcontentavailabilitytools(
-                currentPage, pageSize, orderBy, isDescending, filterDetails,
-                externalFilter, centerid, districtid, pagetype
-            );
-
-            return Ok(new ApiResponse<object>
-            {
-                Success = true,
-                Data = result
-            });
+            CommonEnum.WriteLog($"Availability Tools - API hit | DistrictId={districtid}, CenterId={centerid}, Page={currentPage}");
+            var result = await _repository.getgridcontentavailabilitytools(currentPage, pageSize, orderBy, isDescending,filterDetails, externalFilter, centerid, districtid, pagetype);
+            CommonEnum.WriteLog($"Availability Tools - Returning {result.TotalCount} rows");
+            return Ok(new ApiResponse<object> {  Success = true, Data = result  });
         }
 
+
+        [HttpGet("plantingcentersDD")]
+        public async Task<IActionResult> plantingcentersDD()
+        {
+            var categories = await _repository.plantingcentersDD();
+            return Ok(categories);
+        }
+
+        [HttpGet("recordheadtypeDD")]
+        public async Task<IActionResult> recordheadtypeDD()
+        {
+            var categories = await _repository.RecordHeadTypeDD();
+            return Ok(categories);
+        }
     }
 }

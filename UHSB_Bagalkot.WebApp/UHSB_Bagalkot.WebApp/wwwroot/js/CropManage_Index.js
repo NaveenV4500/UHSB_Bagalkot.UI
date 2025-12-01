@@ -84,62 +84,7 @@
     var currentPage = 1;
     var pageSize = 10;
 
-    function loadItems(subSectId) {
-
-        var tbody = $('#ItemImagesTable tbody');
-        tbody.empty(); // clear existing rows
-        tbody.append('<tr><td colspan="5" class="text-center">Loading...</td></tr>');
-
-        $.ajax({
-            url: GetRootPath(window.virtualPath) + '/Dashboard/GetGridContentV1?subSectId=' + subSectId + '&cropid=' + cropid,
-            method: 'GET',
-            dataType: 'json',
-            success: function (response) {
-                tbody.empty();
-                var items = response.data || [];
-
-                if (items.length === 0) {
-                    tbody.append('<tr><td colspan="5" class="text-center">No items found</td></tr>');
-                    return;
-                }
-
-                items.forEach(function (item, index) {
-                    var fileLink = item.filePath
-                        ? '<a href="' + $.trim($('#rootpath').text()) + 'Dashboard/downloadFile?FilePath=' + item.filePath + '" target="_blank">View</a>'
-                        : '';
-
-
-                    var actionCell = '';
-                    if (true) {
-                        //actionCell = `<span class="btn-link View" style="cursor:pointer" onclick="ViewItemimage(${item.itemId})">View image</span> | ${fileLink}`;
-                        var actionCell = `<span class="btn-link View" style="cursor:pointer" data-filepath="${item.imageUrl || ''}">View Image</span> | ${fileLink}`;
-
-                    } else {
-                        actionCell = fileLink;
-                    }
-
-                    var row = `
-                    <tr>
-                        <td class="text-center">${(currentPage - 1) * pageSize + (index + 1)}</td>
-                        <td class="text-center">${item.categoryName}</td>
-                        <td class="text-center">${item.cropName}</td> 
-                        <td class="text-center">${item.sectionName}</td>
-                        <td class="text-center">${item.itemName}</td>
-                        <td class="text-justify">${item.description}</td> 
-                        <td class="text-center">${actionCell}</td>
-                    </tr>
-                `;
-                    tbody.append(row);
-                });
-            },
-            error: function (xhr, status, error) {
-                tbody.empty();
-                tbody.append('<tr><td colspan="5" class="text-center">Error loading data</td></tr>');
-                console.error('AJAX error:', error, xhr.responseText);
-            }
-        });
-    }
-
+ 
     // Delete function
     function deleteItem(itemId) {
         if (confirm('Are you sure to delete Item ID: ' + itemId + '?')) {
@@ -204,53 +149,36 @@
         currentDescriptionInput = $('.descriptionHidden').eq(index);
         $('#descriptionModal').modal('show');
 
-        if (editorInstance) {
-            editorInstance.destroy().then(() => initEditor(currentDescriptionInput.val()));
-        } else {
+        setTimeout(function () {
+            if (editorInstance && CKEDITOR.instances.editorDescription) {
+                CKEDITOR.instances.editorDescription.destroy();
+            }
             initEditor(currentDescriptionInput.val());
-        }
+        }, 200);
     });
 
-    function initEditorOld(data) {
-        ClassicEditor.create(document.querySelector('#editorDescription'), {
-            fontFamily: { options: ['Noto Sans Kannada, sans-serif', 'Arial, sans-serif'] }
-        }).then(editor => {
-            editorInstance = editor;
-            editor.setData(data);
-        });
-    }
+ 
     function initEditor(data) {
-        ClassicEditor.create(document.querySelector('#editorDescription'), {
-            fontFamily: {
-                options: [
-                    'Noto Sans Kannada, sans-serif',
-                    'Arial, sans-serif'
-                ]
-            },
-            table: {
-                contentToolbar: [
-                    'tableColumn', 'tableRow', 'mergeTableCells'
-                    // 'tableProperties', 'tableCellProperties' → needs custom build
-                ]
+        setTimeout(function () {
+            if (editorInstance && CKEDITOR.instances['editorDescription']) {
+                CKEDITOR.instances['editorDescription'].destroy();
             }
-        }).then(editor => {
-            editorInstance = editor;
-            editor.setData(data);
 
-            // ✅ Add border styling for tables in editor content
-            const style = document.createElement('style');
-            style.innerHTML = `
-            .ck-content table, 
-            .ck-content th, 
-            .ck-content td {
-                border: 1px solid #dee2e6;
-                border-collapse: collapse;
-                padding: 6px;
-            }
-        `;
-            document.head.appendChild(style);
-        });
+            editorInstance = CKEDITOR.replace('editorDescription', {
+                extraPlugins: 'table,tabletools,tableresize,pastefromword',
+                allowedContent: true,
+                contentsCss: [
+                    'https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;700&display=swap'
+                ],
+                font_defaultLabel: 'Noto Sans Kannada',
+                font_names: 'Noto Sans Kannada/Noto Sans Kannada, sans-serif;' + CKEDITOR.config.font_names
+            });
+
+            editorInstance.setData(data);
+        }, 200);
     }
+
+
 
 
     $('#saveDescription').click(function () {
@@ -420,6 +348,8 @@
                 gridJson = response;
                 tablebody.find('tr:gt(0)').remove();
                 var filetext = "Download";
+                debugger;
+                
 
                 if (response.data.itemDetails && response.data.itemDetails.length) {
                     //if (!response.CanEdit && !response.CanViewMultiple && !response.CanDelete) {
@@ -452,7 +382,7 @@
                 else {
                     tablebody.append('<tr><td colspan="27"><h3 style="width:400px;min-height:120px;">No Data Found!!!</h3></td><tr>');
                 }
-                totalRecords = response.TotalCount;
+                totalRecords = response.data.totalCount;
                 debugger;
                 setupControls();
                 pagingDetails();
@@ -562,6 +492,7 @@
             }
         });
     });
+
 
 
     function ClearForm() {
