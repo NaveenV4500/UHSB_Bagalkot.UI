@@ -21,25 +21,63 @@
         getrecordheadtypeDD();
         hideLoader();
     }
-    
+
     function getDistrictDD() {
         callGetApi('WeatherCast/DistrictDD', {}, renderDistrictDD);
     }
+
+
     function getrecordheadtypeDD() {
         callGetApi('AvailabilityTools/recordheadtypeDD', {}, renderplantingcenters);
     }
-    
-    
+
+
+    $(document).on('click', '.district-btn', function () {
+        debugger;
+        var districtId = $(this).data('districtid');
+         
+        $('.district-btn').removeClass('active');
+        $(this).addClass('active');
+        callGetApi('WeatherCast/Weekly?districtId=' + districtId, {}, renderWeeklyData);
+         
+    });
+    function formatDateDDMMYYYY(dateStr) {
+        if (!dateStr) return '';
+
+        var date = new Date(dateStr);
+        var day = String(date.getDate()).padStart(2, '0');
+        var month = String(date.getMonth() + 1).padStart(2, '0');
+        var year = date.getFullYear();
+
+        return `${day}-${month}-${year}`;
+    }
+
     function renderDistrictDD(CentersData) {
-        var $otherDropdown = $('#DistrictType');
-        $otherDropdown.empty().append('<option value="">Please Select</option>');
+
+        var $container = $('#DistrictButtons');
+        $container.empty();
+
+        if (!CentersData || CentersData.length === 0) {
+            $container.append('<span>No districts found</span>');
+            return;
+        }
 
         $.each(CentersData, function (i, item) {
-            $otherDropdown.append('<option value="' + item.id + '">' + item.text + '</option>');
+
+            var buttonHtml =
+                '<button type="button" ' +
+                'class="district-btn btn btn-outline-primary" ' +
+                'data-districtid="' + item.id + '">' +
+                item.text +
+                '</button>';
+
+            $container.append(buttonHtml);
         });
     }
+
+
     function renderplantingcenters(CentersData) {
-        var $otherDropdown = $('#Centervariatestype'); 
+        var $otherDropdown = $('#Centervariatestype');
         $otherDropdown.empty().append('<option value="">Please Select</option>');
 
         $.each(CentersData, function (i, item) {
@@ -52,9 +90,59 @@
         $otherDropdown.empty().append('<option value="">Please Select</option>');
 
         $.each(CentersData, function (i, item) {
-            $otherDropdown.append('<option value="' + item.centerId + '">' + item.centernameEng + ' - ' + item.centernameKnd+ '</option>');
+            $otherDropdown.append('<option value="' + item.centerId + '">' + item.centernameEng + ' - ' + item.centernameKnd + '</option>');
         });
     }
+    function renderWeeklyData(CentersData) {
+        var html = '';
+
+        if (!CentersData || CentersData.length === 0) {
+            html = '<div class="alert alert-warning">No weekly data available</div>';
+            $('#weeklyWeatherBody').html(html);
+            $('#weeklyWeatherModal').modal('show');
+            return;
+        }
+
+        $.each(CentersData, function (i, item) {
+
+            var fileUrl = fileBaseUrl +  item.filePath;
+            var startDate = formatDateDDMMYYYY(item.weekStartDate);
+            var endDate = formatDateDDMMYYYY(item.weekEndDate);
+
+            html += `
+            <div class="border rounded p-3 mb-3">
+                <div class="fw-bold mb-2">
+                    ${item.weekType}
+                </div>
+
+                <div class="small text-muted mb-2">
+                    ${startDate} to ${endDate}
+                </div>
+
+                <button type="button"
+                        class="btn btn-sm btn-primary open-week-file"
+                        data-fileurl="${fileUrl}">
+                    View Report
+                </button>
+            </div>
+        `;
+        });
+
+        $('#weeklyWeatherBody').html(html);
+        $('#weeklyWeatherModal').modal('show');
+    }
+
+
+    $(document).on('click', '.open-week-file', function () {
+        var fileUrl = $(this).data('fileurl'); 
+
+        if (fileUrl) {
+            window.open(fileUrl, '_blank');    
+        }
+
+    });
+
+
 
     //change Centerstype
     //$('#Centerstype').on('change', function () {
@@ -90,7 +178,7 @@
         });
         //hideLoader();
     }
-     
+
     // Cascading dropdowns
     $('#Categoriestype').on('change', function () {
         resetDropdowns(['#Cropstype', '#Sectionstype', '#SubSectionstype']);
@@ -120,7 +208,7 @@
             cache: false,
             type: "POST",
             dataType: 'json',
-            url: GetRootPath(window.virtualPath) + '/AvailabilityToolsWeb/GetGridContentV1', 
+            url: GetRootPath(window.virtualPath) + '/AvailabilityToolsWeb/GetGridContentV1',
             data: {
                 "currentPage": currentPage,
                 "pageSize": pageSize,
@@ -172,7 +260,7 @@
                         $("#itemGrid tbody").append(row);
                     });
 
-                 
+
                 }
                 else {
                     tablebody.append('<tr><td colspan="27"><h3 style="width:400px;min-height:120px;">No Data Found!!!</h3></td><tr>');

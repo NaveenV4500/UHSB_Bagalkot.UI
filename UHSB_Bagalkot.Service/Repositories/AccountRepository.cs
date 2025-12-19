@@ -143,17 +143,20 @@ namespace UHSB_Bagalkot.Service.Repositories
 
         public Dictionary<int, string> GetAllUserRoleTypeAsDictionary()
         {
+           
+
+            return _context.UserRoles.Where(x=>x.Id != 1)
+               .OrderBy(x => x.Id)
+               .Select(x => new { x.Id, x.RoleName })
+               .ToDictionary(x => x.Id, x => x.RoleName);
+
+        }
+        public Dictionary<int, string> GetAllDistrictsTypeAsDictionary()
+        {
             return _context.UhsbDistricts
                 .OrderBy(x => x.DistrictName)
                 .Select(x => new { x.DistrictId, x.DistrictName })
                 .ToDictionary(x => x.DistrictId, x => x.DistrictName);
-        }
-        public Dictionary<int, string> GetAllDistrictsTypeAsDictionary()
-        {
-            return _context.UserRoles
-                .OrderBy(x => x.Id)
-                .Select(x => new { x.Id, x.RoleName })
-                .ToDictionary(x => x.Id, x => x.RoleName);
         }
 
         //del usermaster

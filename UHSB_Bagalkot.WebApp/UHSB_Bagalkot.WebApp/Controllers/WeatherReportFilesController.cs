@@ -37,7 +37,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
             if (file == null || file.Length == 0)
             {
                 TempData["Message"] = "No file selected.";
-                return RedirectToAction("Index"); 
+                return RedirectToAction("Index");
             }
 
             if (file.Length > 0)
@@ -74,7 +74,41 @@ namespace UHSB_Bagalkot.WebApp.Controllers
                 TempData["Message"] = $"Upload failed: {error}";
             }
 
-            return RedirectToAction("Index");  
+            return RedirectToAction("Index");
+        }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> WeatherFilesDetails()
+        {
+            List<DistrictDD> districtList = new List<DistrictDD>();
+
+            var response = await _httpClient.GetAsync($"{_apiSettings.Base_Url}/WeatherCast/DistrictDD");
+
+            if (response.IsSuccessStatusCode)
+            {
+                districtList = await response.Content.ReadFromJsonAsync<List<DistrictDD>>();
+            }
+            ViewBag.fileBaseUrl = _apiSettings.File_Url;
+
+            ViewBag.Districts = districtList;
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> WeatherDistrictWiseDetails(int districtid = 0)
+        {
+            List<WeeklyWeatherReportGridVM> data = new List<WeeklyWeatherReportGridVM>();
+            var response = await _httpClient.GetAsync($"{_apiSettings.Base_Url}/WeatherCast/Weekly?districtId=" + districtid);
+
+            if (response.IsSuccessStatusCode)
+            {
+                data = await response.Content.ReadFromJsonAsync<List<WeeklyWeatherReportGridVM>>();
+            }
+            ViewBag.fileBaseUrl = _apiSettings.File_Url;
+
+            return View(data);
         }
 
     }

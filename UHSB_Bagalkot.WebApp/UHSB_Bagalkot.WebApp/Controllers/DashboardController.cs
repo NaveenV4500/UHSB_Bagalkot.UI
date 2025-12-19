@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -17,7 +18,7 @@ using UHSB_Bagalkot.Service.ViewModels.AdminDashboard;
 
 namespace UHSB_Bagalkot.WebApp.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class DashboardController : Controller
     {
         private readonly ApiSettings _apiSettings;
@@ -30,11 +31,13 @@ namespace UHSB_Bagalkot.WebApp.Controllers
             _apiSettings = apiSettings.Value;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> AdminHome(int districtId = 1)
         {
             var vm = new AdminDashboardVM();
-
+            var usercount = 5000; //HttpContext.Session.SetInt32("usercount");
+            ViewBag.usercount = usercount;
             // ✅ Call Summary API
             var summaryRes = await _httpClient.GetAsync($"{_apiSettings.Base_Url}/Dashboard/summary");
             if (summaryRes.IsSuccessStatusCode)
@@ -72,6 +75,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
             return View();
         }
 
+        [Authorize(Roles = "admin")]
         public IActionResult CropManage()
         {
             var model = new CropContentWithImageVM
@@ -175,6 +179,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
 
 
         //Get CropManage
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> GetGridContentV1(int currentPage=1, int pageSize=10, GridEnum.FTPDocumentsLogs orderBy = GridEnum.FTPDocumentsLogs.BranchName,bool isDescending = false, string filterDetails = null, string externalFilter = null, int subSectId=0, int cropid = 0, int categoryid = 0)
         {
@@ -243,6 +248,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
 
         //Save
         [HttpPost]
+        [Authorize(Roles = "admin")] 
         public async Task<IActionResult> CropManage(CropContentWithImageVM model, [FromServices] IWebHostEnvironment env)
         {
             List<UhsbItemImageVM> jsonModel = new List<UhsbItemImageVM>();

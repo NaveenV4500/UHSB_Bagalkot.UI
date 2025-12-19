@@ -1,0 +1,157 @@
+﻿@using Microsoft.AspNetCore.Html
+
+@{
+    var categoryName = Context.Request.Query["categoryName"].ToString() ?? "Crops";
+    ViewData["Title"] = $"{categoryName} | Crop List";
+      categoryName = ViewBag.CategoryName.ToString();
+    var categoryId = Context.Request.Query["categoryId"].ToString();
+    var sectionListRoute = "/HorticultureGuide/SectionList";
+
+    var homeRoute = "/";
+    var categoryRoute = "/HorticultureGuide/Category";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link rel="stylesheet" href="~/css/cardstyle.css" />
+
+<style>
+    .no-image-card {
+        height: 180px;
+        background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #2e7d32;
+        border-bottom: 1px solid #c5e1c5;
+    }
+
+        .no-image-card i {
+            display: block;
+            font-size: 2rem;
+            margin-bottom: 6px;
+        }
+</style>
+
+<div class="top-nav">
+    <a href="javascript:history.back()" class="back-arrow">
+        <i class="fa-solid fa-arrow-left"></i>
+    </a>
+
+    <span class="breadcrumb-item">
+        <a asp-controller="Dashboard" asp-action="AdminHome">Home</a>
+    </span>
+
+    <i class="fa-solid fa-angle-right"></i>
+
+    <span class="breadcrumb-item"> 
+        <a asp-controller="Horticulturehandbookweb" asp-action="CategoryIndex">ತೋಟಗಾರಿಕೆ ಕೈಪಿಡಿ ಮಾಹಿತಿ</a>
+    </span>
+
+    <i class="fa-solid fa-angle-right"></i>
+
+    <span class="breadcrumb-active">@categoryName</span>
+</div>
+
+<div class="section-header">Crops in @categoryName</div>
+
+<div id="cropContainer" class="grid-container">
+    <p class="loading-message">Loading crops...</p>
+</div>
+
+@Html.Hidden("fileBaseUrl", ViewBag.fileBaseUrl, new { id = "fileBaseUrl" })
+@Html.Hidden("sectionListRoute", sectionListRoute, new { id = "sectionListRoute" })
+@Html.Hidden("categoryId", categoryId, new { id = "categoryId" })
+@Html.Hidden("categoryName", categoryName, new { id = "categoryName" })
+
+@section Scripts {
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        var fileBaseUrl = $("#fileBaseUrl").val().replace("api", "");
+        var categoryId = $("#categoryId").val();
+        var categoryName = $("#categoryName").val();
+
+        const cropContainer = $('#cropContainer');
+
+        function callGetApi(actionName, params = {}, onSuccess, onError) {
+            $.ajax({
+                url:   '/UHSBWeb/CommonApi/ForwardApiResponse?action_name=' + actionName,
+                type: 'GET',
+                dataType: 'json',
+                data: params,
+                success: onSuccess,
+                error: onError
+            });
+        }
+
+        function displayCrops() {
+
+            if (!categoryId) {
+                cropContainer.html('<p class="error-message">Category ID missing.</p>');
+                return;
+            }
+
+            callGetApi(
+                'CropProfile/GetCropDetails/' + categoryId,
+                {},
+                function (response) {
+
+                    let html = "";
+
+                    if (response && response.length > 0) {
+
+                        response.forEach(function (crop) {
+
+                            const cropUrl = 
+                                `/UHSBWeb/Horticulturehandbookweb/SectionIndex?cropId=${crop.cropId}&cropName=${crop.name}&categoryname=${categoryName}`;
+
+                            let imageHtml = "";
+
+                            if (crop.imageUrl) {
+                                const imageUrl = fileBaseUrl + 'InwardsInvoices/TempFiles/crops/' + crop.imageUrl;
+                                imageHtml = `<img src="${imageUrl}" class="item-card-image" alt="${crop.name}" />`;
+                            } else {
+                                imageHtml = `
+                                    <div class="no-image-card">
+                                        <div>
+                                            <i class="fa-solid fa-seedling"></i>
+                                            ${crop.name}
+                                        </div>
+                                    </div>`;
+                            }
+
+                            html += `
+                                <a href="${cropUrl}" class="item-card-link">
+                                    <div class="item-card">
+                                        ${imageHtml}
+                                        <div class="card-content">
+                                            <div class="item-name-kn">${crop.name}</div>
+                                            <div class="view-details-row">
+                                                <div class="view-details-text">View Sections</div>
+                                                <div class="forward-arrow">
+                                                    <i class="fa-solid fa-arrow-right"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>`;
+                        });
+
+                        cropContainer.html(html);
+                    } else {
+                        cropContainer.html('<p class="error-message">No crops found.</p>');
+                    }
+                },
+                function () {
+                    cropContainer.html('<p class="error-message">Error loading crops.</p>');
+                }
+            );
+        }
+
+        $(document).ready(displayCrops);
+    </script>
+}

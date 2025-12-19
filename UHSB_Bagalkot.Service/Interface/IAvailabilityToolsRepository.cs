@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UHSB_Bagalkot.Service.Common;
 using UHSB_Bagalkot.Service.Dto;
+using UHSB_Bagalkot.Service.ViewModels;
 using UHSB_Bagalkot.Service.ViewModels.AvailabilityTools;
 
 namespace UHSB_Bagalkot.Service.Interface
@@ -15,6 +16,7 @@ namespace UHSB_Bagalkot.Service.Interface
         Task<GenericGridModel<AvailabilityToolsDetailsVM>> getgridcontentavailabilitytools(int currentPage = 1, int pageSize = 10, GridEnum.AvailabilityToolsFilterBy orderBy = GridEnum.AvailabilityToolsFilterBy.CreatedDate, bool isDescending = false, string filterDetails = null, string externalFilter = null, int centerid = 0, int districtid = 0, int pagetype = 0);
         public Task<List<DropdownItemDto>> plantingcentersDD();
         public Task<List<DropdownItemDto>> RecordHeadTypeDD();
-        
+ 
+        Task<bool> SaveOrEditProdectDetails(AvailabilityToolsDetailsVM obj);
     }
 }

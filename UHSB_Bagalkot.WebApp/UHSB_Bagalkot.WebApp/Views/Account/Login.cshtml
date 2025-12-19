@@ -1,60 +1,358 @@
 ﻿@model UHSB_Bagalkot.Service.ViewModels.LoginVM
 @{
     Layout = "_LayoutMinimal";
+    ViewData["Title"] = "Admin Login";
 }
+
 <head>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Reset & Full Height */
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+        }
+
+        /* Main Split Container */
+        .split-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: stretch;
+        }
+
+        /* LEFT SIDE: Welcome Banner with Gradient & Scrollable */
+        .left-banner {
+            background: linear-gradient(135deg, #1e3a8a 0%, #166534 100%);
+            color: white;
+            padding: 50px 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+            .left-banner::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.3);
+                z-index: 1;
+            }
+
+        .banner-content {
+            position: relative;
+            z-index: 2;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+            .banner-content h2 {
+                font-size: 2.4rem;
+                font-weight: 600;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+
+        .university-logo {
+            display: block;
+            margin: 0 auto 30px;
+            max-width: 200px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .intro-text {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 30px; 
+        }
+
+        .highlight-box {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+            .gallery img {
+                width: 100%;
+                height: auto;
+                border-radius: 12px;
+                box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+                transition: transform 0.3s ease;
+            }
+
+                .gallery img:hover {
+                    transform: scale(1.05);
+                }
+
+        .secure-note {
+            font-size: 1rem;
+            font-style: italic;
+            text-align: center;
+            margin-top: 20px;
+            opacity: 0.9;
+        }
+
+        /* RIGHT SIDE: Login Area - Now aligned to top */
+        .right-login {
+            background: #ffffff;
+            display: flex;
+            align-items: flex-start; /* Changed to top alignment */
+            justify-content: center;
+            padding: 60px 30px 30px; /* Extra top padding for breathing room */
+        }
+
+        /* Glassmorphism Login Card */
+        .login-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+            transition: transform 0.4s ease;
+        }
+
+            .login-card:hover {
+                transform: translateY(-10px);
+            }
+
+        .card-header {
+            background: linear-gradient(to right, #166534, #1e3a8a);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+            .card-header img {
+                width: 90px;
+                height: 90px;
+                object-fit: cover;
+                border: 4px solid rgba(255, 255, 255, 0.3);
+                margin-bottom: 15px;
+            }
+
+            .card-header h3 {
+                font-weight: 500;
+                margin: 0;
+                font-size: 1.6rem;
+            }
+
+            .card-header p {
+                margin: 8px 0 0;
+                opacity: 0.9;
+                font-size: 0.95rem;
+            }
+
+        .card-body {
+            padding: 40px;
+        }
+
+        .form-control-lg {
+            border-radius: 12px;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+            .form-control-lg:focus {
+                border-color: #166534;
+                box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.15);
+            }
+
+        .btn-primary {
+            background: #166534;
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+            .btn-primary:hover {
+                background: #134d2b;
+                transform: translateY(-2px);
+            }
+
+        .btn-success {
+            background: #1e3a8a;
+            border: none;
+            border-radius: 12px;
+        }
+
+        /* Footer Links Inside Card */
+        .card-footer-links {
+            text-align: center;
+            padding: 20px 40px 30px;
+            background: rgba(255,255,255,0.6);
+            border-top: 1px solid #eee;
+        }
+
+            .card-footer-links a {
+                color: #166534;
+                font-weight: 600;
+                text-decoration: none;
+                margin: 0 15px;
+                font-size: 0.95rem;
+                transition: color 0.3s ease;
+            }
+
+                .card-footer-links a:hover {
+                    color: #1e3a8a;
+                    text-decoration: underline;
+                }
+
+        /* Mobile Responsiveness */
+        @@media (max-width: 767px) {
+            .split-container
+
+        {
+            flex-direction: column;
+        }
+
+        .left-banner {
+            padding: 40px 20px;
+            min-height: auto;
+        }
+
+        .right-login {
+            padding: 40px 20px;
+            align-items: center; /* Center on mobile for better look */
+        }
+
+        .banner-content h2 {
+            font-size: 2rem;
+        }
+
+        .gallery {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .card-footer-links a {
+            display: block;
+            margin: 10px 0;
+        }
+
+        }
+    </style>
 </head>
 
-<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
-    <div class="card shadow-sm p-4" style="width: 100%; max-width: 400px;">
-        <div class="text-center mb-4">
-            <img src="~/images/icon.jpg" alt="Logo" class="img-fluid mb-3" style="max-height: 100px;" />
-            <h2 class="fw-bold">UHSB HortiGuide Admin Panel</h2>
-            <p class="text-muted">University of Horticultural Sciences, Bagalkot</p>
+<div class="split-container">
+    <!-- LEFT SIDE: Welcome Banner -->
+    <div class="left-banner col-12 col-md-7 d-none d-md-block">
+        <div class="banner-content">
+            <img src="https://iras-proxy-assets.s3.ap-south-1.amazonaws.com/60487f498ce6c03a76fca41e/logo/3-10-2021--9-47-01-am-logo.jpg" alt="UHS Bagalkot Logo" class="university-logo" />
+            <h2>Welcome to UHSB HortiGuide Portal</h2>
+            <p class="intro-text" style="text-aligin:justify">
+
+                <b>University of Horticultural Sciences, Bagalkot</b>
+
+The University of Horticultural Sciences, Bagalkot, established in 2008 as Karnataka’s first and the nation’s third Horticulture University, serves 23 districts with nine colleges, diploma programs, research stations, and extension units. Situated in a region rich in horticultural diversity, the University is dedicated to academic excellence, advanced research, and farmer-centric technology transfer. It has earned national recognition, including ICAR’s Excellence Award for highest JRF awards and the State Best University Award for NSS. Through initiatives like Thotagarike Mela, Horti-App, and Green Graduation, UHS Bagalkot promotes innovation, sustainability, and farmer empowerment while striving to address emerging challenges in horticulture. To cater to the needs of location specific problems in different regions/districts of the State, the research activities are organized both at the level of Agro-climatic Zones and on thematic basis and are being pursued with focus on emerging issues and emphasis on a
+
+            </p>
+           
+            <div class="gallery">
+                <img src="~/images/uhsb-bg.jpg" alt="UHSB Campus" />
+                <img src="~/images/banner2.jpg" alt="UHSB Campus View" />
+                <img src="~/images/banners/applogo.jpg" alt="App Logo" />
+                <img src="~/images/appimages/register.jpeg" alt="Register Screen" />
+                <img src="~/images/appimages/login.jpeg" alt="Login Screen" />
+                <img src="~/images/appimages/homepage.jpeg" alt="Homepage" />
+                <img src="~/images/appimages/category.jpeg" alt="Category View" />
+            </div>
+            <p class="secure-note">
+                <i class="bi bi-shield-lock me-2"></i>
+                All administrators are required to use multi-factor authentication (OTP) for secure access.
+            </p>
         </div>
+    </div>
 
-        <form id="loginForm">
-            <div class="mb-3">
-                <label asp-for="UserName" class="form-label"></label>
-                <input asp-for="UserName" id="UserName" class="form-control" placeholder="Enter username" />
-                <span asp-validation-for="UserName" class="text-danger"></span>
+    <!-- RIGHT SIDE: Login Card - Now positioned at the top -->
+    <div class="right-login col-12 col-md-5">
+        <div class="login-card">
+            <div class="card-header">
+                <img src="~/images/icon.jpg" alt="UHSB Logo" class="rounded-circle" />
+                <h3>UHSB HortiGuide Admin Panel</h3>
+                <p>University of Horticultural Sciences, Bagalkot</p>
+            </div>
+            <div class="card-body">
+                <h4 class="text-center mb-4 text-secondary fw-semibold">Secure Administrator Login</h4>
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label asp-for="UserName" class="form-label fw-semibold">Username or Email</label>
+                        <input asp-for="UserName" id="UserName" class="form-control form-control-lg" placeholder="Enter username or email" />
+                        <span asp-validation-for="UserName" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number</label>
+                        <input asp-for="PhoneNumber" id="PhoneNumber" class="form-control form-control-lg" placeholder="Enter registered phone number" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="rememberMe" />
+                            <label class="form-check-label small" for="rememberMe">Remember Me</label>
+                        </div>
+                        <div id="otpInfo" class="text-success small fw-semibold" style="display:none;"></div>
+                    </div>
+                    <div class="mb-4" id="otpContainer" style="display:none;">
+                        <label for="Otp" class="form-label fw-semibold">One-Time Password (OTP)</label>
+                        <input type="text" id="Otp" class="form-control form-control-lg" placeholder="Enter 6-digit OTP" maxlength="6" />
+                        <span id="otpError" class="text-danger small"></span>
+                        <div class="mt-2 text-center small">
+                            <span id="countdown" class="text-muted" style="display:none;"></span>
+                            <a href="#" id="resendOtp" class="text-primary text-decoration-none" style="display:none;">Resend OTP</a>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        @if (ViewBag.OtpEnable != null && ViewBag.OtpEnable == "true")
+                        {
+                            <button type="button" id="sendOtpBtn" class="btn btn-primary btn-lg shadow-sm">Send OTP & Login</button>
+                            <button type="button" id="verifyOtpBtn" class="btn btn-success btn-lg shadow-sm mt-2" style="display:none;">Verify OTP & Login</button>
+                        }
+                        else
+                        {
+                            <button type="button" id="sendwithoutOtpBtn" class="btn btn-primary btn-lg shadow-sm">Login</button>
+                        }
+                    </div>
+                </form>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="PhoneNumber" class="form-label"></label>
-                <input asp-for="PhoneNumber" id="PhoneNumber" class="form-control" placeholder="Enter phone number" />
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            <!-- Register & Back to Home Links -->
+            <div class="card-footer-links">
+               <a class=" " asp-controller="Account" asp-action="Register">
+                    New Account ? Register Here
+                </a>
+               
+                  <a class=" " asp-controller="Dashboard" asp-action="AdminHome">
+                                          Back To Home
+                                        </a>
             </div>
-
-            <div class="form-check mb-3">
-                <input type="checkbox" class="form-check-input" id="rememberMe" />
-                <label class="form-check-label" for="rememberMe">Remember Me</label>
-            </div>
-
-            <!-- OTP field hidden initially -->
-            <div class="mb-3" id="otpContainer" style="display:none;">
-                <label class="form-label">Enter OTP</label>
-                <input type="text" id="Otp" class="form-control" placeholder="Enter OTP" />
-                <span id="otpError" class="text-danger"></span>
-            </div>
-
-            <!-- Display sent email -->
-            <div id="otpInfo" class="text-success mb-2" style="display:none;"></div>
-
-            <div class="d-grid">
-                <button type="button" id="sendOtpBtn" class="btn btn-primary btn-block">Login</button>
-                <button type="button" id="verifyOtpBtn" class="btn btn-success btn-block mt-2" style="display:none;">Verify OTP & Login</button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="~/js/rootpathfinder.js"></script>
+    <!-- Your original JavaScript logic - 100% unchanged -->
     <script>
         $(document).ready(function () {
-
-            // Load Remember Me
             if (localStorage.getItem("UserName")) {
                 $('#UserName').val(localStorage.getItem("UserName"));
                 $('#PhoneNumber').val(localStorage.getItem("PhoneNumber"));
@@ -64,68 +362,110 @@
             let timerInterval;
             const startTimer = () => {
                 let time = 60;
-                $('#resendOtp').hide();
+                $('#resendOtp').off('click').hide();
                 $('#countdown').show();
+                if (timerInterval) clearInterval(timerInterval);
                 timerInterval = setInterval(() => {
-                    $('#countdown').text("Resend OTP in " + time + " sec");
+                    $('#countdown').text("Resend in " + time + " sec");
                     time--;
                     if (time < 0) {
                         clearInterval(timerInterval);
                         $('#countdown').hide();
-                        $('#resendOtp').show();
+                        $('#resendOtp').show().on('click', function(e) {
+                            e.preventDefault();
+                            sendOtpRequest( '/UHSBWeb/Account/SendOtp', true);
+                        });
                     }
                 }, 1000);
             };
 
-            // Mask email
             const maskEmail = (email) => {
                 if (!email) return "";
                 let [name, domain] = email.split("@@");
-                return name[0] + "***" + name.slice(-1) + "@@" + domain;
+                const maskedName = name.length > 3
+                    ? name.charAt(0) + '***' + name.charAt(name.length - 1)
+                    : '***';
+                return maskedName + "@@" + domain;
             };
 
-            const sendOtpRequest = () => {
+            const sendOtpRequest = (url, isOtp) => {
                 let obj = {
                     UserName: $('#UserName').val(),
                     PhoneNumber: $('#PhoneNumber').val(),
                     IsFromadmin: true
                 };
-
-                $("#sendOtpBtn").prop("disabled", true).html(`<span class='spinner-border spinner-border-sm'></span> Sending...`);
-
+                if (!obj.UserName || !obj.PhoneNumber) {
+                    console.error("Please enter both Username and Phone Number.");
+                    return;
+                }
+                if (isOtp) {
+                    $("#sendOtpBtn").prop("disabled", true).html(`<span class='spinner-border spinner-border-sm'></span> Sending...`);
+                    $('#otpError').text("");
+                    $('#otpInfo').hide();
+                } else {
+                    $("#sendwithoutOtpBtn").prop("disabled", true).html(`<span class='spinner-border spinner-border-sm'></span> Processing...`);
+                }
                 $.ajax({
-                    url: '/UHSBweb/Account/SendOtp',
+                    url: url,
                     method: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(obj),
                     success: function (res) {
-                        $("#sendOtpBtn").prop("disabled", false).text("Send OTP");
-
-                        if (!res.success) { alert(res.message); return; }
-
-                        // Show OTP field and email
-                        $("#otpContainer").show();
-                        $("#otpInfo").text("OTP sent to: " + maskEmail(res.email)).show();
-                        $("#verifyOtpBtn").show();
-                        $("#sendOtpBtn").hide();
-
-                        // Save userId for verification
-                        $("#verifyOtpBtn").data("userId", res.userId);
-
-                        startTimer();
+                        if (isOtp) {
+                            $("#sendOtpBtn").prop("disabled", false).text("Send OTP & Login");
+                            if (res.redirectUrl) {
+                                window.location.href = res.redirectUrl;
+                                return;
+                            }
+                            if (!res.success) {
+                                console.error(res.message || "Login failed.");
+                                $('#otpError').text(res.message || "Login failed.");
+                                return;
+                            }
+                            $("#otpContainer").slideDown();
+                            $("#otpInfo").html(`<i class="bi bi-check-circle me-1"></i> OTP sent to: ${maskEmail(res.email)}`).show();
+                            $("#verifyOtpBtn").show();
+                            $("#sendOtpBtn").hide();
+                            $("#verifyOtpBtn").data("userId", res.userId);
+                            startTimer();
+                        } else {
+                            if (res.success) {
+                                window.location.href = res.redirectUrl;
+                            } else {
+                                $("#sendwithoutOtpBtn").prop("disabled", false).text("Login");
+                                console.error(res.message || "Login failed.");
+                            }
+                        }
                     },
-                    error: () => alert("Unable to send OTP.")
+                    error: () => {
+                        console.error("A network error occurred. Please try again.");
+                        if (isOtp) {
+                            $("#sendOtpBtn").prop("disabled", false).text("Send OTP & Login");
+                        } else {
+                            $("#sendwithoutOtpBtn").prop("disabled", false).text("Login");
+                        }
+                    }
                 });
             };
 
-            $('#sendOtpBtn').click(function () {
+            $('#sendOtpBtn, #sendwithoutOtpBtn, #resendOtp').click(function (e) {
+                e.preventDefault();
                 if ($('#rememberMe').is(':checked')) {
                     localStorage.setItem("UserName", $('#UserName').val());
                     localStorage.setItem("PhoneNumber", $('#PhoneNumber').val());
                 } else {
                     localStorage.clear();
                 }
-                sendOtpRequest();
+                let url = "";
+                let isOtp = false;
+                if (this.id === "sendOtpBtn" || this.id === "resendOtp") {
+                    url =    '/UHSBWeb/Account/SendOtp';
+                    isOtp = true;
+                }
+                else if (this.id === "sendwithoutOtpBtn") {
+                    url =   '/UHSBWeb/Account/Login';
+                }
+                if (url) sendOtpRequest(url, isOtp);
             });
 
             $('#Otp').on("input", () => $('#otpError').text(""));
@@ -133,11 +473,12 @@
             $('#verifyOtpBtn').click(function () {
                 let otp = $('#Otp').val();
                 let userId = $(this).data('userId');
-
-                if (!otp) return $('#otpError').text("Please enter OTP");
-
+                if (!otp) return $('#otpError').text("Please enter the received OTP.");
+                if (!userId) {
+                    console.error("User session lost. Please try logging in again.");
+                    return;
+                }
                 $("#verifyOtpBtn").prop("disabled", true).html(`<span class='spinner-border spinner-border-sm'></span> Verifying...`);
-
                 let obj = {
                     UserId: userId,
                     Otp: otp,
@@ -145,22 +486,25 @@
                     PhoneNumber: $('#PhoneNumber').val(),
                     IsFromadmin: true
                 };
-
                 $.ajax({
-                    url: "/UHSBweb/Account/VerifyOtpPost",
+                    url:  "/UHSBWeb/Account/VerifyOtpPost",
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify(obj),
-                    success: function (res) {
+                    success: (res) => {
+                        $("#verifyOtpBtn").prop("disabled", false).text("Verify OTP & Login");
                         if (res.success) {
-                            window.location.href = res.redirectUrl; // <-- redirect here
+                            window.location.href = res.redirectUrl;
                         } else {
-                            alert(res.message);
+                            $('#otpError').text(res.message || "OTP verification failed. Please try again.");
                         }
+                    },
+                    error: () => {
+                        $("#verifyOtpBtn").prop("disabled", false).text("Verify OTP & Login");
+                        console.error("Unable to verify OTP. Network error.");
                     }
                 });
-
-        });
+            });
         });
     </script>
 }

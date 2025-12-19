@@ -1,0 +1,194 @@
+﻿@using Microsoft.AspNetCore.Html
+
+@{
+    // Retrieve the parameters passed from the controller via ViewBag
+    var cropId = ViewBag.CropId.ToString();
+    var cropName = ViewBag.CropName.ToString();
+    var categoryName = ViewBag.CategoryName.ToString();
+    
+
+    ViewData["Title"] = $"{cropName} Sections";
+
+    // Define routes for breadcrumbs
+    var homeRoute = "/";
+    var categoryRoute = "/HorticultureGuide/Category";
+    // NOTE: Safely retrieve categoryId for the cropListRoute
+    var categoryIdQuery = Context.Request.Query["categoryId"].ToString();
+    var cropListRoute = $"/HorticultureGuide/CropList?categoryId={categoryIdQuery}&categoryName={Uri.EscapeDataString(categoryName)}";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link rel="stylesheet" href="~/css/cardstyle.css" /> 
+
+<div class="top-nav">
+    <a href="javascript:history.back()" class="back-arrow">
+        <i class="fa-solid fa-arrow-left"></i>
+    </a>
+
+    <span class="breadcrumb-item">
+        <a  asp-area="" asp-controller="Dashboard" asp-action="AdminHome">Home</a>
+    </span>
+
+    <i class="fa-solid fa-angle-right"></i>
+
+      <span class="breadcrumb-item"> 
+        <a asp-controller="Horticulturehandbookweb" asp-action="CategoryIndex">ತೋಟಗಾರಿಕೆ ಕೈಪಿಡಿ ಮಾಹಿತಿ</a>
+    </span>
+    <i class="fa-solid fa-angle-right" style="font-size: 10px; color: #ccc;"></i>
+
+    <span class="breadcrumb-item">
+         @categoryName 
+    </span>
+    <i class="fa-solid fa-angle-right" style="font-size: 10px; color: #ccc;"></i>
+
+    <span class="breadcrumb-active">@cropName Sections</span>
+     
+</div>
+
+ 
+
+<div class="section-header">Sections for @cropName</div>
+
+<div id="sectionContainer" class="grid-container">
+    <p class="loading-message">Loading sections...</p>
+</div>
+
+@Html.Hidden("fileBaseUrl", ViewBag.fileBaseUrl, new { id = "fileBaseUrl" })
+@Html.Hidden("contentDetailsRoute", "/Horticulturehandbookweb/ItemsIndex", new { id = "contentDetailsRoute" })  
+@Html.Hidden("cropId", cropId, new { id = "cropId" })
+@Html.Hidden("cropName", cropName, new { id = "cropName" })
+@Html.Hidden("categoryName", categoryName, new { id = "categoryName" })
+
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/paging.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/generic_gridfilter.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/generic.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/generic_pagination.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/rootpathfinder.js"></script>
+
+    <script>
+        // --- 1. ROBUST VARIABLE INITIALIZATION ---
+        let fileBaseUrl = $("#fileBaseUrl").val() || "";
+        if (fileBaseUrl.includes("api")) {
+            fileBaseUrl = fileBaseUrl.replace("api", "");
+        }
+        if (fileBaseUrl && !fileBaseUrl.endsWith('/')) {
+             fileBaseUrl += '/';
+        }
+
+        const contentDetailsRoute = $("#contentDetailsRoute").val(); // Now points to ItemsIndex
+        const cropId = $("#cropId").val();
+        const cropName = $("#cropName").val();
+        const categoryName = $("#categoryName").val();
+
+        const sectionContainer = $('#sectionContainer');
+        const sectionCountValue = $('#sectionCountValue');
+
+        // Define the specific path for section images (adjust if needed)
+        const imageSectionPath = 'InwardsInvoices/TempFiles/sections/'; // Corrected path to match 'sections' from your code
+
+        // Generic API call (using inline definition for reliability)
+        function callGetApi(actionName, params = {}, onSuccess, onError) {
+            const rootPath = '/UHSBWeb';
+            const api_url =  '/UHSBWeb/CommonApi/ForwardApiResponse?action_name=' + actionName;
+
+            $.ajax({
+                url: api_url,
+                type: 'GET',
+                dataType: 'json',
+                data: params,
+                success: onSuccess,
+                error: function (xhr) {
+                    console.error('API Error:', xhr);
+                    if (onError) onError(xhr);
+                }
+            });
+        }
+
+        // Display Sections
+        function displaySections() {
+            if (!cropId) {
+                sectionContainer.html('<p class="error-message">Error: Crop ID is missing.</p>');
+                return;
+            }
+
+            callGetApi(
+                'CropProfile/GetSectionsByCrop/' + cropId,
+                {},
+                function (response) {
+
+                    let html = "";
+
+                    if (Array.isArray(response) && response.length > 0) {
+
+                        sectionCountValue.text(response.length);
+
+                        response.forEach(function (section) {
+
+                            const sectionName = section.name || "Untitled Section";
+
+                            // Image Path Construction (Using imageSectionPath variable consistently)
+                            var imageUrl = fileBaseUrl + imageSectionPath + section.imageUrl;
+
+                            // URL to the final content page (ItemsIndex)
+                            const sectionUrl =
+                               '/UHSBWeb/Horticulturehandbookweb/ItemsIndex' + `?` +
+                                `sectionId=${section.sectionId}` +
+                                `&cropId=${cropId}` +
+                                `&cropName=${encodeURIComponent(cropName)}` +
+                                `&categoryName=${encodeURIComponent(categoryName)}`+
+                                `&sectionName=${encodeURIComponent(sectionName)}`;
+
+                            // Determine the image/placeholder HTML
+                            let imageHtml;
+                            if (section.imageUrl) {
+                                imageHtml = `<img src="${imageUrl}" class="item-card-image" alt="${section.name}"
+                                             onerror="this.onerror=null; this.src='https://via.placeholder.com/150?text=No+Photo';" />`;
+                            } else {
+                                imageHtml = `<div class="no-photo-placeholder"><i class="fa-solid fa-camera"></i> No Photo</div>`;
+                            }
+
+
+                            // Card HTML (Using template literals for readability)
+                            html += `
+                                <a href="${sectionUrl}" class="item-card-link">
+                                    <div class="item-card" data-id="${section.sectionId}">
+
+                                        ${imageHtml}
+
+                                        <div class="card-content">
+                                            <div class="item-name-kn">${sectionName}</div>
+                                            <div class="view-details-row">
+                                                <div class="view-details-text">Read Content</div>
+                                                <div class="forward-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            `;
+                        });
+
+                        sectionContainer.html(html);
+                    }
+                    else {
+                        sectionContainer.html('<p class="error-message">No sections found for this crop.</p>');
+                        sectionCountValue.text('0');
+                    }
+
+                },
+                function (error) {
+                    console.error('Error fetching sections:', error);
+                    sectionContainer.html('<p class="error-message">Error loading sections.</p>');
+                    sectionCountValue.text('Error');
+                }
+            );
+        }
+
+        $(document).ready(function () {
+            displaySections();
+        });
+
+    </script>
+}

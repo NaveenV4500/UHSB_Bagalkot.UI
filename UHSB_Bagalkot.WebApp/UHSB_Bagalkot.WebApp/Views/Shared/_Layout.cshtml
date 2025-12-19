@@ -3,119 +3,215 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - UHSB_Bagalkot.WebApp</title>
+
+    <title>Hortiguide App | UHS Bagalkot</title>
+
+    <meta name="description"
+          content="Hortiguide App by University of Horticultural Sciences Bagalkot. Crop advisory, farmer guidance and horticulture support." />
+
+    <meta name="keywords"
+          content="Hortiguide app, Hortiguide uhs bagalkot, uhsb guide bagalkot, horticulture bagalkot, farmer guide uhs bagalkot" />
+
+    <meta name="robots" content="index, follow" />
+
+    <!-- CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/UHSB_Bagalkot.WebApp.styles.css" asp-append-version="true" />
+
+    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <style>
-        /* Custom styles to match the modern aesthetic */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --bg-light: #f8fafc;
+        }
+
         body {
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            background-color: var(--bg-light);
+            font-family: 'Noto Sans Kannada', sans-serif;
         }
 
         main {
-            flex-grow: 1;
+            flex: 1;
         }
 
-        #loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
+        /* Navbar */
+        .navbar {
+            border-radius: 0 0 1rem 1rem;
         }
 
-        .modal-content {
-            border-radius: 12px;
+        .navbar-brand img {
+            height: 42px;
         }
 
-        .btn {
-            min-width: 80px;
-            margin: 5px;
+        .nav-link {
+            font-weight: 500;
         }
 
-        #countdown {
-            font-weight: bold;
-            color: red;
+        .nav-link:hover {
+            color: var(--primary) !important;
         }
 
+        .dropdown-menu {
+            border-radius: 0.75rem;
+            border: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--primary);
+            color: #fff;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            border-radius: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Footer */
+        footer {
+            background: #ffffff;
+            border-radius: 1rem 1rem 0 0;
+        }
+
+        /* Utility */
+        .shadow-soft {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
     </style>
-
 </head>
 
-<body>
-    <span id="rootpath" hidden="hidden">@Url.Content("~")</span>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/images/icon.jpg" class="img-fluid" style="height:35px" />
+<body class="container px-0">
+
+    <span id="rootpath" hidden>@Url.Content("~")</span>
+
+    <!-- 🔹 NAVBAR -->
+    <header class="mb-4">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-soft px-3">
+            <div class="container">
+
+                <a class="navbar-brand d-flex align-items-center"
+                   asp-controller="Dashboard" asp-action="AdminHome">
+                    <img src="~/images/Banners/namebannerlogo.png" alt="UHSB Logo" />
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+
+                <button class="navbar-toggler" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNavbar">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Dashboard" asp-action="AdminHome">Home</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link text-dark dropdown-toggle" href="#" id="masterDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Master
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="masterDropdown">
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Register">User Master</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link text-dark dropdown-toggle" href="#" id="horticultureDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Horticulture Handbook
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="horticultureDropdown">
-                                @* <li><a class="dropdown-item" asp-area="" asp-controller="Category" asp-action="Index"> Category Details</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Category" asp-action="Index"> Crops Details</a></li> *@
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Horticulturehandbookweb" asp-action="Index"> Step 1 </a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Dashboard" asp-action="CropManage">Step 2</a></li>
 
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link text-dark dropdown-toggle" href="#" id="weather" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Weather Report
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Dashboard" asp-action="AdminHome">
+                                <i class="bi bi-house-door me-1"></i> Home
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="weather">
-                                <li><a class="dropdown-item" asp-area="" asp-controller="WeatherReportFiles" asp-action="Index">upload Weather Report</a></li>
-                            </ul>
                         </li>
+
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("admin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                    <i class="bi bi-gear-fill me-1"></i> Master
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="Account"
+                                           asp-action="Register">
+                                            User Master
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                    <i class="bi bi-book me-1"></i> Horticulture Handbook
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="Horticulturehandbookweb"
+                                           asp-action="Index">
+                                            Manage Handbooks
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="Dashboard"
+                                           asp-action="CropManage">
+                                            Manage Crops
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                    Weather Report
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="WeatherReportFiles"
+                                           asp-action="Index">
+                                            Upload Weather Report
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
                     </ul>
-                    <ul class="navbar-nav">
+
+                    <!-- Right Side -->
+                    <ul class="navbar-nav ms-auto align-items-center">
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item">
-                                <span class="nav-link text-dark">Hello, @User.Identity.Name!</span>
+                            <li class="nav-item me-3">
+                                <span class="nav-link">
+                                    <i class="bi bi-person-circle text-primary"></i>
+                                    <strong>@User.Identity.Name</strong>
+                                </span>
                             </li>
                             <li class="nav-item">
-                                <form method="post" asp-controller="Account" asp-action="Logout" class="d-inline">
-                                    <button type="submit" class="btn btn-link nav-link text-dark">Logout</button>
-                                </form>
+                                <a class="btn btn-primary btn-sm"
+                                   asp-controller="Account"
+                                   asp-action="Logout">
+                                    Logout
+                                </a>
                             </li>
                         }
                         else
                         {
+                            <li class="nav-item me-2">
+                                <a class="btn btn-outline-primary btn-sm"
+                                   asp-controller="Account"
+                                   asp-action="Register">
+                                    Register
+                                </a>
+                            </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+                                <a class="btn btn-primary btn-sm"
+                                   asp-controller="Account"
+                                   asp-action="Login">
+                                    Login
+                                </a>
                             </li>
                         }
                     </ul>
@@ -124,71 +220,26 @@
         </nav>
     </header>
 
-    <div class="container" style="">
+    <!-- 🔹 MAIN CONTENT -->
+    <main class="container-fluid px-3 px-md-4">
+        @RenderBody()
+    </main>
 
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <!-- START OF REDESIGNED FOOTER (Using Bootstrap 5) -->
-    <footer class="border-top bg-white pt-4 pb-3 mt-auto shadow-sm">
-        <div class="container-fluid">
-            <div class="row align-items-center">
-
-                <!-- App Info & Copyright (Left/Center alignment) -->
-                <div class="col-md-7 text-center text-md-start mb-2 mb-md-0">
-                    <h6 class="fw-bold text-uppercase mb-1" style="color: #4f46e5; font-size: 1rem;">
-                        UHSB Horti Guide Admin Panel
-                    </h6>
-                    <small class="text-muted d-block">
-                        &copy; 2025 | All rights reserved by the
-                        <span class="text-dark"><strong>University of Horticultural Sciences, Bagalkot</strong></span>
-                    </small>
-                </div>
-
-                <!-- Credits & Privacy (Right alignment) -->
-                <div class="col-md-5 text-center text-md-end">
-                    <p class="mb-1">
-                        <small class="text-muted">Developed & Maintained by <strong>Naveen V</strong> and the team.</small>
-                    </p>
-                    <!-- Privacy Link -->
-                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-decoration-none" style="color: #6366f1; font-size: 0.75rem;">
-                        Privacy Policy
-                    </a>
-                </div>
-
-            </div>
+    <!-- 🔹 FOOTER -->
+    <footer class="mt-4 py-3 shadow-soft">
+        <div class="container-fluid d-flex justify-content-between small text-muted">
+            <span>© 2025 University of Horticultural Sciences, Bagalkot</span>
+            <span>Developed by <strong>Naveen V</strong></span>
         </div>
     </footer>
-    <!-- END OF REDESIGNED FOOTER -->
-    <!-- Session Timeout Modal -->
-    @* <div id="sessionTimeoutModal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-            <div class="modal-content text-center p-3">
-                <div class="modal-body">
-                    <h5>Your session is about to expire!</h5>
-                    <p>Auto logout in <span id="countdown">30</span> seconds.</p>
-                    <button id="continueBtn" class="btn btn-success btn-sm">Continue</button>
-                    <button id="logoutBtn" class="btn btn-danger btn-sm">Logout</button>
-                </div>
-            </div>
-        </div>
-    </div> *@
 
-    <script>
-            @{
-                    var ApplicationVirtualPath = Context.Request.PathBase.HasValue ? Context.Request.PathBase.Value : "/";
-            }
-        window.virtualPath = '@ApplicationVirtualPath';
-    </script>
-
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/rootpathfinder.js"></script>
-    @* <script src="~/js/app.js"></script>
-    *@    @await RenderSectionAsync("Scripts", required: false)
+
+    @await RenderSectionAsync("Scripts", required: false)
+
 
 </body>
 </html>

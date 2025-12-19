@@ -1,0 +1,166 @@
+﻿@using Microsoft.AspNetCore.Html
+
+@{
+    var sectionId = ViewBag.SectionId?.ToString();
+    var cropId = ViewBag.CropId?.ToString();
+    var cropName = ViewBag.CropName?.ToString();
+    var categoryName = ViewBag.CategoryName?.ToString();
+    var sectionName = ViewBag.SectionName?.ToString();
+
+    var homeRoute = "/";
+    var categoryRoute = "/HorticultureGuide/Category";
+    var categoryIdQuery = Context.Request.Query["categoryId"].ToString();
+    var cropListRoute = $"/HorticultureGuide/CropList?categoryId={categoryIdQuery}&categoryName={Uri.EscapeDataString(categoryName)}";
+    var sectionListRoute = $"/HorticultureGuide/SectionIndex?cropId={cropId}&cropName={Uri.EscapeDataString(cropName)}&categoryName={Uri.EscapeDataString(categoryName)}";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link rel="stylesheet" href="~/css/cardstyle.css" />
+
+<div class="top-nav">
+    <a href="javascript:history.back()" class="back-arrow">
+        <i class="fa-solid fa-arrow-left"></i>
+    </a>
+
+    <span class="breadcrumb-item">
+        <a class="dropdown-item" asp-area="" asp-controller="Dashboard" asp-action="AdminHome">Home</a>
+    </span>
+
+    <i class="fa-solid fa-angle-right"></i>
+
+    
+       <span class="breadcrumb-item"> 
+        <a asp-controller="Horticulturehandbookweb" asp-action="CategoryIndex">ತೋಟಗಾರಿಕೆ ಕೈಪಿಡಿ ಮಾಹಿತಿ</a>
+    </span>
+    <i class="fa-solid fa-angle-right"></i>
+
+    <span class="breadcrumb-item">
+        @* <a id="breadcrumbCategory" href="#">@categoryName</a> *@
+      @categoryName 
+    </span>
+    <i class="fa-solid fa-angle-right"></i>
+
+    <span class="breadcrumb-item">
+         @cropName 
+        @* <a id="breadcrumbCrop" href="#">@cropName</a> *@
+    </span>
+    <i class="fa-solid fa-angle-right"></i>
+
+    <span class="breadcrumb-active"  >@sectionName</span>
+</div>
+
+<div class="section-header">@sectionName</div>
+
+<div id="contentContainer" class="grid-container">
+    <p class="loading-message">Loading content...</p>
+</div>
+
+@* Hidden fields for dynamic breadcrumb links and data *@
+@Html.Hidden("fileBaseUrl", ViewBag.fileBaseUrl, new { id = "fileBaseUrl" })
+@Html.Hidden("sectionId", sectionId, new { id = "sectionId" })
+@Html.Hidden("cropId", cropId, new { id = "cropId" })
+@Html.Hidden("cropName", cropName, new { id = "cropName" })
+@Html.Hidden("categoryName", categoryName, new { id = "categoryName" })
+@Html.Hidden("sectionName", sectionName, new { id = "sectionName" })
+@Html.Hidden("sectionListRoute", sectionListRoute, new { id = "sectionListRoute" })
+@Html.Hidden("cropListRoute", cropListRoute, new { id = "cropListRoute" })
+
+@section Scripts {
+
+    <script>
+        // --- Initialize variables from hidden fields ---
+        let fileBaseUrl = $("#fileBaseUrl").val() || "";
+        if (fileBaseUrl.includes("api")) fileBaseUrl = fileBaseUrl.replace("api", "");
+        if (!fileBaseUrl.endsWith('/')) fileBaseUrl += '/';
+
+        const sectionId = $("#sectionId").val();
+        const cropId = $("#cropId").val();
+        const cropName = $("#cropName").val();
+        const categoryName = $("#categoryName").val();
+        const sectionName = $("#sectionName").val();
+        const sectionListRoute = $("#sectionListRoute").val();
+        const cropListRoute = $("#cropListRoute").val();
+
+        const contentContainer = $('#contentContainer');
+
+        // --- Update breadcrumb dynamically ---
+        $("#breadcrumbCategory").attr("href", cropListRoute);
+        $("#breadcrumbCrop").attr("href", sectionListRoute);
+        $("#breadcrumbSection").text(sectionName);
+
+        // --- Generic API call function ---
+        function callGetApi(actionName, params = {}, onSuccess, onError) {
+            $.ajax({
+                url: '/UHSBWeb/CommonApi/ForwardApiResponse?action_name=' + actionName,
+                type: 'GET',
+                dataType: 'json',
+                data: params,
+                success: onSuccess,
+                error: onError
+            });
+        }
+
+        // --- Display items in section ---
+        function displayItemDetails() {
+            callGetApi(
+                `CropProfile/GetByItemDetails/${sectionId}/${cropId}`,
+                {},
+                function (response) {
+                    if (!response || response.length === 0) {
+                        contentContainer.html('<p class="info-message">No content found.</p>');
+                        return;
+                    }
+
+                    let html = '';
+
+                    response.forEach(item => {
+                        const title = item.title || item.name || '';
+                        const imageUrl = item.imageUrl
+                            ? `${fileBaseUrl}InwardsInvoices/TempFiles/CropsItems/${item.imageUrl}`
+                            : '';
+
+                        const itemUrl = '/UHSBWeb/Horticulturehandbookweb/ArticleDetailsIndex' + `?` +
+                            `itemId=${item.itemId}` +
+                            `&sectionId=${sectionId}` +
+                            `&cropId=${cropId}` +
+                            `&cropName=${encodeURIComponent(cropName)}` +
+                            `&categoryName=${encodeURIComponent(categoryName)}` +
+                            `&sectionName=${encodeURIComponent(sectionName)}` +
+                            `&itemName=${encodeURIComponent(item.name)}`;
+
+                        const imageHtml = imageUrl
+                            ? `<img src="${imageUrl}" class="item-card-image"
+                                   onerror="this.onerror=null;this.src='https://via.placeholder.com/150?text=No+Photo';" />`
+                            : `<div class="no-photo-placeholder">
+                                   <i class="fa-solid fa-camera"></i> No Photo
+                               </div>`;
+
+                        html += `
+                            <a href="${itemUrl}" class="item-card-link">
+                                <div class="item-card" data-id="${item.itemId}">
+                                    ${imageHtml}
+                                    <div class="card-content">
+                                        <div class="item-name-kn">${title}</div>
+                                        <div class="view-details-row">
+                                            <div class="view-details-text">Read Content</div>
+                                            <div class="forward-arrow">
+                                                <i class="fa-solid fa-arrow-right"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        `;
+                    });
+
+                    contentContainer.html(html);
+                },
+                function () {
+                    contentContainer.html('<p class="error-message">Failed to load content.</p>');
+                }
+            );
+        }
+
+        $(document).ready(displayItemDetails);
+    </script>
+}

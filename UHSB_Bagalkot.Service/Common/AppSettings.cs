@@ -25,6 +25,7 @@ namespace UHSB_Bagalkot.Service.Common
         public string AllowedHosts { get; set; }
         public string Base_Url { get; set; }
         public string File_Url { get; set; }
+        public string OtpEnable { get; set; }   
     }
 
     public class UploadSettings

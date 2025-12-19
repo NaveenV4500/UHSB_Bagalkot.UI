@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "ರಸಗೊಬ್ಬರ ಪ್ರಮಾಣ | Fertilizer Calculator";
+}
+
+<h3 class="text-center mb-3">
+    🌱 ರಸಗೊಬ್ಬರ ಪ್ರಮಾಣ <br />
+    <small>Fertilizer Calculator </small>
+</h3>
+
+<div style="max-width:450px;margin:auto;padding:20px;border-radius:12px;border:1px solid #ddd;">
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $("#calc").click(function () {
+
+        var factor = parseFloat($("#fertilizer").val());
+        var dose = parseFloat($("#dose").val());
+
+        if (!factor || !dose) {
+            alert("ದಯವಿಟ್ಟು ಎಲ್ಲಾ ಮಾಹಿತಿಯನ್ನು ನಮೂದಿಸಿ\nPlease fill all details");
+            return;
+        }
+
+        var fertilizerKg = (dose * factor).toFixed(2);
+        var bags = (fertilizerKg / 50).toFixed(2);
+
+        $("#output").html(
+            "✅ ಅಗತ್ಯ ರಸಗೊಬ್ಬರ: <b>" + fertilizerKg + " ಕೆಜಿ</b><br/>" +
+            "📦 50 ಕೆಜಿ ಚೀಲಗಳು: <b>" + bags + "</b><br/><br/>" +
+            "✅ Fertilizer Required: <b>" + fertilizerKg + " kg</b><br/>" +
+            "📦 50 kg Bags: <b>" + bags + "</b>"
+        );
+    });
+</script>

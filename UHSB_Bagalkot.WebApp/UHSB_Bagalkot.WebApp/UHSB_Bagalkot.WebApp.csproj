@@ -14,6 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\Images\Banners\thotakarikeBanner1.jpeg" />
+    <None Include="wwwroot\Images\Banners\thotakarikeBanner2.jpeg" />
     <None Include="wwwroot\Images\icon.jpg" />
     <None Include="wwwroot\Images\webapploader.gif" />
     <None Include="wwwroot\js\Category_index.js" />
@@ -27,11 +29,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Content\" />
+    <ProjectReference Include="..\..\UHSB_Bagalkot.Service\UHSB_Bagalkot.Service.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\UHSB_Bagalkot.Service\UHSB_Bagalkot.Service.csproj" />
+    <Folder Include="Content\" />
   </ItemGroup>
 
 </Project>

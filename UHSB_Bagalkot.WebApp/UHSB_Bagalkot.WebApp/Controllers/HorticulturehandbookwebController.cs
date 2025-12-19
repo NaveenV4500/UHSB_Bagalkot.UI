@@ -1,13 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Net.Http;
 using UHSB_Bagalkot.Service.Common;
+using UHSB_Bagalkot.Service.ViewModels.AdminDashboard;
 using UHSB_Bagalkot.Service.ViewModels.Crop;
 using UHSB_Bagalkot.Service.ViewModels.Sections;
 
 namespace UHSB_Bagalkot.WebApp.Controllers
 {
+    //[Authorize]
     public class HorticulturehandbookwebController : Controller
     {
         private readonly ApiSettings _apiSettings;
@@ -363,6 +366,76 @@ namespace UHSB_Bagalkot.WebApp.Controllers
         }
 
 
+
+        [HttpGet]
+        public async Task<IActionResult> CategoryIndex()
+        {
+            ViewBag.fileBaseUrl = _apiSettings.File_Url;
+
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CropIndex(int categoryid=0,string categoryName="")
+        {
+            ViewBag.fileBaseUrl = _apiSettings.File_Url;
+            ViewBag.CategoryName = categoryName;
+
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SectionIndex(int cropId, string cropName, string categoryName)
+        { 
+            ViewBag.fileBaseUrl = _apiSettings.File_Url;
+             
+            ViewBag.CropId = cropId;
+            ViewBag.CropName = cropName;
+            ViewBag.CategoryName = categoryName;
+             
+            ViewData["Title"] = $"{cropName} Sections | {categoryName} Guide";
+
+            return View();
+        }
+
+        [HttpGet] 
+        public IActionResult ItemsIndex(int sectionId, int cropId, string cropName, string categoryName,string sectionName)
+        {
+            string safeCropName = cropName ?? "Crop Details";
+            string safeCategoryName = categoryName ?? "Horticulture Guide";
+           
+            ViewBag.fileBaseUrl = _apiSettings.File_Url;
+            ViewBag.SectionId = sectionId;
+            ViewBag.CropId = cropId;
+            ViewBag.CropName = safeCropName;
+            ViewBag.CategoryName = safeCategoryName;
+            ViewBag.SectionName = sectionName;
+
+            ViewData["Title"] = $"Content: {sectionId} | {safeCropName}";
+
+            return View();
+        }
+        [HttpGet]
+        public async Task<IActionResult> ArticleDetailsIndex(
+            int itemId,
+            int sectionId,
+            int cropId,
+            string cropName,
+            string categoryName,
+            string sectionName,string itemName)
+        {
+            ViewBag.fileBaseUrl = _apiSettings.File_Url;
+
+            ViewBag.ItemId = itemId;
+            ViewBag.SectionId = sectionId;
+            ViewBag.CropId = cropId;
+            ViewBag.CropName = cropName;
+            ViewBag.CategoryName = categoryName;
+            ViewBag.SectionName = sectionName;  
+            ViewBag.itemName = itemName; 
+
+            return View();
+        }
 
     }
 }

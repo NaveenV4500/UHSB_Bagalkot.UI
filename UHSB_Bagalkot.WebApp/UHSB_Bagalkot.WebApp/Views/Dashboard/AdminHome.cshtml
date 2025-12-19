@@ -1,145 +1,255 @@
 ﻿@model UHSB_Bagalkot.Service.ViewModels.AdminDashboard.AdminDashboardVM
 @{
     ViewData["Title"] = "Farmer Dashboard";
+    bool isAuthenticated = User.Identity != null && User.Identity.IsAuthenticated;
+    string loginUrl = Url.Action("Login", "Account");
+
+    string GetGreeting()
+    {
+        var h = DateTime.Now.Hour;
+        if (h < 12) return "ಶುಭೋದಯ";
+        else if (h < 17) return "ಶುಭ ಮಧ್ಯಾಹ್ನ";
+        else return "ಶುಭ ಸಂಜೆ";
+    }
 }
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
 
-<div >
-  
+    <link href="~/css/dashboard-cards.css" rel="stylesheet" />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
+    <style>
+        .banner-bg {
+            min-height: 350px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
 
-    <!-- University Info Section -->
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold text-success ">ತೋಟಗಾರಿಕೆ ವಿಜ್ಞಾನಗಳ ವಿಶ್ವವಿದ್ಯಾಲಯ, ಬಾಗಲಕೋಟ </h4>
-        <div>
-            <i class="fa-solid fa-user me-2"></i>
-            <span id="userNameDisplay">Guest</span> |
-            <i class="fa-solid fa-phone ms-2 me-1"></i>
-            <span id="phoneDisplay">N/A</span>
+        @@media (max-width:768px) {
+            .banner-bg { min-height:220px; }
+        }
 
-            <!-- Admin Dashboard Button -->
-            <a href="@Url.Action("ManageAdminDashboard", "Dashboard")"
-               class="btn btn-sm btn-outline-primary ms-3">
-                Manage Admin Dashboard
-            </a>
-        </div>
-    </div>
+        .service-card-locked {
+            opacity: .6;
+            position: relative;
+        }
 
+        .lock-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.8rem;
+            border-radius: 1rem;
+        }
+    </style>
+</head>
 
-    
+<body>
 
-    <!-- Summary Cards -->
-    <div class="row g-3 mb-5">
-        <div class="col-md-2 col-6">
-            <div class="card text-center shadow-sm border-primary">
-                <div class="card-body">
-                    <i class="fa-solid fa-users fa-2x text-primary mb-2"></i>
-                    <h6 class="card-title">Total Users</h6>
-                    <p class="card-text fs-5 fw-bold">@Model.Summary?.TotalUsers</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2 col-6">
-            <div class="card text-center shadow-sm border-success">
-                <div class="card-body">
-                    <i class="fa-solid fa-user-check fa-2x text-success mb-2"></i>
-                    <h6 class="card-title">Active Users</h6>
-                    <p class="card-text fs-5 fw-bold">@Model.Summary?.ActiveUsers</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2 col-6">
-            <div class="card text-center shadow-sm border-warning">
-                <div class="card-body">
-                    <i class="fa-solid fa-tractor fa-2x text-warning mb-2"></i>
-                    <h6 class="card-title">Farmers</h6>
-                    <p class="card-text fs-5 fw-bold">@Model.Summary?.Farmers</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2 col-6">
-            <div class="card text-center shadow-sm border-info">
-                <div class="card-body">
-                    <i class="fa-solid fa-tags fa-2x text-info mb-2"></i>
-                    <h6 class="card-title">Categories</h6>
-                    <p class="card-text fs-5 fw-bold">@Model.Summary?.Categories</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2 col-6">
-            <div class="card text-center shadow-sm border-secondary">
-                <div class="card-body">
-                    <i class="fa-solid fa-seedling fa-2x text-secondary mb-2"></i>
-                    <h6 class="card-title">Crops</h6>
-                    <p class="card-text fs-5 fw-bold">@Model.Summary?.Crops</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2 col-6">
-            <div class="card text-center shadow-sm border-dark">
-                <div class="card-body">
-                    <i class="fa-solid fa-cloud-sun-rain fa-2x text-dark mb-2"></i>
-                    <h6 class="card-title">Weather Files</h6>
-                    <p class="card-text fs-5 fw-bold">@Model.Summary?.WeatherFiles</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Farmers by Village Table -->
-@*     <div class="mb-5">
-        <h4 class="text-primary mb-3">Farmers by Village</h4>
-        <div class="table-responsive shadow-sm rounded">
-            <table class="table table-hover table-bordered align-middle mb-0">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Village</th>
-                        <th>No. of Farmers</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.FarmersByVillage ?? new List<UHSB_Bagalkot.Service.ViewModels.AdminDashboard.FarmersByVillageVM>())
-                    {
-                        <tr>
-                            <td>@item.Village</td>
-                            <td>@item.Count</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
- *@     
+<!-- ================= BANNER ================= -->
+<div class="banner-bg"
+     style="background-image:url('@Url.Content("~/Images/banner2.jpg")');">
 </div>
 
-<!-- LocalStorage Script to remember user -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function () {
-         // Display remembered user
-         if (localStorage.getItem("UserName")) {
-             $('#userNameDisplay').text(localStorage.getItem("UserName"));
-             $('#phoneDisplay').text(localStorage.getItem("PhoneNumber"));
-         }
+<!-- ================= HEADER ================= -->
+<div class="card border-0" style="border-radius:1rem;">
+    <div class="card-body p-sm-5">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="text-muted">🌿 @GetGreeting()  @(isAuthenticated ? User.Identity.Name : "Guest")</div>
+                @* <div class="fw-bold fs-4">
+                   
+                </div> *@
+            </div>
 
-         // Counter animation
-         $('.counter').each(function () {
-             var $this = $(this),
-                 target = +$this.attr('data-target'),
-                 count = 0;
-             $({ countNum: count }).animate({ countNum: target }, {
-                 duration: 2000, // animation duration in ms
-                 easing: 'swing',
-                 step: function () {
-                     $this.text(Math.floor(this.countNum));
-                 },
-                 complete: function () {
-                     $this.text(this.countNum);
-                 }
-             });
-         });
-     });
-</script>
+            <div class="rounded-circle d-flex flex-column align-items-center justify-content-center"
+                 style="width:80px;height:80px;background:#22c55e;color:white;">
+                <span class="fw-bold fs-4">@ViewBag.usercount+</span>
+                <small>Farmers</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= SERVICES ================= -->
+<div class="section-title mt-4">ತ್ವರಿತ ಸೇವೆಗಳು</div>
+<div class="section-sub">Quick Services</div>
+
+<div class="grid-container ">
+
+<!-- ================= CARD 1 ================= -->
+@if (!isAuthenticated)
+{
+    <a href="@loginUrl" class="service-card-link">
+        <div class="service-card service-card-locked">
+            <div class="service-icon" style="background:linear-gradient(135deg,#43cea2,#185a9d);">
+                <i class="fa-solid fa-book"></i>
+            </div>
+            <div class="service-title-kn">ತೋಟಗಾರಿಕೆ ಕೈಪಿಡಿ</div>
+            <div class="service-title-en">Horticulture Guide</div>
+            <div class="lock-overlay"><i class="fa-solid fa-lock"></i></div>
+        </div>
+    </a>
+}
+else
+{
+    <a href="@Url.Action("CategoryIndex","Horticulturehandbookweb")" class="service-card-link">
+        <div class="service-card">
+            <div class="service-icon" style="background:linear-gradient(135deg,#43cea2,#185a9d);">
+                <i class="fa-solid fa-book"></i>
+            </div>
+            <div class="service-title-kn">ತೋಟಗಾರಿಕೆ ಕೈಪಿಡಿ</div>
+            <div class="service-title-en">Horticulture Guide</div>
+        </div>
+    </a>
+}
+
+<!-- ================= CARD 2 ================= -->
+@if (!isAuthenticated)
+{
+    <a href="@loginUrl" class="service-card-link">
+        <div class="service-card service-card-locked">
+            <div class="service-icon" style="background:linear-gradient(135deg,#a1c4fd,#c2e9fb);">
+                <i class="fa-solid fa-cloud-sun"></i>
+            </div>
+            <div class="service-title-kn">ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ</div>
+            <div class="service-title-en">Weather Forecast</div>
+            <div class="lock-overlay"><i class="fa-solid fa-lock"></i></div>
+        </div>
+    </a>
+}
+else
+{
+    <a href="@Url.Action("weatherfilesdetails","WeatherReportFiles")" class="service-card-link">
+        <div class="service-card">
+            <div class="service-icon" style="background:linear-gradient(135deg,#a1c4fd,#c2e9fb);">
+                <i class="fa-solid fa-cloud-sun"></i>
+            </div>
+            <div class="service-title-kn">ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ</div>
+            <div class="service-title-en">Weather Forecast</div>
+        </div>
+    </a>
+}
+
+<!-- ================= CARD 3 ================= -->
+@if (!isAuthenticated)
+{
+    <a href="@loginUrl" class="service-card-link">
+        <div class="service-card service-card-locked">
+            <div class="service-icon" style="background:linear-gradient(135deg,#ffd89b,#19547b);">
+                <i class="fa-solid fa-wrench"></i>
+            </div>
+            <div class="service-title-kn">ಪರಿಕರಗಳ ಲಭ್ಯತೆ</div>
+            <div class="service-title-en">Equipment</div>
+            <div class="lock-overlay"><i class="fa-solid fa-lock"></i></div>
+        </div>
+    </a>
+}
+else
+{
+    <a href="@Url.Action("EuipmentIndex","AvailabilityToolsWeb")" class="service-card-link">
+        <div class="service-card">
+            <div class="service-icon" style="background:linear-gradient(135deg,#ffd89b,#19547b);">
+                <i class="fa-solid fa-wrench"></i>
+            </div>
+            <div class="service-title-kn">ಪರಿಕರಗಳ ಲಭ್ಯತೆ</div>
+            <div class="service-title-en">Equipment</div>
+        </div>
+    </a>
+}
+
+<!-- ================= CARD 4 ================= -->
+@if (!isAuthenticated)
+{
+    <a href="@loginUrl" class="service-card-link">
+        <div class="service-card service-card-locked">
+            <div class="service-icon" style="background:linear-gradient(135deg,#ffecd2,#fcb69f);">
+                <i class="fa-solid fa-calculator"></i>
+            </div>
+            <div class="service-title-kn">ರಸಗೊಬ್ಬರ ಪ್ರಮಾಣ</div>
+            <div class="service-title-en">Fertilizer</div>
+            <div class="lock-overlay"><i class="fa-solid fa-lock"></i></div>
+        </div>
+    </a>
+}
+else
+{
+    <a href="@Url.Action("fertilizerIndex","fertilizerWeb")" class="service-card-link">
+        <div class="service-card">
+            <div class="service-icon" style="background:linear-gradient(135deg,#ffecd2,#fcb69f);">
+                <i class="fa-solid fa-calculator"></i>
+            </div>
+            <div class="service-title-kn">ರಸಗೊಬ್ಬರ ಪ್ರಮಾಣ</div>
+            <div class="service-title-en">Fertilizer</div>
+        </div>
+    </a>
+}
+
+<!-- ================= CARD 5 ================= -->
+@if (!isAuthenticated)
+{
+    <a href="@loginUrl" class="service-card-link">
+        <div class="service-card service-card-locked">
+            <div class="service-icon" style="background:linear-gradient(135deg,#ff9a9e,#fecfef);">
+                <i class="fa-solid fa-location-dot"></i>
+            </div>
+            <div class="service-title-kn">ಮಾರುಕಟ್ಟೆ ಮಾಹಿತಿ</div>
+            <div class="service-title-en">Market Info</div>
+            <div class="lock-overlay"><i class="fa-solid fa-lock"></i></div>
+        </div>
+    </a>
+}
+else
+{
+    <a href="@Url.Action("MarketIndex","MarketInfoWeb")" class="service-card-link">
+        <div class="service-card">
+            <div class="service-icon" style="background:linear-gradient(135deg,#ff9a9e,#fecfef);">
+                <i class="fa-solid fa-location-dot"></i>
+            </div>
+            <div class="service-title-kn">ಮಾರುಕಟ್ಟೆ ಮಾಹಿತಿ</div>
+            <div class="service-title-en">Market Info</div>
+        </div>
+    </a>
+}
+
+<!-- ================= CARD 6 ================= -->
+@if (!isAuthenticated)
+{
+    <a href="@loginUrl" class="service-card-link">
+        <div class="service-card service-card-locked">
+            <div class="service-icon" style="background:linear-gradient(135deg,#84fab0,#8fd3f4);">
+                <i class="fa-solid fa-comments"></i>
+            </div>
+            <div class="service-title-kn">ರೈತರ ಪ್ರಶ್ನೋತ್ತರ</div>
+            <div class="service-title-en">Farmer Q&A</div>
+            <div class="lock-overlay"><i class="fa-solid fa-lock"></i></div>
+        </div>
+    </a>
+}
+else
+{
+    <a href="@Url.Action("QuestionnaireIndex","QuestionnaireWeb")" class="service-card-link">
+        <div class="service-card">
+            <div class="service-icon" style="background:linear-gradient(135deg,#84fab0,#8fd3f4);">
+                <i class="fa-solid fa-comments"></i>
+            </div>
+            <div class="service-title-kn">ರೈತರ ಪ್ರಶ್ನೋತ್ತರ</div>
+            <div class="service-title-en">Farmer Q&A</div>
+        </div>
+    </a>
+}
+
+</div>
+
+</body>
+</html>

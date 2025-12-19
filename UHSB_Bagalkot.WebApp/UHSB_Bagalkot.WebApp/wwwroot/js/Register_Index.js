@@ -73,14 +73,14 @@
             cache: false,
             type: "POST",
             dataType: 'json',
-            url: GetRootPath(window.virtualPath) +'/UserMaster/GetGridContentV1',
+            url: GetRootPath(window.virtualPath) + '/UserMaster/GetGridContentV1',
             //url: GetRootPath(window.virtualPath) + 'UserMaster/GetGridContentV1',
             data: {
                 "currentPage": currentPage,
                 "pageSize": pageSize,
                 "orderBy": window.orderByColumnId,
                 "isDescending": window.isDescendingFilter,
-                "filterDetails":""// window.filterCollection.length > 0 ? JSON.stringify(window.filterCollection) : ""
+                "filterDetails": ""// window.filterCollection.length > 0 ? JSON.stringify(window.filterCollection) : ""
 
             },
             success: function (response, successStatusText, responseJqXhrObject) {
@@ -91,9 +91,9 @@
                 console.log(JSON.stringify(gridJson));
 
                 tablebody.find('tr:gt(0)').remove();
-                 
+
                 if (response.data.itemDetails && response.data.itemDetails.length) {
-                    
+
 
                     $.each(response.data.itemDetails, function (index, item) {
 
@@ -120,7 +120,7 @@
                             delete_span = '<span id=' + item.id + ' class="btn-link delete" style="cursor:pointer" >Delete</span></td>';
 
                             view_span = '<span id=' + item.id + ' class="btn-link view" style="cursor:pointer" >View</span>';
-                            rowContent = "<td class='text-center'>" + view_span + '|' +delete_span+ "</td>";
+                            rowContent = "<td class='text-center'>" + view_span + '|' + delete_span + "</td>";
                         }
                         rowContent +=
                             '<td class="text-center">' + (parseInt((currentPage - 1) * pageSize) + parseInt(index + 1)) + '</td>' +
@@ -131,10 +131,10 @@
                             '<td>' + BindValueToGrid(item.village || '', false, false) + '</td>' +
                             '<td>' + BindValueToGrid(item.phoneNumber || '', false, false) + '</td>' +
 
-                        '<td>' + BindValueToGrid(item.isActive, false, true) + '</td>' +
+                            '<td>' + BindValueToGrid(item.isActive, false, true) + '</td>' +
 
-                        '<td>' + BindValueToGrid(item.createdDate, true, false) + '</td>' ;
-                            //'<td>' + BindValueToGrid(item.isResetRequested || false, false, true) + '</td>';
+                            '<td>' + BindValueToGrid(item.createdDate, true, false) + '</td>';
+                        //'<td>' + BindValueToGrid(item.isResetRequested || false, false, true) + '</td>';
 
                         tablebody.append('<tr>' + rowContent + '</tr>');
                     })
@@ -172,7 +172,7 @@
 
     //#endregion
 
-    window.init();
+    //window.init();
 
 
 
@@ -196,7 +196,7 @@
         var selecteduserMasterDetails = $.grep(gridJson.ItemDetails, function (e) {
             return e.UserId == rowId;
         });
-         
+
 
         if (!selecteduserMasterDetails.length) {
             alert("Please try to refresh the page and try again.")
@@ -249,45 +249,7 @@
     //#endregion
 
     //region Disable basebranch Dropdown
-    $('body').on('change', '#RoleType', function (e) {
-        var BaseBranchId = $("#BaseBranchId").val();
-        var roletype = $('#RoleType').val();
-        if (roletype == 4 || roletype == 6 || roletype == 7) {
-            $('#basebranchhide').hide();
-        }
-        else {
-            debugger;
-            $('#basebranchhide').show();
 
-            if ((roletype == 1 || roletype == 2 || roletype == 3 || roletype == 5) && mode_edit == true && BaseBranchId != "0") {
-                return false;
-            }
-            $("#BaseBranchId").attr("readonly", false);
-            $('#BaseBranchId').css('background-color', '#FFFFFF');
-            $.ajax({
-                type: "post",
-                url: GetRootPath(window.virtualPath) + "BranchMaster/GetROBranches",
-                data: { roleType: roletype },
-                datatype: "json",
-                success: function (response, successStatusText, responseJqXhrObject) {
-                    //window.LogAjaxRequestDetails(responseJqXhrObject);
-                    var data = JSON.parse(response);
-                    // alert(data);                 
-                    debugger;
-                    if (data) {
-                        var ddlValue = $('#BaseBranchId').html('');
-                        for (var key in data) {
-                            ddlValue.append('<option value = "' + key + '" >' + data[key] + '</option>')
-                        }
-                    }
-
-
-                }
-
-            })
-
-        }
-    })
     //end region
     //#region Delete
     $('body').on('click', 'span.delete', function (e) {
@@ -303,10 +265,10 @@
                 dataType: "json",
                 success: function (data) {
                     debugger
-                    
-                        alert(data.success);
-                        setTimeout(() => location.reload(), 100);
-                    
+
+                    alert(data.success);
+                    setTimeout(() => location.reload(), 100);
+
                 },
                 error: function (xhr) {
                     alert(xhr.statusText);
@@ -541,4 +503,198 @@
 
     //#endregion
 
-})
+
+
+
+
+
+    function clearErrors() {
+        $("span.text-danger").text("");
+    }
+
+    function validateForm() {
+        clearErrors();
+        let isValid = true;
+
+        // Name
+        if (!$("#UserName").val().trim()) {
+            $("#errorUserName").text("Name is required");
+            isValid = false;
+        }
+
+        // Phone (10 digits)
+        const phone = $("#PhoneNumber").val().trim();
+        if (!/^\d{10}$/.test(phone)) {
+            $("#errorPhoneNumber").text("Enter valid 10-digit phone number");
+            isValid = false;
+        }
+
+        // Role
+        const role = parseInt($("#RoleType").val());
+        if (!role || role === 0) {
+            $("#errorRoleType").text("Please select a role");
+            isValid = false;
+        }
+
+        // District
+        const district = parseInt($("#DistrictsId").val());
+        if (!district || district === 0) {
+            $("#errorDistrictsId").text("Please select a district");
+            isValid = false;
+        }
+
+        // Village
+        if (!$("#Village").val().trim()) {
+            $("#errorVillage").text("Village is required");
+            isValid = false;
+        }
+
+        // Farmer validation
+        if (role === 2) {
+            const landSize = parseFloat($("#LandSize").val());
+            if (!landSize || landSize <= 0) {
+                $("#errorLandSize").text("Enter valid land size");
+                isValid = false;
+            }
+        }
+
+        // Scientist validation
+        if (role === 3) {
+            const empId = $("#EmployeeId").val().trim();
+            const email = $("#EmailId").val().trim();
+            if (!/^\d{5}$/.test(empId)) {
+                $("#errorEmployeeId").text("Employee ID must be 5 digits");
+                isValid = false;
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                $("#errorEmailId").text("Valid email required");
+                isValid = false;
+            }
+        }
+
+        return isValid;
+    }
+
+    // Show/hide role-based fields
+    $("#RoleType").on("change", function () {
+        debugger;
+        const role = parseInt($(this).val());
+        $(".role-farmer, .role-scientist").addClass("d-none");
+
+        if (role == 2) $(".role-farmer").removeClass("d-none");
+        if (role == 3) $(".role-scientist").removeClass("d-none");
+
+        clearErrors();
+    });
+
+    // AJAX submit
+    var userroletype = 0;
+    $("#btnRegister").click(function () {
+        if (!validateForm()) return;
+
+        const token = $('input[name="__RequestVerificationToken"]').val();
+        userroletype = parseInt($("#RoleType").val());
+        const data = {
+            Id: parseInt($("#Id").val()) || 0,
+            UserName: $("#UserName").val().trim(),
+            PhoneNumber: $("#PhoneNumber").val().trim(),
+            RoleType: parseInt($("#RoleType").val()),
+            DistrictsId: parseInt($("#DistrictsId").val()),
+            Village: $("#Village").val()?.trim() || null,
+            Address: $("#Address").val()?.trim() || null,
+
+            LandSize: $("#LandSize").val()
+                ? parseFloat($("#LandSize").val())
+                : null,
+
+            EmployeeId: $("#EmployeeId").val()
+                ? parseInt($("#EmployeeId").val())
+                : null,
+
+            EmailId: $("#EmailId").val()?.trim() || null,
+
+            IsActive: true,
+
+            PasswordHash: "temp",
+
+            CreatedDate: new Date().toISOString(),
+            UpdatedDate: null,
+            ModifiedDate: null,
+            CreatedBy: null,
+            ModifiedBy: null
+        };
+
+
+        $.ajax({
+            url: GetRootPath(window.virtualPath) +'/Account/RegisterAutoLogin',
+            method: 'POST',
+            contentType: 'application/json',
+            headers: { 'RequestVerificationToken': token },
+            data: JSON.stringify(data), 
+            success: function (res) {
+
+                if (typeof res === "string") {
+                    res = JSON.parse(res);
+                }
+
+                if (res.success) {
+                    alert(res.message || "Registered successfully");
+                    autoLogin(
+                        $("#UserName").val().trim(),
+                        $("#PhoneNumber").val().trim()
+                    );
+                } else {
+                    alert(res.message);
+                }
+            } ,
+            error: function () {
+                alert("Something went wrong");
+            }
+        });
+});
+
+    function autoLogin(userName, phoneNumber) {
+
+        const token = $('input[name="__RequestVerificationToken"]').val();
+
+        const loginData = {
+            UserName: userName,
+            PhoneNumber: phoneNumber,
+            IsFromadmin: true
+        };
+
+        $.ajax({
+            url: GetRootPath(window.virtualPath) +'/Account/Login',
+            type: 'POST',
+            contentType: 'application/json',
+            headers: { 'RequestVerificationToken': token },
+            data: JSON.stringify(loginData),
+            success: function (res) {
+
+                // 🔒 Safety: handle string JSON
+                if (typeof res === "string") {
+                    res = JSON.parse(res);
+                }
+
+                if (res.success) {
+                    window.location.href = res.redirectUrl;
+                } else {
+                    if (userroletype == 3 || userroletype == "3") {
+                        alert("Registered successfully !. Pending for admin approval.");
+                        window.location.href = GetRootPath(window.virtualPath) +'/Account/Login'; 
+                    }
+                    alert(res.message || "Auto login failed. Please login manually.");
+                    window.location.href = GetRootPath(window.virtualPath) +'/Account/Login'; // ✅ redirect on fail
+                }
+            },
+            error: function () {
+                alert("Auto login failed. Please login manually.");
+                window.location.href = GetRootPath(window.virtualPath) +'/Account/Login'; // ✅ redirect on error
+            }
+        });
+    }
+
+
+
+});
+

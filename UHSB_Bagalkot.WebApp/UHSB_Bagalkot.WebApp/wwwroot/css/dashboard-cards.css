@@ -1,0 +1,241 @@
+﻿/* dashboard-cards.css */
+
+/* --- GENERAL BODY/LAYOUT STYLES --- */
+body {
+    font-family: "Poppins", sans-serif;
+    background: #eef5e9;
+    margin: 0;
+    padding: 0;
+}
+
+/* --- HEADER STYLES --- */
+.top-header {
+    background: #4CAF50;
+    padding: 18px 16px;
+    color: white;
+    font-size: 22px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.pill-btn {
+    padding: 8px 16px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    gap: 6px;
+}
+
+.admin-pill {
+    background: #2D66E4;
+    color: white;
+}
+
+.logout-pill {
+    background: #F44336;
+    color: white;
+}
+
+/* --- BANNER/PROFILE STYLES --- */
+.banner-img {
+    width: 100%;
+    margin-top: -1px;
+    display: block;
+}
+
+.profile-card {
+    background: white;
+    margin: -60px 12px 20px 12px;
+    padding: 18px;
+    border-radius: 18px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.18);
+    position: relative;
+}
+
+.profile-title-kn {
+    font-size: 18px;
+    font-weight: 600;
+    color: #007E33;
+}
+
+.profile-title-en {
+    font-size: 14px;
+    color: #444;
+    margin-top: 5px;
+}
+
+.profile-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 14px;
+}
+
+.user-info {
+    font-size: 15px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.count-circle {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #53d73f, #73e07a);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+    .count-circle > small {
+        font-size: 12px;
+        font-weight: 500;
+        margin-top: -5px;
+    }
+
+.circle-label {
+    font-size: 12px;
+    color: #333;
+    margin-top: 4px;
+    text-align: center;
+}
+
+/* --- SECTION TITLE STYLES --- */
+.section-title {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #2d6a4f;
+}
+
+.section-sub {
+    text-align: center;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 18px;
+}
+
+/* --- SERVICE CARD STYLES --- */
+.grid-container {
+    padding: 0 12px 50px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+.service-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.service-card {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    transition: .2s;
+    height: 100%;
+    box-sizing: border-box;
+    cursor: pointer; /* Ensure cursor is a pointer for clickable feel */
+}
+
+.service-card-link:hover .service-card {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+}
+
+.service-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 14px;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 26px;
+    color: white;
+    margin-bottom: 8px;
+}
+
+.service-title-kn {
+    font-size: 15px;
+    font-weight: 600;
+    color: #FBA300;
+}
+
+.service-title-en {
+    font-size: 12px;
+    color: #444;
+}
+.service-card-disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    position: relative;
+}
+
+.service-card-disabled:hover {
+    transform: none;
+}
+
+.locked-icon {
+    background: #999 !important;
+}
+
+.lock-text {
+    margin-top: 6px;
+    font-size: 12px;
+    color: red;
+    font-weight: 600;
+}
+
+/* Tooltip */
+.service-card-link[title] {
+    position: relative;
+}
+
+.service-card-link[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #000;
+    color: #fff;
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 10;
+}
+.fixed-card-img {
+    height: 600px; /* same height for all */
+    object-fit: fill; /* crop nicely */
+    width: 100%;
+}
+ 

@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web.Helpers;
 using UHSB_Bagalkot.Data;
 using UHSB_Bagalkot.Data.Models;
@@ -290,10 +291,16 @@ namespace UHSB_Bagalkot.UI.Controllers
         {
             string msg = string.Empty;
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);  
+                return BadRequest(ModelState);
+           
+            if (!IsValidPhoneNumber(request.PhoneNumber))
+            {
+                return BadRequest("Please enter a valid phone number");
+            }
 
+            var mobileno = ObfuscateOrDeobfuscate(request.PhoneNumber, true);
 
-            if(request.RoleType == (byte)CommonEnum.UserRoleType.Select)
+            if (request.RoleType == (byte)CommonEnum.UserRoleType.Select)
                 return BadRequest(new { success = false, message = "Please select a valid role type." });
 
             if (request.RoleType == (byte)CommonEnum.UserRoleType.Scientist)
@@ -336,6 +343,14 @@ namespace UHSB_Bagalkot.UI.Controllers
             {
                 return new JsonResult(new { success = false, message = "All fields are required." }) { StatusCode = 400 };
             }
+
+            if (!IsValidPhoneNumber(request.PhoneNumber))
+            {
+                return BadRequest("Please enter a valid phone number");
+            }
+
+            var mobileno = ObfuscateOrDeobfuscate(request.PhoneNumber, true);
+
             var existingUser = await _accountRepository.GetUserByPhoneAsync(request.PhoneNumber);
             if (existingUser != null)
                 return new JsonResult(new { success = false, message = "Phone number already registered." }) { StatusCode = 400 };
@@ -562,6 +577,40 @@ namespace UHSB_Bagalkot.UI.Controllers
         }
 
         #endregion
+        private bool IsValidPhoneNumber(string phone)
+        {
+            if (string.IsNullOrEmpty(phone))
+                return false;
+
+            // Indian phone number validation
+            return Regex.IsMatch(phone, @"^[6-9]\d{9}$");
+        }
+
+        private string ObfuscateOrDeobfuscate(string input, bool isObfuscate)
+        {
+            int shift = 5;
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            StringBuilder result = new StringBuilder();
+
+            foreach (char c in input)
+            {
+                int ascii = (int)c;
+                int shifted = isObfuscate ? ascii + shift : ascii - shift;
+
+                // Wrap around printable ASCII (32–126)
+                if (shifted > 126)
+                    shifted = 32 + (shifted - 127);
+                else if (shifted < 32)
+                    shifted = 127 - (32 - shifted);
+
+                result.Append((char)shifted);
+            }
+
+            return result.ToString();
+        }
+
     }
 }
  

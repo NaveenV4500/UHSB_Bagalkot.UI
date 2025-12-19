@@ -1,0 +1,49 @@
+﻿<style>
+    .btn,.btn-outline-primary{
+        width:180px;
+    }
+
+</style>
+
+<div id="DistrictButtons" class="district-btn-container"></div>
+
+@Html.Hidden("fileBaseUrl", ViewBag.fileBaseUrl, new { id = "fileBaseUrl" })
+ 
+<div class="modal fade"
+     id="weeklyWeatherModal"
+     tabindex="-1"
+     data-bs-backdrop="static"
+     data-bs-keyboard="false">
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Weekly Weather Report</h5>
+
+                <!-- ONLY close button -->
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+            </div>
+
+            <div class="modal-body" id="weeklyWeatherBody">
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/paging.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/generic_gridfilter.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/generic.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/generic_pagination.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/rootpathfinder.js"></script>
+    <script src="~/js/weatherfilesdetails.js"></script>
+}

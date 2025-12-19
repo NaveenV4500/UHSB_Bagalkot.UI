@@ -1,0 +1,163 @@
+﻿@using Microsoft.AspNetCore.Html
+@{
+    // The previous title
+    ViewData["Title"] = "Horticulture Categories";
+
+    // Define the route for the next page (e.g., list of crops for a category)
+    var cropListRoute = "/HorticultureGuide/CropList";
+
+    // Placeholder data for the Stats Banner (Replace with actual data from your model/ViewBag)
+    var totalCategories = ViewBag.TotalCategories ?? 6;
+    var totalCrops = ViewBag.TotalCrops ?? "50+";
+    var guideStatus = ViewBag.GuideStatus ?? "100%";
+    var homeRoute = "/"; // Assuming home route is the root of the app
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c99QX4TctnWMn13TZye+giMm8e2LwA=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<link href="~/css/cardstyle.css" rel="stylesheet" />
+
+<div class="top-nav">
+    <a href="javascript:history.back()" class="back-arrow" title="Back">
+        <i class="fa-solid fa-arrow-left"></i>
+    </a>
+    <span class="breadcrumb-item">
+        <a class="dropdown-item" asp-area="" asp-controller="Dashboard" asp-action="AdminHome">Home</a>
+    </span>
+
+    <i class="fa-solid fa-angle-right"></i>
+
+     <span class="breadcrumb-item"> 
+        <a asp-controller="Horticulturehandbookweb" asp-action="CategoryIndex">ತೋಟಗಾರಿಕೆ ಕೈಪಿಡಿ ಮಾಹಿತಿ</a>
+    </span>
+</div>
+
+<div class="stats-banner">
+    <div class="stat-item">
+        <div class="stat-value">@totalCategories</div>
+        <div class="stat-label">Categories</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">@totalCrops</div>
+        <div class="stat-label">Total Crops</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">@guideStatus</div>
+        <div class="stat-label">Free Guide</div>
+    </div>
+</div>
+
+<div class="section-header">All Crop Categories</div>
+
+<div id="categoryContainer" class="grid-container">
+    <p class="loading-message">Loading categories...</p>
+</div>
+
+
+@Html.Hidden("fileBaseUrl", ViewBag.fileBaseUrl, new { id = "fileBaseUrl" })
+@Html.Hidden("cropListRoute", cropListRoute, new { id = "cropListRoute" })
+
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/paging.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/generic_gridfilter.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/generic.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/generic_pagination.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/rootpathfinder.js"></script>
+
+    <script>
+        var fileBaseUrl = $("#fileBaseUrl").val();
+        fileBaseUrl = fileBaseUrl.replace("api", "");
+        var cropListRoute = $("#cropListRoute").val();
+
+        // Existing callGetApi function remains the same
+        function callGetApi(actionName, params = {}, onSuccess, onError) {
+            //showLoader();
+            $.ajax({
+                url: '/UHSBWeb/CommonApi/ForwardApiResponse?action_name=' + actionName,
+                type: 'GET',
+                dataType: 'json',
+                success: onSuccess,
+                error: function (xhr) {
+                    //hideLoader();
+                    console.error(xhr);
+                    if (onError) onError(xhr);
+                }
+            });
+            //hideLoader();
+        }
+
+        function displayCategories() {
+            callGetApi(
+                'CropProfile/GetCategoryDetails',
+                {},
+                function (response) {
+                    let html = '';
+                    const container = $('#categoryContainer');
+
+                    if (response && response.length > 0) {
+                        response.forEach(category => {
+                            // Assuming API returns properties: category.id, category.name (Kannada), category.imageUrl, category.cropCount
+
+                            // *** Note: You might need to adjust 'category.cropCount' property name if your API uses something else ***
+                            const cropCount = category.cropCount || '0';
+
+                            // Image and URL construction
+                            const imageUrl = `${fileBaseUrl}InwardsInvoices/TempFiles/category/${category.imageUrl}`;
+                            const categoryUrl = GetRootPath(window.virtualPath)+`/Horticulturehandbookweb/CropIndex?categoryid=${category.categoryId}&categoryName=${category.name}`;
+                           
+                            // Determine the image/placeholder HTML using the 'item-card-image' and 'no-photo-placeholder' classes
+                            let imageHtml;
+                            if (category.imageUrl) {
+                                // Added onerror to switch to placeholder if image load fails
+                                imageHtml = `<img src="${imageUrl}" class="item-card-image" alt="${category.name}" onerror="this.onerror=null; this.parentElement.innerHTML = '<div class=\\'no-photo-placeholder\\'><i class=\\'fa-solid fa-camera\\'></i> No photo</div>';" />`;
+                            } else {
+                                imageHtml = `<div class="no-photo-placeholder"><i class="fa-solid fa-camera"></i> No photo</div>`;
+                            }
+
+                            debugger;
+                            // **Redesigned Card HTML using generic classes (item-card-link, item-card, item-name-kn, etc.)**
+                            html += `
+                                <a href="${categoryUrl}" class="item-card-link">
+                                    <div class="item-card" data-id="${category.id}">
+
+                                        ${imageHtml}
+
+                                        <div class="count-pill">${category.totalCrops}</div>
+
+                                        <div class="card-content">
+                                            <div class="item-name-kn">${category.name}</div>
+
+                                            <div class="view-details-row">
+                                                <div class="view-details-text">View Details</div>
+
+                                                <div class="forward-arrow">
+                                                    <i class="fa-solid fa-arrow-right"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            `;
+                        });
+                        container.html(html);
+                    } else {
+                        container.html('<p class="error-message">No categories found.</p>');
+                    }
+
+                },
+                function (error) {
+                    console.error('Error fetching categories:', error);
+                    $('#categoryContainer').html('<p class="error-message">Error loading categories. Please try again later.</p>');
+                }
+            );
+        }
+
+        $(document).ready(function () {
+            displayCategories();
+        });
+    </script>
+}

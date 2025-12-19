@@ -27,7 +27,9 @@ namespace UHSB_Bagalkot.Service.Common
             CreateMap<UhsbSection, RequestSectionDetailsVM>().ReverseMap();
             CreateMap<UhsbSection, SectionsGridVM>().ReverseMap();
             CreateMap<UhsbSeedPlantingCenterMaster, UhsbSeedPlantingCenterMasterVM>().ReverseMap();
+            CreateMap<UhsbAvailabilityToolsDetail, AvailabilityToolsDetailsVM>().ReverseMap();
 
+            
         }
     }
 }

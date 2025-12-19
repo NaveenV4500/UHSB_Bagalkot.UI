@@ -13,21 +13,23 @@ using UHSB_Bagalkot.Data.Models;
 using UHSB_Bagalkot.Service.Common;
 using UHSB_Bagalkot.Service.Dto;
 using UHSB_Bagalkot.Service.Interface;
+using UHSB_Bagalkot.Service.ViewModels;
 using UHSB_Bagalkot.Service.ViewModels.AvailabilityTools;
+using UHSB_Bagalkot.Service.ViewModels.Crop;
 using UHSB_Bagalkot.Service.ViewModels.Sections;
 
 namespace UHSB_Bagalkot.Service.Repositories
 {
     public class AvailabilityToolsRepository : CommonConnection, IAvailabilityToolsRepository
     {
-        private readonly IMapper _mapper; 
+        private readonly IMapper _mapper;
 
         public AvailabilityToolsRepository(Uhsb2025uatContext context, IMapper mapper)
             : base(context)
         {
             _mapper = mapper;
         }
-         
+
         public string GetConnectionString()
         {
             return _context.Database.GetDbConnection().ConnectionString;
@@ -219,12 +221,12 @@ namespace UHSB_Bagalkot.Service.Repositories
                 .Select(c => new DropdownItemDto
                 {
                     Id = c.CenterId,
-                    Name = c.CenternameEng +" - "+ c.CenternameKnd,
+                    Name = c.CenternameEng + " - " + c.CenternameKnd,
                 })
                 .ToListAsync();
         }
 
-       
+
         public async Task<List<DropdownItemDto>> RecordHeadTypeDD()
         {
             return await _context.UhsbRecordHeadMasters
@@ -236,5 +238,45 @@ namespace UHSB_Bagalkot.Service.Repositories
                 })
                 .ToListAsync();
         }
+
+         
+
+        #region AvailabilityTools SaveOrEditProdectDetails
+
+        public async Task<bool> SaveOrEditProdectDetails(AvailabilityToolsDetailsVM obj)
+        {
+            try
+            {
+                if (obj == null)
+                    throw new ArgumentNullException(nameof(AvailabilityToolsDetailsVM));
+
+                if (obj.Identifier == 0)
+                {
+
+                    var productEntity = _mapper.Map<UhsbAvailabilityToolsDetail>(obj);
+                    await _context.UhsbAvailabilityToolsDetails.AddAsync(productEntity);
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                else
+                {
+                    var existing = await _context.UhsbCategories.FindAsync(obj.Identifier);
+
+                    if (existing == null)
+                        return false;
+
+                    _mapper.Map(obj, existing);
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return false;
+            }
+        }
+
+        #endregion
     }
 }

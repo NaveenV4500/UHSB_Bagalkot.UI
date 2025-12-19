@@ -4,6 +4,8 @@ using UHSB_Bagalkot.Service.Common;
 using UHSB_Bagalkot.Service.Interface;
 using UHSB_Bagalkot.Service.Repositories;
 using UHSB_Bagalkot.Service.ViewModels;
+using UHSB_Bagalkot.Service.ViewModels.AvailabilityTools;
+using UHSB_Bagalkot.Service.ViewModels.Crop;
 
 namespace UHSB_Bagalkot.UI.Controllers
 {
@@ -48,6 +50,19 @@ namespace UHSB_Bagalkot.UI.Controllers
         {
             var categories = await _repository.RecordHeadTypeDD();
             return Ok(categories);
+        }
+
+         
+
+        [HttpPost("SaveOrEditProdectDetails")]
+        public async Task<IActionResult> SaveOrEditProdectDetails([FromBody] AvailabilityToolsDetailsVM model)
+        {
+            if (!ModelState.IsValid) return BadRequest();
+
+            var result = await _repository.SaveOrEditProdectDetails(model);
+            if (result == null) return NotFound("Update failed. Items not found.");
+
+            return Ok(result);
         }
     }
 }

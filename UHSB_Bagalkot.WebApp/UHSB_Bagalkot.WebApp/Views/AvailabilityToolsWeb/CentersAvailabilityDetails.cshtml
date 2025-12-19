@@ -289,21 +289,25 @@
 
                         <div class="col-12 mt-3">
                             <div class="table-responsive">
-                                <table class="table table-bordered table-hover">
+                                <table class="table table-bordered table-hover" id="itemGrid">
                                     <thead>
                                         <tr class="table-heading table-header-main">
                                             <th class="text-center" style="min-width: 60px;">Sl. No.</th>
-                                            <th style="min-width: 150px;">Category   - ವರ್ಗ</th>
-                                            <th style="min-width: 150px;">Crop   - ಬೆಳೆ</th>
-                                            <th style="min-width: 150px;">Section   - ವಿಭಾಗ</th>
-                                            <th style="min-width: 150px;">Item   - ಉಪವಿಭಾಗ</th>
-                                            <th style="min-width: 180px;">Description - ವಿವರಣೆ / ಮಾಹಿತಿ</th>
+                                            <th style="min-width: 150px;">Center - ಕೇಂದ್ರ</th>
+
+                                            <th style="min-width: 150px;">Category - ವರ್ಗ</th>
+                                            <th style="min-width: 150px;">Item - ಉಪವಿಭಾಗ</th>
+                                            <th style="min-width: 100px;">Quantity - ಪ್ರಮಾಣ</th>
+                                            <th style="min-width: 100px;">Unit - ಘಟಕ</th>
+                                            <th style="min-width: 100px;">Price - ಬೆಲೆ (₹)</th>
+                                            <th style="min-width: 160px;">Availability Date - ಲಭ್ಯತಾ ದಿನಾಂಕ</th>
+                                            <th style="min-width: 180px;">Description - ವಿವರಣೆ</th>
                                             <th class="text-center" style="min-width: 80px;">Action - ಕ್ರಿಯೆ</th>
                                         </tr>
-
                                     </thead>
                                     <tbody></tbody>
                                 </table>
+
 
                                 <div id="ajaxLoader" class="d-none">
                                     <img src="~/Content/images/ajax_loader2.gif" alt="Loading..." style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);" />
@@ -340,8 +344,9 @@
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/js/CentersAvailabilityDetails_Index.js"></script>
-    <script src="~/js/paging.js"></script>
-    <script src="~/js/generic_gridfilter.js"></script>
-    <script src="~/js/generic.js"></script>
+
+     <script src="~/js/paging.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/generic_gridfilter.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/generic.js?version=@Guid.NewGuid()"></script>
     <script src="~/js/rootpathfinder.js"></script>
 }

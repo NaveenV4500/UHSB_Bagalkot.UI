@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Net.Http;
@@ -7,6 +8,7 @@ using UHSB_Bagalkot.Service.Common;
 
 namespace UHSB_Bagalkot.WebApp.Controllers
 {
+    //[Authorize]
     public class CommonApiController : Controller
     {
         private readonly ApiSettings _apiSettings;
