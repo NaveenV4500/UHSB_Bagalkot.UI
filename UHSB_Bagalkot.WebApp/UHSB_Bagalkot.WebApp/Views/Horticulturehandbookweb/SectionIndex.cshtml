@@ -69,6 +69,21 @@
     <script src="~/js/rootpathfinder.js"></script>
 
     <script>
+         var rootPathList = ["/", "/UHSBWeb"];
+        
+        function GetRootPath(virtualPath) {
+            if (window.currentTradeId == 7) {
+                //LVB
+                var pathIndex = $.inArray(virtualPath, rootPathList);
+                if (pathIndex != -1) {
+                    return (pathIndex == 0) ? rootPathList[pathIndex] : rootPathList[pathIndex] + "/";
+                }
+            }
+            else {
+                return $('#rootpath').text();
+            }
+        }
+
         // --- 1. ROBUST VARIABLE INITIALIZATION ---
         let fileBaseUrl = $("#fileBaseUrl").val() || "";
         if (fileBaseUrl.includes("api")) {
@@ -91,8 +106,8 @@
 
         // Generic API call (using inline definition for reliability)
         function callGetApi(actionName, params = {}, onSuccess, onError) {
-            const rootPath = '/UHSBWeb';
-            const api_url =  '/UHSBWeb/CommonApi/ForwardApiResponse?action_name=' + actionName;
+
+            const api_url =   GetRootPath(window.virtualPath) +'/CommonApi/ForwardApiResponse?action_name=' + actionName;
 
             $.ajax({
                 url: api_url,
@@ -134,7 +149,7 @@
 
                             // URL to the final content page (ItemsIndex)
                             const sectionUrl =
-                               '/UHSBWeb/Horticulturehandbookweb/ItemsIndex' + `?` +
+                               GetRootPath(window.virtualPath) +'/Horticulturehandbookweb/ItemsIndex' + `?` +
                                 `sectionId=${section.sectionId}` +
                                 `&cropId=${cropId}` +
                                 `&cropName=${encodeURIComponent(cropName)}` +

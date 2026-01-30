@@ -2,10 +2,33 @@
     .btn,.btn-outline-primary{
         width:180px;
     }
+    .district-btn-container {
+    max-width: 1000px;
+}
+
+.district-btn {
+    height: 60px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    font-family: "Noto Sans Kannada", "Segoe UI", sans-serif;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.district-btn:hover {
+    background-color: #0d6efd;
+    color: #ffffff;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 18px rgba(13,110,253,0.35);
+}
 
 </style>
 
-<div id="DistrictButtons" class="district-btn-container"></div>
+<div class="container mt-4">
+    <div id="DistrictButtons" class="row justify-content-center district-btn-container"></div>
+</div>
 
 @Html.Hidden("fileBaseUrl", ViewBag.fileBaseUrl, new { id = "fileBaseUrl" })
  

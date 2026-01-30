@@ -48,6 +48,30 @@ namespace UHSB_Bagalkot.Service.Common
             [Display(Name = "No")]
             No = 2,
         }
+
+        public enum OrderDataStatusType  
+        {
+            [Display(Name = "Select")]
+            Select = 0,
+
+            [Display(Name = "Pending")]
+            Pending = 1,
+
+            [Display(Name = "Processing")]
+            Processing = 2,
+
+            [Display(Name = "Confirmed")]
+            Confirmed = 3,
+
+            [Display(Name = "Delivered")]
+            Delivered = 4,
+
+            [Display(Name = "Cancelled")]
+            Cancelled = 5
+        }
+
+
+
         public enum FileTypes
         {
             [Display(Name = "Category")]
@@ -156,8 +180,8 @@ namespace UHSB_Bagalkot.Service.Common
         public enum UnitType
         {
             Select = 0,
-            Nos = 2,
-            Packets = 3
+            Nos = 3,
+            Packets = 5
         }
 
         public static void WriteLog(string message)

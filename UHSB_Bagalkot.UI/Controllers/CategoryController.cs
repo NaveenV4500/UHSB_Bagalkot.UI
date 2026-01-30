@@ -7,6 +7,7 @@ using UHSB_Bagalkot.Service.ViewModels;
 
 namespace UHSB_Bagalkot.UI.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class CategoryController : ControllerBase

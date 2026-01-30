@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UHSB_Bagalkot.Data;
 using UHSB_Bagalkot.Data.Models;
+using UHSB_Bagalkot.Service.Common;
 using UHSB_Bagalkot.Service.Interface;
 using UHSB_Bagalkot.Service.ViewModels;
 
@@ -18,11 +19,39 @@ namespace UHSB_Bagalkot.Service.Repositories
         {
         }
 
-        public async Task<UserMaster> GetUserByPhoneAsync(string phoneNumber, string userName = "", bool isFromAdmin = false)
+        public async Task<UserMaster> GetUserByPhoneAsync(string phoneNumber, string userName = "", bool isFromAdmin = false,int roletype=0)
         {
-            return await _context.UserMasters
-                .Where(u => u.PhoneNumber == phoneNumber && (!isFromAdmin || u.UserName == userName))
-                .FirstOrDefaultAsync();
+            if(phoneNumber == null) throw new ArgumentNullException(nameof(phoneNumber));
+
+            if(roletype == (int)CommonEnum.UserRoleType.Admin || roletype == (int)CommonEnum.UserRoleType.Scientist)
+            {
+                return await _context.UserMasters
+                                .Where(u => u.PhoneNumber == phoneNumber && (!isFromAdmin || u.UserName == userName))
+                                .FirstOrDefaultAsync();
+            }else
+            {
+                return await _context.UserMasters
+                             .Where(u => u.PhoneNumber == phoneNumber )
+                             .FirstOrDefaultAsync();
+            }
+            
+        }
+
+        public async Task<UserMaster> GetUserByUserId(int userId=0)
+        {
+            if (userId == null) throw new ArgumentNullException(nameof(userId));
+
+            if (userId ==  0)
+            {
+                return await _context.UserMasters
+                                .Where(u => u.Id == userId)
+                                .FirstOrDefaultAsync();
+            }
+            else
+            {
+                return null;
+            }
+
         }
 
 

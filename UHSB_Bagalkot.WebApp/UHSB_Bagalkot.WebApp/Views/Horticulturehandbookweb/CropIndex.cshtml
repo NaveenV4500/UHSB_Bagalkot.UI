@@ -71,6 +71,21 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
+        var rootPathList = ["/", "/UHSBWeb"];
+        
+        function GetRootPath(virtualPath) {
+            if (window.currentTradeId == 7) {
+                //LVB
+                var pathIndex = $.inArray(virtualPath, rootPathList);
+                if (pathIndex != -1) {
+                    return (pathIndex == 0) ? rootPathList[pathIndex] : rootPathList[pathIndex] + "/";
+                }
+            }
+            else {
+                return $('#rootpath').text();
+            }
+        }
+
         var fileBaseUrl = $("#fileBaseUrl").val().replace("api", "");
         var categoryId = $("#categoryId").val();
         var categoryName = $("#categoryName").val();
@@ -79,7 +94,7 @@
 
         function callGetApi(actionName, params = {}, onSuccess, onError) {
             $.ajax({
-                url:   '/UHSBWeb/CommonApi/ForwardApiResponse?action_name=' + actionName,
+                url:   GetRootPath(window.virtualPath) + '/CommonApi/ForwardApiResponse?action_name=' + actionName,
                 type: 'GET',
                 dataType: 'json',
                 data: params,
@@ -107,7 +122,7 @@
                         response.forEach(function (crop) {
 
                             const cropUrl = 
-                                `/UHSBWeb/Horticulturehandbookweb/SectionIndex?cropId=${crop.cropId}&cropName=${crop.name}&categoryname=${categoryName}`;
+                                GetRootPath(window.virtualPath) +`/Horticulturehandbookweb/SectionIndex?cropId=${crop.cropId}&cropName=${crop.name}&categoryname=${categoryName}`;
 
                             let imageHtml = "";
 

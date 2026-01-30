@@ -1,93 +1,313 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Under Development | Hortiguide UHS Bagalkot</title>
+﻿@model UHSB_Bagalkot.Service.ViewModels.Product.ProductsVM
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using UHSB_Bagalkot.Service.Common
+@using static UHSB_Bagalkot.Service.Common.CommonEnum
 
-    <style>
-        * {
-            box-sizing: border-box;
-            font-family: "Segoe UI", Roboto, Arial, sans-serif;
+<style>
+
+
+
+    .product-card-img {
+        width: 100%;
+        height: 160px; /* SAME height for all cards */
+        object-fit: cover; /* crops but keeps ratio */
+        display: block;
+    }
+
+    /* ================= COMMON ================= */
+    .filter-card {
+        position: sticky;
+        top: 70px;
+        z-index: 99;
+    }
+
+    /* ================= MOBILE / DESKTOP TOGGLE ================= */
+    @@media (max-width: 768px) {
+        .desktop-filter
+
+    {
+        display: none;
+    }
+
+    .mobile-filter-btn {
+        display: block;
+    }
+
+    }
+
+    @@media (min-width: 769px) {
+        .mobile-filter-btn
+
+    {
+        display: none;
+    }
+
+    }
+
+    /* ================= PRODUCT GRID ================= */
+    #productGrid {
+        row-gap: 14px;
+    }
+
+    /* ================= PRODUCT CARD ================= */
+    .product-card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,.08);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: all .3s ease;
+        animation: fadeUp .35s ease both;
+    }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 24px rgba(0,0,0,.15);
         }
- 
 
-        .card {
-            background: #ffffff;
-            padding: 40px 30px;
-            max-width: 660px;
-            width: 90%;
-            border-radius: 14px;
-            text-align: center;
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
+        .product-card img {
+            width: 100%;
+            height: 170px;
+            object-fit: cover;
+            border-radius: 14px 14px 0 0;
         }
 
-        .icon {
-            font-size: 64px;
-            margin-bottom: 15px;
-        }
+    .product-body {
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
 
-        h1 {
-            margin: 0 0 12px;
-            font-size: 26px;
-            color: #1e293b;
-        }
+    .product-title {
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.3;
+    }
 
-        p {
-            margin: 0 0 18px;
-            font-size: 15px;
-            line-height: 1.6;
-            color: #475569;
-        }
+    .product-sub {
+        font-size: 12px;
+        color: #6c757d;
+    }
 
-        .badge {
-            display: inline-block;
-            padding: 10px 22px;
-            background-color: #2563eb;
-            color: #fff;
-            border-radius: 30px;
-            font-size: 14px;
-            font-weight: 600;
-        }
+    .product-price {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1b7f3b;
+        margin-top: auto;
+    }
 
-        footer {
-            margin-top: 25px;
-            font-size: 13px;
-            color: #64748b;
-        }
+    .product-card .btn {
+        border-radius: 10px;
+        font-size: 13px;
+    }
 
-            footer strong {
-                color: #1e293b;
-            }
-    </style>
-</head>
-<body>
+    /* ================= MOBILE OPTIMIZATION ================= */
+    @@media (max-width: 576px) {
+        .product-card img
 
-    <div class="row">
-        <div class="3"></div>
-        <div class="6">
-            <div class="card">
-                <div class="icon">🚧</div>
+    {
+        height: 140px;
+    }
 
-                <p>
-                    This page is currently under development and will be available soon.
-                </p>
+    .product-title {
+        font-size: 13px;
+    }
 
-                <p>
-                    <strong>ಈ ಪುಟವು ಪ್ರಸ್ತುತ ಅಭಿವೃದ್ಧಿ ಹಂತದಲ್ಲಿದೆ ಮತ್ತು ಶೀಘ್ರದಲ್ಲೇ ಲಭ್ಯವಾಗಲಿದೆ.</strong>
-                </p>
+    .product-price {
+        font-size: 15px;
+    }
 
-                <span class="badge">Coming Soon</span>
+    }
 
-                <footer>
-                    Hortiguide App
-                </footer>
+    /* ================= ANIMATION ================= */
+    @@keyframes fadeUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+</style>
+<link href="~/css/product.css" rel="stylesheet" />
+
+@Html.AntiForgeryToken()
+
+<!-- ================= TOP SEARCH BAR ================= -->
+<div class="card shadow-sm mb-3 mt-4">
+    <div class="card-body p-2">
+        <div class="row g-2 align-items-center">
+
+            <div class="col-8 col-md-6">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text"
+                           id="ProductSearch"
+                           class="form-control"
+                           placeholder="Search product (English / ಕನ್ನಡ)" />
+                </div>
+            </div>
+
+            <div class="col-4 col-md-2 mobile-filter-btn">
+                <button class="btn btn-outline-primary btn-sm w-100"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#mobileFilter" id="mobilefilterbtn">
+                    <i class="bi bi-funnel"></i> Filter
+                </button>
             </div>
 
         </div>
-        <div class="3"></div>
+    </div>
+</div>
+
+<div class="row">
+
+    <!-- ================= DESKTOP FILTER ================= -->
+    <div class="col-md-2 desktop-filter">
+        <div class="card filter-card shadow-sm">
+            <div class="card-body">
+
+                <h6 class="fw-bold mb-3">Filter</h6>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">District</label>
+                    @Html.DropDownListFor(
+                                        m => m.DistrictId,
+                                        new SelectList(Model.DistrictType, "Key", "Value"),
+                                        "-- Select District --",
+                                        new { @class = "form-select form-select-sm", id = "DistrictType" })
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Center</label>
+                    @Html.DropDownListFor(
+                                        m => m.CenterId,
+                                        new SelectList(Model.Centerstype, "Key", "Value"),
+                                        "-- Select Center --",
+                                        new { @class = "form-select form-select-sm", id = "Centerstype" })
+                </div>
+
+                <button id="griddata" class="btn btn-primary btn-sm w-100">
+                    Get Products
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= PRODUCT GRID ================= -->
+    <div class="col-12 col-md-10">
+             <div class="mb-3" id="multiGridFilter"></div>
+
+                @await Html.PartialAsync("_GridPagingHeader")
+
+        <div class="row" id="productGrid">
+            @* AJAX APPENDS CARDS HERE *@
+        </div>
+    </div>
+
+</div>
+
+<!-- ================= MOBILE FILTER OFFCANVAS ================= -->
+<div class="offcanvas offcanvas-bottom" tabindex="-1" id="mobileFilter" style="height:65%">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Filter</h5>
+        <button class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+
+    <div class="offcanvas-body">
+
+        <div class="mb-3">
+            <label class="form-label small fw-semibold">District</label>
+            @Html.DropDownListFor(
+                        m => m.DistrictId,
+                        new SelectList(Model.DistrictType, "Key", "Value"),
+                        "-- Select District --",
+                        new { @class = "form-select form-select-sm", id = "DistrictType" })
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label small fw-semibold">Center</label>
+            @Html.DropDownListFor(
+                        m => m.CenterId,
+                        new SelectList(Model.Centerstype, "Key", "Value"),
+                        "-- Select Center --",
+                        new { @class = "form-select form-select-sm", id = "Centerstype" })
+        </div>
+
+        <button class="btn btn-primary btn-sm w-100"
+                data-bs-dismiss="offcanvas"
+                onclick="$('#griddata').click();">
+            Apply Filter
+        </button>
+
+    </div>
 </div>
 
 
-</body>
-</html>
+
+<!-- Product Variety Modal -->
+ <div class="modal fade"
+     id="productVarietyModal"
+     tabindex="-1"
+     data-bs-backdrop="static"
+     data-bs-keyboard="false">
+
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down modal-lg">
+        <div class="modal-content rounded-3 rounded-sm-0">
+
+            <!-- Header (Sticky) -->
+            <div class="modal-header sticky-top bg-white border-bottom">
+                <h6 class="modal-title mb-0">Product Varieties</h6>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body p-3">
+
+                <div id="varietyLoader" class="text-center py-4 d-none">
+                    <div class="spinner-border text-success"></div>
+                </div>
+
+                <div id="varietyContent"></div>
+
+            </div>
+
+            <!-- Footer (Sticky) -->
+            <div class="modal-footer sticky-bottom bg-white border-top">
+                <button type="button"
+                        class="btn btn-secondary w-100"
+                        data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+@Html.Hidden("fileBaseUrl", ViewBag.fileBaseUrl, new { id = "fileBaseUrl" })
+
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+    <script src="~/js/Euipment_Index.js"></script>
+    <script src="~/js/paging.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/generic_gridfilter.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/generic.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/rootpathfinder.js"></script>
+}

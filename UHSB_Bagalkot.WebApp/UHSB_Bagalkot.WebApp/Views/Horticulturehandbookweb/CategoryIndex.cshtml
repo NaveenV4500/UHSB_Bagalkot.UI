@@ -29,7 +29,7 @@
 
     <i class="fa-solid fa-angle-right"></i>
 
-     <span class="breadcrumb-item"> 
+    <span class="breadcrumb-item">
         <a asp-controller="Horticulturehandbookweb" asp-action="CategoryIndex">ತೋಟಗಾರಿಕೆ ಕೈಪಿಡಿ ಮಾಹಿತಿ</a>
     </span>
 </div>
@@ -69,95 +69,111 @@
     <script src="~/js/rootpathfinder.js"></script>
 
     <script>
-        var fileBaseUrl = $("#fileBaseUrl").val();
-        fileBaseUrl = fileBaseUrl.replace("api", "");
-        var cropListRoute = $("#cropListRoute").val();
 
-        // Existing callGetApi function remains the same
-        function callGetApi(actionName, params = {}, onSuccess, onError) {
-            //showLoader();
-            $.ajax({
-                url: '/UHSBWeb/CommonApi/ForwardApiResponse?action_name=' + actionName,
-                type: 'GET',
-                dataType: 'json',
-                success: onSuccess,
-                error: function (xhr) {
-                    //hideLoader();
-                    console.error(xhr);
-                    if (onError) onError(xhr);
+        var rootPathList = ["/", "/UHSBWeb"];
+        
+        function GetRootPath(virtualPath) {
+            if (window.currentTradeId == 7) {
+                //LVB
+                var pathIndex = $.inArray(virtualPath, rootPathList);
+                if (pathIndex != -1) {
+                    return (pathIndex == 0) ? rootPathList[pathIndex] : rootPathList[pathIndex] + "/";
                 }
-            });
-            //hideLoader();
+            }
+            else {
+                return $('#rootpath').text();
+            }
         }
 
-        function displayCategories() {
-            callGetApi(
-                'CropProfile/GetCategoryDetails',
-                {},
-                function (response) {
-                    let html = '';
-                    const container = $('#categoryContainer');
+                var fileBaseUrl = $("#fileBaseUrl").val();
+                fileBaseUrl = fileBaseUrl.replace("api", "");
+                var cropListRoute = $("#cropListRoute").val();
 
-                    if (response && response.length > 0) {
-                        response.forEach(category => {
-                            // Assuming API returns properties: category.id, category.name (Kannada), category.imageUrl, category.cropCount
+                // Existing callGetApi function remains the same
+                function callGetApi(actionName, params = {}, onSuccess, onError) {
+                    //showLoader();
+                    $.ajax({
+                        url: GetRootPath(window.virtualPath) + '/CommonApi/ForwardApiResponse?action_name=' + actionName,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: onSuccess,
+                        error: function (xhr) {
+                            //hideLoader();
+                            console.error(xhr);
+                            if (onError) onError(xhr);
+                        }
+                    });
+                    //hideLoader();
+                }
 
-                            // *** Note: You might need to adjust 'category.cropCount' property name if your API uses something else ***
-                            const cropCount = category.cropCount || '0';
+                function displayCategories() {
+                    callGetApi(
+                        'CropProfile/GetCategoryDetails',
+                        {},
+                        function (response) {
+                            let html = '';
+                            const container = $('#categoryContainer');
 
-                            // Image and URL construction
-                            const imageUrl = `${fileBaseUrl}InwardsInvoices/TempFiles/category/${category.imageUrl}`;
-                            const categoryUrl = GetRootPath(window.virtualPath)+`/Horticulturehandbookweb/CropIndex?categoryid=${category.categoryId}&categoryName=${category.name}`;
-                           
-                            // Determine the image/placeholder HTML using the 'item-card-image' and 'no-photo-placeholder' classes
-                            let imageHtml;
-                            if (category.imageUrl) {
-                                // Added onerror to switch to placeholder if image load fails
-                                imageHtml = `<img src="${imageUrl}" class="item-card-image" alt="${category.name}" onerror="this.onerror=null; this.parentElement.innerHTML = '<div class=\\'no-photo-placeholder\\'><i class=\\'fa-solid fa-camera\\'></i> No photo</div>';" />`;
-                            } else {
-                                imageHtml = `<div class="no-photo-placeholder"><i class="fa-solid fa-camera"></i> No photo</div>`;
-                            }
+                            if (response && response.length > 0) {
+                                response.forEach(category => {
+                                    // Assuming API returns properties: category.id, category.name (Kannada), category.imageUrl, category.cropCount
 
-                            debugger;
-                            // **Redesigned Card HTML using generic classes (item-card-link, item-card, item-name-kn, etc.)**
-                            html += `
-                                <a href="${categoryUrl}" class="item-card-link">
-                                    <div class="item-card" data-id="${category.id}">
+                                    // *** Note: You might need to adjust 'category.cropCount' property name if your API uses something else ***
+                                    const cropCount = category.cropCount || '0';
 
-                                        ${imageHtml}
+                                    // Image and URL construction
+                                    const imageUrl = `${fileBaseUrl}InwardsInvoices/TempFiles/category/${category.imageUrl}`;
+                                    const categoryUrl = GetRootPath(window.virtualPath)+`/Horticulturehandbookweb/CropIndex?categoryid=${category.categoryId}&categoryName=${category.name}`;
 
-                                        <div class="count-pill">${category.totalCrops}</div>
+                                    // Determine the image/placeholder HTML using the 'item-card-image' and 'no-photo-placeholder' classes
+                                    let imageHtml;
+                                    if (category.imageUrl) {
+                                        // Added onerror to switch to placeholder if image load fails
+                                        imageHtml = `<img src="${imageUrl}" class="item-card-image" alt="${category.name}" onerror="this.onerror=null; this.parentElement.innerHTML = '<div class=\\'no-photo-placeholder\\'><i class=\\'fa-solid fa-camera\\'></i> No photo</div>';" />`;
+                                    } else {
+                                        imageHtml = `<div class="no-photo-placeholder"><i class="fa-solid fa-camera"></i> No photo</div>`;
+                                    }
 
-                                        <div class="card-content">
-                                            <div class="item-name-kn">${category.name}</div>
+                                    debugger;
+                                    // **Redesigned Card HTML using generic classes (item-card-link, item-card, item-name-kn, etc.)**
+                                    html += `
+                                        <a href="${categoryUrl}" class="item-card-link">
+                                            <div class="item-card" data-id="${category.id}">
 
-                                            <div class="view-details-row">
-                                                <div class="view-details-text">View Details</div>
+                                                ${imageHtml}
 
-                                                <div class="forward-arrow">
-                                                    <i class="fa-solid fa-arrow-right"></i>
+                                                <div class="count-pill">${category.totalCrops}</div>
+
+                                                <div class="card-content">
+                                                    <div class="item-name-kn">${category.name}</div>
+
+                                                    <div class="view-details-row">
+                                                        <div class="view-details-text">View Details</div>
+
+                                                        <div class="forward-arrow">
+                                                            <i class="fa-solid fa-arrow-right"></i>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            `;
-                        });
-                        container.html(html);
-                    } else {
-                        container.html('<p class="error-message">No categories found.</p>');
-                    }
+                                        </a>
+                                    `;
+                                });
+                                container.html(html);
+                            } else {
+                                container.html('<p class="error-message">No categories found.</p>');
+                            }
 
-                },
-                function (error) {
-                    console.error('Error fetching categories:', error);
-                    $('#categoryContainer').html('<p class="error-message">Error loading categories. Please try again later.</p>');
+                        },
+                        function (error) {
+                            console.error('Error fetching categories:', error);
+                            $('#categoryContainer').html('<p class="error-message">Error loading categories. Please try again later.</p>');
+                        }
+                    );
                 }
-            );
-        }
 
-        $(document).ready(function () {
-            displayCategories();
-        });
+                $(document).ready(function () {
+                    displayCategories();
+                });
     </script>
 }

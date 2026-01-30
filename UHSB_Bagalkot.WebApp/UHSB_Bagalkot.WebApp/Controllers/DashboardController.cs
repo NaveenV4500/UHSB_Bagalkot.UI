@@ -18,7 +18,7 @@ using UHSB_Bagalkot.Service.ViewModels.AdminDashboard;
 
 namespace UHSB_Bagalkot.WebApp.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class DashboardController : Controller
     {
         private readonly ApiSettings _apiSettings;
@@ -38,29 +38,29 @@ namespace UHSB_Bagalkot.WebApp.Controllers
             var vm = new AdminDashboardVM();
             var usercount = 5000; //HttpContext.Session.SetInt32("usercount");
             ViewBag.usercount = usercount;
-            // ✅ Call Summary API
-            var summaryRes = await _httpClient.GetAsync($"{_apiSettings.Base_Url}/Dashboard/summary");
-            if (summaryRes.IsSuccessStatusCode)
-            {
-                var json = await summaryRes.Content.ReadAsStringAsync();
-                vm.Summary = JsonConvert.DeserializeObject<SummaryVM>(json);
-            }
+            //// ✅ Call Summary API
+            //var summaryRes = await _httpClient.GetAsync($"{_apiSettings.Base_Url}/Dashboard/summary");
+            //if (summaryRes.IsSuccessStatusCode)
+            //{
+            //    var json = await summaryRes.Content.ReadAsStringAsync();
+            //    vm.Summary = JsonConvert.DeserializeObject<SummaryVM>(json);
+            //}
 
-            // ✅ Call Farmers by Village API
-            var farmersRes = await _httpClient.GetAsync($"{_apiSettings.Base_Url}/Dashboard/farmers-by-village");
-            if (farmersRes.IsSuccessStatusCode)
-            {
-                var json = await farmersRes.Content.ReadAsStringAsync();
-                vm.FarmersByVillage = JsonConvert.DeserializeObject<List<FarmersByVillageVM>>(json);
-            }
+            //// ✅ Call Farmers by Village API
+            //var farmersRes = await _httpClient.GetAsync($"{_apiSettings.Base_Url}/Dashboard/farmers-by-village");
+            //if (farmersRes.IsSuccessStatusCode)
+            //{
+            //    var json = await farmersRes.Content.ReadAsStringAsync();
+            //    vm.FarmersByVillage = JsonConvert.DeserializeObject<List<FarmersByVillageVM>>(json);
+            //}
 
-            // ✅ Call Weekly Weather API
-            var weatherRes = await _httpClient.GetAsync($"{_apiSettings.Base_Url}/Dashboard/weekly-weather/{districtId}");
-            if (!weatherRes.IsSuccessStatusCode)
-            {
-                var json = await weatherRes.Content.ReadAsStringAsync();
-                vm.WeeklyWeather = JsonConvert.DeserializeObject<WeeklyWeatherVM>(json);
-            }
+            //// ✅ Call Weekly Weather API
+            //var weatherRes = await _httpClient.GetAsync($"{_apiSettings.Base_Url}/Dashboard/weekly-weather/{districtId}");
+            //if (!weatherRes.IsSuccessStatusCode)
+            //{
+            //    var json = await weatherRes.Content.ReadAsStringAsync();
+            //    vm.WeeklyWeather = JsonConvert.DeserializeObject<WeeklyWeatherVM>(json);
+            //}
 
             return View(vm);
         }

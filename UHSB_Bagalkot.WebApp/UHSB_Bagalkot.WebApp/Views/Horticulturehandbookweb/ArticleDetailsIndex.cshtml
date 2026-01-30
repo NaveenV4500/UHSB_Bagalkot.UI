@@ -143,6 +143,20 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+                var rootPathList = ["/", "/UHSBWeb"];
+
+        function GetRootPath(virtualPath) {
+            if (window.currentTradeId == 7) {
+                //LVB
+                var pathIndex = $.inArray(virtualPath, rootPathList);
+                if (pathIndex != -1) {
+                    return (pathIndex == 0) ? rootPathList[pathIndex] : rootPathList[pathIndex] + "/";
+                }
+            }
+            else {
+                return $('#rootpath').text();
+            }
+        }
         let fileBaseUrl = $("#fileBaseUrl").val() || "";
         if (fileBaseUrl.includes("api")) fileBaseUrl = fileBaseUrl.replace("api", "");
         if (!fileBaseUrl.endsWith('/')) fileBaseUrl += '/';
@@ -151,9 +165,9 @@
         const container = $("#contentDetailContainer");
 
         function callGetApi(actionName, params = {}, onSuccess, onError) {
-            const rootPath ='/UHSBWeb';
+       
             $.ajax({
-                url: '/UHSBWeb/CommonApi/ForwardApiResponse?action_name=' + actionName,
+                url:  GetRootPath(window.virtualPath) +'/CommonApi/ForwardApiResponse?action_name=' + actionName,
                 type: 'GET',
                 dataType: 'json',
                 data: params,

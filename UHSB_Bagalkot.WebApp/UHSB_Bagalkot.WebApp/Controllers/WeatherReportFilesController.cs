@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using UHSB_Bagalkot.Service.Common;
 using UHSB_Bagalkot.Service.ViewModels;
 
 namespace UHSB_Bagalkot.WebApp.Controllers
 {
+    [Authorize]
     public class WeatherReportFilesController : Controller
     {
         private readonly ApiSettings _apiSettings;

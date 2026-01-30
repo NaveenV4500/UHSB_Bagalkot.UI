@@ -11,6 +11,8 @@ public partial class UhsbDistrict
 
     public bool? IsActive { get; set; }
 
+    public virtual ICollection<UhsbProduct> UhsbProducts { get; set; } = new List<UhsbProduct>();
+
     public virtual ICollection<UhsbSeedPlantingCenterMaster> UhsbSeedPlantingCenterMasters { get; set; } = new List<UhsbSeedPlantingCenterMaster>();
 
     public virtual ICollection<UhsbWeatherCastFileDetail> UhsbWeatherCastFileDetails { get; set; } = new List<UhsbWeatherCastFileDetail>();

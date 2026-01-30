@@ -1,0 +1,35 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+} 
+
+@{
+    ViewBag.Title = "Product Varieties";
+}
+ 
+<h2 class="mb-4">Product Varieties</h2>
+
+<!-- Loader -->
+<div id="varietyLoader" class="text-center py-4 d-none">
+    <div class="spinner-border text-success"></div>
+</div>
+
+<!-- Varieties container -->
+<div id="varietyContent" class="row g-4"></div>
+
+<!-- Include the JS file -->
+ 
+@Html.Hidden("fileBaseUrl", ViewBag.fileBaseUrl, new { id = "fileBaseUrl" })
+
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    
+    <script src="~/js/rootpathfinder.js"></script>
+    <script src="~/js/varieties_index.js"></script>
+    <script src="~/js/paging.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/generic_gridfilter.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/generic.js?version=@Guid.NewGuid()"></script>
+
+}

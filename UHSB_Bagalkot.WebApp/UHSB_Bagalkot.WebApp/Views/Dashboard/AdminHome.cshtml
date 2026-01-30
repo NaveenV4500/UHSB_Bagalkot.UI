@@ -81,6 +81,8 @@
     </div>
 </div>
 
+
+
 <!-- ================= SERVICES ================= -->
 <div class="section-title mt-4">ತ್ವರಿತ ಸೇವೆಗಳು</div>
 <div class="section-sub">Quick Services</div>
@@ -248,7 +250,32 @@ else
         </div>
     </a>
 }
-
+<!-- ================= CARD  ================= -->
+@if (!isAuthenticated)
+{
+    <a href="@loginUrl" class="service-card-link">
+        <div class="service-card service-card-locked">
+            <div class="service-icon" style="background:linear-gradient(135deg,#84fab0,#8fd3f4);">
+                <i class="fa-solid fa-comments"></i>
+            </div>
+            <div class="service-title-kn">ಹಾರ್ಟಿ ಮಾರ್ಗದರ್ಶಿ ಅಪ್ಲಿಕೇಶನ್</div>
+            <div class="service-title-en">Horti Guide App</div>
+            <div class="lock-overlay"><i class="fa-solid fa-lock"></i></div>
+        </div>
+    </a>
+}
+else
+{
+    <a href="https://drive.usercontent.google.com/download?id=1Rs5VGf9tR1hh8Xs-FTW5n7pqQpX14xcQ&export=download&authuser=0" class="service-card-link">
+        <div class="service-card">
+            <div class="service-icon" style="background:linear-gradient(135deg,#84fab0,#8fd3f4);">
+                <i class="fa-solid fa-comments"></i>
+            </div>
+              <div class="service-title-kn">ಹಾರ್ಟಿ ಮಾರ್ಗದರ್ಶಿ ಅಪ್ಲಿಕೇಶನ್</div>
+            <div class="service-title-en">Horti Guide App</div>
+        </div>
+    </a>
+}
 </div>
 
 </body>

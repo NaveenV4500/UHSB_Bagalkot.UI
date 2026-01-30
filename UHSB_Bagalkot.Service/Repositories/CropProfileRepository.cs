@@ -35,7 +35,7 @@ namespace UHSB_Bagalkot.Service.Repositories
                     CategoryId = c.CategoryId,
                     Name = c.Name,
                     ImageUrl=c.ImageUrl,
-                    TotalCrops = _context.UhsbCrops.Count(x => x.CategoryId == c.CategoryId)
+                    TotalCrops = _context.UhsbCrops.Count(x => x.CategoryId == c.CategoryId && x.Description == "TRUE")
                 })
                 .ToList();
 
@@ -45,7 +45,7 @@ namespace UHSB_Bagalkot.Service.Repositories
 
         public IEnumerable<UhsbCrop> GetCropDetailsAsync(int categoryId = 0)
         {
-            return _context.UhsbCrops.Where(c => c.CategoryId == categoryId).ToList();
+            return _context.UhsbCrops.Where(c => c.CategoryId == categoryId && c.Description == "TRUE").ToList();
         }
 
         public IEnumerable<UhsbSection> GetSectionsByCropId(int cropId)

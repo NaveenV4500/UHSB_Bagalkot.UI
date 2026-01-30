@@ -431,8 +431,8 @@ namespace UHSB_Bagalkot.Service.Repositories
             var dataList = await query.Skip((currentPage - 1) * pageSize)
                                       .Take(pageSize).OrderByDescending(x => x.CreatedDate)
                                       .ToListAsync();
-
-            var data = new GenericGridModel<UserMasterVM>
+            
+             var data = new GenericGridModel<UserMasterVM>
             {
                 ItemDetails = dataList,
                 TotalCount = totalCount,

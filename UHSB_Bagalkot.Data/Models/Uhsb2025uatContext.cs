@@ -23,6 +23,10 @@ public partial class Uhsb2025uatContext : DbContext
 
     public virtual DbSet<UhsbAvailabilityToolsDetail> UhsbAvailabilityToolsDetails { get; set; }
 
+    public virtual DbSet<UhsbCartItem> UhsbCartItems { get; set; }
+
+    public virtual DbSet<UhsbCartMaster> UhsbCartMasters { get; set; }
+
     public virtual DbSet<UhsbCategory> UhsbCategories { get; set; }
 
     public virtual DbSet<UhsbCrop> UhsbCrops { get; set; }
@@ -37,6 +41,16 @@ public partial class Uhsb2025uatContext : DbContext
 
     public virtual DbSet<UhsbItemQnA> UhsbItemQnAs { get; set; }
 
+    public virtual DbSet<UhsbOrderCustomerAddress> UhsbOrderCustomerAddresses { get; set; }
+
+    public virtual DbSet<UhsbOrderItem> UhsbOrderItems { get; set; }
+
+    public virtual DbSet<UhsbOrderMaster> UhsbOrderMasters { get; set; }
+
+    public virtual DbSet<UhsbProduct> UhsbProducts { get; set; }
+
+    public virtual DbSet<UhsbProductVariety> UhsbProductVarieties { get; set; }
+
     public virtual DbSet<UhsbRecordHeadMaster> UhsbRecordHeadMasters { get; set; }
 
     public virtual DbSet<UhsbSection> UhsbSections { get; set; }
@@ -46,6 +60,8 @@ public partial class Uhsb2025uatContext : DbContext
     public virtual DbSet<UhsbSeedPlantingCenterMaster> UhsbSeedPlantingCenterMasters { get; set; }
 
     public virtual DbSet<UhsbSubSection> UhsbSubSections { get; set; }
+
+    public virtual DbSet<UhsbUnitMaster> UhsbUnitMasters { get; set; }
 
     public virtual DbSet<UhsbWeatherCastFileDetail> UhsbWeatherCastFileDetails { get; set; }
 
@@ -59,8 +75,8 @@ public partial class Uhsb2025uatContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        /*UHSBGUIDE*/ //=> optionsBuilder.UseSqlServer("Server=D465PTN3;Database=UHSB_GUIDEUAT;Trusted_Connection=True;TrustServerCertificate=True;");
-        => optionsBuilder.UseSqlServer("Server=DESKTOP-5GU02OK;Database=UHSB2025UAT;Trusted_Connection=True;TrustServerCertificate=True;");
+    => optionsBuilder.UseSqlServer("Server=DESKTOP-5GU02OK;Database=UHSB2025UAT;Trusted_Connection=True;TrustServerCertificate=True;");
+    /*UHSBGUIDE*/  //=> optionsBuilder.UseSqlServer("Server=D465PTN3;Database=UHSB_GUIDEUAT;Trusted_Connection=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -150,6 +166,43 @@ public partial class Uhsb2025uatContext : DbContext
                 .HasForeignKey(d => d.HeadId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UHSB_AvailabilityToolsDetails_UHSB_RecordHeadMaster");
+        });
+
+        modelBuilder.Entity<UhsbCartItem>(entity =>
+        {
+            entity.HasKey(e => e.CartItemId);
+
+            entity.ToTable("UHSB_CartItems");
+
+            entity.HasIndex(e => new { e.CartId, e.ProductId, e.VarietyId }, "UX_UHSB_CartItems_Cart_Product_Variety").IsUnique();
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.Cart).WithMany(p => p.UhsbCartItems)
+                .HasForeignKey(d => d.CartId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_CartItems_UHSB_CartMaster");
+        });
+
+        modelBuilder.Entity<UhsbCartMaster>(entity =>
+        {
+            entity.HasKey(e => e.CartId);
+
+            entity.ToTable("UHSB_CartMaster");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UhsbCartMasters)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_CartMaster_UserMaster");
         });
 
         modelBuilder.Entity<UhsbCategory>(entity =>
@@ -250,6 +303,172 @@ public partial class Uhsb2025uatContext : DbContext
                 .HasConstraintName("FK_UHSB_ItemQnA_UHSB_Items");
         });
 
+        modelBuilder.Entity<UhsbOrderCustomerAddress>(entity =>
+        {
+            entity.HasKey(e => e.OrderAddressId);
+
+            entity.ToTable("UHSB_OrderCustomerAddress");
+
+            entity.Property(e => e.AddressLine1).HasMaxLength(230);
+            entity.Property(e => e.AddressLine2).HasMaxLength(230);
+            entity.Property(e => e.City).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("smalldatetime");
+            entity.Property(e => e.District).HasMaxLength(100);
+            entity.Property(e => e.FullName).HasMaxLength(100);
+            entity.Property(e => e.MobileNo).HasMaxLength(15);
+            entity.Property(e => e.Pincode).HasMaxLength(10);
+            entity.Property(e => e.State).HasMaxLength(100);
+
+            entity.HasOne(d => d.Order).WithMany(p => p.UhsbOrderCustomerAddresses)
+                .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_OrderCustomerAddress_OrderMaster");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UhsbOrderCustomerAddresses)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_OrderCustomerAddress_UserMaster");
+        });
+
+        modelBuilder.Entity<UhsbOrderItem>(entity =>
+        {
+            entity.HasKey(e => e.OrderItemId);
+
+            entity.ToTable("UHSB_OrderItems");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("smalldatetime");
+            entity.Property(e => e.ModifiedDate).HasColumnType("smalldatetime");
+            entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TotalPrice).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.UhsbOrderItems)
+                .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_OrderItems_OrderMaster");
+        });
+
+        modelBuilder.Entity<UhsbOrderMaster>(entity =>
+        {
+            entity.HasKey(e => e.OrderId);
+
+            entity.ToTable("UHSB_OrderMaster");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("smalldatetime");
+            entity.Property(e => e.ModifiedDate).HasColumnType("smalldatetime");
+            entity.Property(e => e.OrderDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("smalldatetime");
+            entity.Property(e => e.OrderNumber).HasMaxLength(50);
+            entity.Property(e => e.OrderStatus).HasMaxLength(30);
+            entity.Property(e => e.PaymentStatus).HasMaxLength(30);
+            entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UhsbOrderMasters)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_OrderMaster_UserMaster");
+        });
+
+        modelBuilder.Entity<UhsbProduct>(entity =>
+        {
+            entity.HasKey(e => e.ProductId);
+
+            entity.ToTable("UHSB_Products");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Filepath)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("filepath");
+            entity.Property(e => e.IsActive).HasDefaultValue(false);
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.ProductNameEng)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("ProductName_eng");
+            entity.Property(e => e.ProductNameKnd)
+                .HasMaxLength(200)
+                .HasColumnName("ProductName_knd");
+            entity.Property(e => e.Remarks)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Center).WithMany(p => p.UhsbProducts)
+                .HasForeignKey(d => d.CenterId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_Products_UHSB_SeedPlantingCenterMaster");
+
+            entity.HasOne(d => d.District).WithMany(p => p.UhsbProducts)
+                .HasForeignKey(d => d.DistrictId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_Products_UHSB_Districts");
+
+            entity.HasOne(d => d.Head).WithMany(p => p.UhsbProducts)
+                .HasForeignKey(d => d.HeadId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_Products_UHSB_RecordHeadMaster");
+        });
+
+        modelBuilder.Entity<UhsbProductVariety>(entity =>
+        {
+            entity.HasKey(e => e.VarietiesId);
+
+            entity.ToTable("UHSB_ProductVarieties");
+
+            entity.Property(e => e.Barcode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Filepath)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("filepath");
+            entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            entity.Property(e => e.Mrpprice)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("MRPPrice");
+            entity.Property(e => e.Quantity).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.Remarks)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+            entity.Property(e => e.SellingPrice).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.StockKeepingUnit)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("Stock_Keeping_Unit");
+            entity.Property(e => e.VarietyNameEng)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("VarietyName_eng");
+            entity.Property(e => e.VarietyNameKnd)
+                .HasMaxLength(200)
+                .HasColumnName("VarietyName_knd");
+
+            entity.HasOne(d => d.Center).WithMany(p => p.UhsbProductVarieties)
+                .HasForeignKey(d => d.CenterId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_ProductVarieties_UHSB_SeedPlantingCenterMaster");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.UhsbProductVarieties)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UHSB_ProductVarieties_UHSB_Products");
+
+            entity.HasOne(d => d.Unit).WithMany(p => p.UhsbProductVarieties)
+                .HasForeignKey(d => d.UnitId)
+                .HasConstraintName("FK_UHSB_ProductVarieties_UnitMaster");
+        });
+
         modelBuilder.Entity<UhsbRecordHeadMaster>(entity =>
         {
             entity.HasKey(e => e.HeadId).HasName("PK__UHSB_Rec__EB3F25101021E532");
@@ -326,6 +545,22 @@ public partial class Uhsb2025uatContext : DbContext
                 .HasForeignKey(d => d.SectionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UHSB_SubSections_UHSB_Section");
+        });
+
+        modelBuilder.Entity<UhsbUnitMaster>(entity =>
+        {
+            entity.HasKey(e => e.UnitId).HasName("PK__UHSB_Uni__44F5ECB5FE42F535");
+
+            entity.ToTable("UHSB_UnitMaster");
+
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.UnitNameEng)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("UnitName_eng");
+            entity.Property(e => e.UnitNameKnd)
+                .HasMaxLength(100)
+                .HasColumnName("UnitName_knd");
         });
 
         modelBuilder.Entity<UhsbWeatherCastFileDetail>(entity =>

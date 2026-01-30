@@ -39,6 +39,12 @@ public partial class UserMaster
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
+    public virtual ICollection<UhsbCartMaster> UhsbCartMasters { get; set; } = new List<UhsbCartMaster>();
+
+    public virtual ICollection<UhsbOrderCustomerAddress> UhsbOrderCustomerAddresses { get; set; } = new List<UhsbOrderCustomerAddress>();
+
+    public virtual ICollection<UhsbOrderMaster> UhsbOrderMasters { get; set; } = new List<UhsbOrderMaster>();
+
     public virtual ICollection<UhsbWeatherCastFileDetail> UhsbWeatherCastFileDetails { get; set; } = new List<UhsbWeatherCastFileDetail>();
 
     public virtual ICollection<UserLogin> UserLogins { get; set; } = new List<UserLogin>();

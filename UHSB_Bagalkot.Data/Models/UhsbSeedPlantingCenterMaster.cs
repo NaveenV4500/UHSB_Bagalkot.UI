@@ -16,4 +16,8 @@ public partial class UhsbSeedPlantingCenterMaster
     public virtual UhsbDistrict? District { get; set; }
 
     public virtual ICollection<UhsbAvailabilityToolsDetail> UhsbAvailabilityToolsDetails { get; set; } = new List<UhsbAvailabilityToolsDetail>();
+
+    public virtual ICollection<UhsbProductVariety> UhsbProductVarieties { get; set; } = new List<UhsbProductVariety>();
+
+    public virtual ICollection<UhsbProduct> UhsbProducts { get; set; } = new List<UhsbProduct>();
 }

@@ -173,7 +173,9 @@
     //#endregion
 
     //window.init();
-
+    $(document).on("click", "#griddata", function () {
+        window.init();
+    });
 
 
 
@@ -450,11 +452,11 @@
 
         var form = $('#form1');
         if (mode_edit) {
-            var url = GetRootPath(window.virtualPath) + "UserMaster/Edit";
+            var url = GetRootPath(window.virtualPath) + "/UserMaster/Edit";
             form.attr('action', url);
         }
         else {
-            var url = GetRootPath(window.virtualPath) + "UserMaster/Register";
+            var url = GetRootPath(window.virtualPath) + "/UserMaster/Register";
             form.attr('action', url);
         }
     })
@@ -550,13 +552,13 @@
         }
 
         // Farmer validation
-        if (role === 2) {
-            const landSize = parseFloat($("#LandSize").val());
-            if (!landSize || landSize <= 0) {
-                $("#errorLandSize").text("Enter valid land size");
-                isValid = false;
-            }
-        }
+        //if (role === 2) {
+        //    const landSize = parseFloat($("#LandSize").val());
+        //    if (!landSize || landSize <= 0) {
+        //        $("#errorLandSize").text("Enter valid land size");
+        //        isValid = false;
+        //    }
+        //}
 
         // Scientist validation
         if (role === 3) {
@@ -603,9 +605,7 @@
             Village: $("#Village").val()?.trim() || null,
             Address: $("#Address").val()?.trim() || null,
 
-            LandSize: $("#LandSize").val()
-                ? parseFloat($("#LandSize").val())
-                : null,
+            LandSize:  0,
 
             EmployeeId: $("#EmployeeId").val()
                 ? parseInt($("#EmployeeId").val())

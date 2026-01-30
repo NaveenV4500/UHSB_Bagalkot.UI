@@ -59,6 +59,7 @@ namespace UHSB_Bagalkot.Service.ViewModels.AvailabilityTools
         public IEnumerable<SelectListItem> Centervariatestype { get; set; } = new List<SelectListItem>();
     }
 
+
     public class CentersAvailabilityDetailsVM
     {
         public string TempFilePath { get; set; }

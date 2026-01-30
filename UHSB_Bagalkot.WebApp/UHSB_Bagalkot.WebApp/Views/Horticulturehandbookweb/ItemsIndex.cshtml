@@ -28,25 +28,25 @@
 
     <i class="fa-solid fa-angle-right"></i>
 
-    
-       <span class="breadcrumb-item"> 
+
+    <span class="breadcrumb-item">
         <a asp-controller="Horticulturehandbookweb" asp-action="CategoryIndex">ತೋಟಗಾರಿಕೆ ಕೈಪಿಡಿ ಮಾಹಿತಿ</a>
     </span>
     <i class="fa-solid fa-angle-right"></i>
 
     <span class="breadcrumb-item">
         @* <a id="breadcrumbCategory" href="#">@categoryName</a> *@
-      @categoryName 
+        @categoryName
     </span>
     <i class="fa-solid fa-angle-right"></i>
 
     <span class="breadcrumb-item">
-         @cropName 
+        @cropName
         @* <a id="breadcrumbCrop" href="#">@cropName</a> *@
     </span>
     <i class="fa-solid fa-angle-right"></i>
 
-    <span class="breadcrumb-active"  >@sectionName</span>
+    <span class="breadcrumb-active">@sectionName</span>
 </div>
 
 <div class="section-header">@sectionName</div>
@@ -68,99 +68,113 @@
 @section Scripts {
 
     <script>
-        // --- Initialize variables from hidden fields ---
-        let fileBaseUrl = $("#fileBaseUrl").val() || "";
-        if (fileBaseUrl.includes("api")) fileBaseUrl = fileBaseUrl.replace("api", "");
-        if (!fileBaseUrl.endsWith('/')) fileBaseUrl += '/';
+        var rootPathList = ["/", "/UHSBWeb"];
 
-        const sectionId = $("#sectionId").val();
-        const cropId = $("#cropId").val();
-        const cropName = $("#cropName").val();
-        const categoryName = $("#categoryName").val();
-        const sectionName = $("#sectionName").val();
-        const sectionListRoute = $("#sectionListRoute").val();
-        const cropListRoute = $("#cropListRoute").val();
-
-        const contentContainer = $('#contentContainer');
-
-        // --- Update breadcrumb dynamically ---
-        $("#breadcrumbCategory").attr("href", cropListRoute);
-        $("#breadcrumbCrop").attr("href", sectionListRoute);
-        $("#breadcrumbSection").text(sectionName);
-
-        // --- Generic API call function ---
-        function callGetApi(actionName, params = {}, onSuccess, onError) {
-            $.ajax({
-                url: '/UHSBWeb/CommonApi/ForwardApiResponse?action_name=' + actionName,
-                type: 'GET',
-                dataType: 'json',
-                data: params,
-                success: onSuccess,
-                error: onError
-            });
-        }
-
-        // --- Display items in section ---
-        function displayItemDetails() {
-            callGetApi(
-                `CropProfile/GetByItemDetails/${sectionId}/${cropId}`,
-                {},
-                function (response) {
-                    if (!response || response.length === 0) {
-                        contentContainer.html('<p class="info-message">No content found.</p>');
-                        return;
-                    }
-
-                    let html = '';
-
-                    response.forEach(item => {
-                        const title = item.title || item.name || '';
-                        const imageUrl = item.imageUrl
-                            ? `${fileBaseUrl}InwardsInvoices/TempFiles/CropsItems/${item.imageUrl}`
-                            : '';
-
-                        const itemUrl = '/UHSBWeb/Horticulturehandbookweb/ArticleDetailsIndex' + `?` +
-                            `itemId=${item.itemId}` +
-                            `&sectionId=${sectionId}` +
-                            `&cropId=${cropId}` +
-                            `&cropName=${encodeURIComponent(cropName)}` +
-                            `&categoryName=${encodeURIComponent(categoryName)}` +
-                            `&sectionName=${encodeURIComponent(sectionName)}` +
-                            `&itemName=${encodeURIComponent(item.name)}`;
-
-                        const imageHtml = imageUrl
-                            ? `<img src="${imageUrl}" class="item-card-image"
-                                   onerror="this.onerror=null;this.src='https://via.placeholder.com/150?text=No+Photo';" />`
-                            : `<div class="no-photo-placeholder">
-                                   <i class="fa-solid fa-camera"></i> No Photo
-                               </div>`;
-
-                        html += `
-                            <a href="${itemUrl}" class="item-card-link">
-                                <div class="item-card" data-id="${item.itemId}">
-                                    ${imageHtml}
-                                    <div class="card-content">
-                                        <div class="item-name-kn">${title}</div>
-                                        <div class="view-details-row">
-                                            <div class="view-details-text">Read Content</div>
-                                            <div class="forward-arrow">
-                                                <i class="fa-solid fa-arrow-right"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        `;
-                    });
-
-                    contentContainer.html(html);
-                },
-                function () {
-                    contentContainer.html('<p class="error-message">Failed to load content.</p>');
+        function GetRootPath(virtualPath) {
+            if (window.currentTradeId == 7) {
+                //LVB
+                var pathIndex = $.inArray(virtualPath, rootPathList);
+                if (pathIndex != -1) {
+                    return (pathIndex == 0) ? rootPathList[pathIndex] : rootPathList[pathIndex] + "/";
                 }
-            );
+            }
+            else {
+                return $('#rootpath').text();
+            }
         }
+               // --- Initialize variables from hidden fields ---
+               let fileBaseUrl = $("#fileBaseUrl").val() || "";
+               if (fileBaseUrl.includes("api")) fileBaseUrl = fileBaseUrl.replace("api", "");
+               if (!fileBaseUrl.endsWith('/')) fileBaseUrl += '/';
 
-        $(document).ready(displayItemDetails);
+               const sectionId = $("#sectionId").val();
+               const cropId = $("#cropId").val();
+               const cropName = $("#cropName").val();
+               const categoryName = $("#categoryName").val();
+               const sectionName = $("#sectionName").val();
+               const sectionListRoute = $("#sectionListRoute").val();
+               const cropListRoute = $("#cropListRoute").val();
+
+               const contentContainer = $('#contentContainer');
+
+               // --- Update breadcrumb dynamically ---
+               $("#breadcrumbCategory").attr("href", cropListRoute);
+               $("#breadcrumbCrop").attr("href", sectionListRoute);
+               $("#breadcrumbSection").text(sectionName);
+
+               // --- Generic API call function ---
+               function callGetApi(actionName, params = {}, onSuccess, onError) {
+                   $.ajax({
+                       url:  GetRootPath(window.virtualPath) +'/CommonApi/ForwardApiResponse?action_name=' + actionName,
+                       type: 'GET',
+                       dataType: 'json',
+                       data: params,
+                       success: onSuccess,
+                       error: onError
+                   });
+               }
+
+               // --- Display items in section ---
+               function displayItemDetails() {
+                   callGetApi(
+                       `CropProfile/GetByItemDetails/${sectionId}/${cropId}`,
+                       {},
+                       function (response) {
+                           if (!response || response.length === 0) {
+                               contentContainer.html('<p class="info-message">No content found.</p>');
+                               return;
+                           }
+
+                           let html = '';
+
+                           response.forEach(item => {
+                               const title = item.title || item.name || '';
+                               const imageUrl = item.imageUrl
+                                   ? `${fileBaseUrl}InwardsInvoices/TempFiles/CropsItems/${item.imageUrl}`
+                                   : '';
+
+                               const itemUrl =  GetRootPath(window.virtualPath) +'/Horticulturehandbookweb/ArticleDetailsIndex' + `?` +
+                                   `itemId=${item.itemId}` +
+                                   `&sectionId=${sectionId}` +
+                                   `&cropId=${cropId}` +
+                                   `&cropName=${encodeURIComponent(cropName)}` +
+                                   `&categoryName=${encodeURIComponent(categoryName)}` +
+                                   `&sectionName=${encodeURIComponent(sectionName)}` +
+                                   `&itemName=${encodeURIComponent(item.name)}`;
+
+                               const imageHtml = imageUrl
+                                   ? `<img src="${imageUrl}" class="item-card-image"
+                                          onerror="this.onerror=null;this.src='https://via.placeholder.com/150?text=No+Photo';" />`
+                                   : `<div class="no-photo-placeholder">
+                                          <i class="fa-solid fa-camera"></i> No Photo
+                                      </div>`;
+
+                               html += `
+                                   <a href="${itemUrl}" class="item-card-link">
+                                       <div class="item-card" data-id="${item.itemId}">
+                                           ${imageHtml}
+                                           <div class="card-content">
+                                               <div class="item-name-kn">${title}</div>
+                                               <div class="view-details-row">
+                                                   <div class="view-details-text">Read Content</div>
+                                                   <div class="forward-arrow">
+                                                       <i class="fa-solid fa-arrow-right"></i>
+                                                   </div>
+                                               </div>
+                                           </div>
+                                       </div>
+                                   </a>
+                               `;
+                           });
+
+                           contentContainer.html(html);
+                       },
+                       function () {
+                           contentContainer.html('<p class="error-message">Failed to load content.</p>');
+                       }
+                   );
+               }
+
+               $(document).ready(displayItemDetails);
     </script>
 }

@@ -1,8 +1,8 @@
-﻿@model UHSB_Bagalkot.Service.ViewModels.AvailabilityTools.AvailabilityToolsDetailsVM
+﻿@model UHSB_Bagalkot.Service.ViewModels.Product.ProductsVM
 @using Microsoft.AspNetCore.Mvc.Rendering
 @using UHSB_Bagalkot.Service.Common
 @using static UHSB_Bagalkot.Service.Common.CommonEnum
- 
+
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada&display=swap" rel="stylesheet">
 
 <style>
@@ -89,8 +89,177 @@
         padding: 0.25rem 0.5rem;
     }
 </style>
+ 
 
 <div class="container">
+
+   
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
+@* <div class="card shadow-sm mb-4" style="border:1px solid #bebeff;">
+
+    <div id="loader" style="display:none;">
+        <img src="~/Images/webapploader.gif" alt="Loading..." />
+    </div>
+
+    <div style="background-color:#bebeff"
+         class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="bi bi-pencil-square me-2"></i> Product Details
+        </h5>
+    </div>
+
+    <div class="card-body">
+
+        <form asp-controller="AvailabilityToolsWeb"
+              asp-action="CentersAvailabilityDetails"
+              method="post"
+              enctype="multipart/form-data"
+              id="form"
+
+              data-ajax="true"
+              data-ajax-method="POST"
+              data-ajax-begin="onBegin"
+              data-ajax-success="onSuccess"
+              data-ajax-failure="onFailure">
+
+            @Html.AntiForgeryToken()
+
+                <input type="hidden" id="fileBaseUrl" value="@ViewData["fileBaseUrl"]" />
+
+            @Html.HiddenFor(m => m.ProductId)
+            @Html.HiddenFor(m => m.Filepath)
+
+            <!-- TOP FILTER ROW -->
+            <div class="row g-3 mb-4">
+
+                <div class="col-sm-6">
+                    <label class="form-label">Select District</label>
+                    @Html.DropDownListFor(
+                        m => m.DistrictId,
+                        new SelectList(Model.DistrictType, "Key", "Value"),
+                        "--Please Select--",
+                        new { @class = "form-select form-select-sm" })
+                </div>
+
+                <div class="col-sm-6">
+                    <label class="form-label">Center Name</label>
+                    @Html.DropDownListFor(
+                        m => m.CenterId,
+                        new SelectList(Model.Centerstype, "Key", "Value"),
+                        "--Please Select--",
+                        new { @class = "form-select form-select-sm" })
+                </div>
+
+                <div class="col-sm-6">
+                    <label class="form-label">Types</label>
+                    @Html.DropDownListFor(
+                        m => m.HeadId,
+                        new SelectList(Model.Centervariatestype, "Key", "Value"),
+                        "--Please Select--",
+                        new { @class = "form-select form-select-sm" })
+                </div>
+
+                <div class="col-sm-6">
+                    <label class="form-label">Select File</label>
+                    <input asp-for="ImageFile"
+                           type="file"
+                           class="form-control"
+                           accept="image/*" />
+                </div>
+            </div>
+
+            <!-- PRODUCT INFO -->
+            <div class="row g-4">
+                <div class="col-sm-6">
+                    <label class="form-label">Product Name (English)</label>
+                    @Html.TextBoxFor(m => m.ProductNameEng, new { @class = "form-control" })
+                </div>
+
+                <div class="col-sm-6">
+                    <label class="form-label">Product Name (Kannada)</label>
+                    @Html.TextBoxFor(m => m.ProductNameKnd, new { @class = "form-control" })
+                </div>
+
+                <div class="col-sm-6">
+                    <label class="form-label">Remarks</label>
+                    @Html.TextAreaFor(m => m.Remarks,
+                        new { @class = "form-control", rows = 3 })
+                </div>
+            </div>
+
+            <hr />
+
+            <!-- VARIETIES -->
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Variety Name</th>
+                        <th>Kannada</th>
+                        <th>Unit</th>
+                        <th>MRP</th>
+                        <th>Selling</th>
+                        <th>Stock</th>
+                        <th>Min Stock</th>
+                        <th>Image</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for (int i = 0; i < Model.ProductVarietyItems.Count; i++)
+                    {
+                        <tr>
+                            <td>@Html.TextBoxFor(m => m.ProductVarietyItems[i].VarietyNameEng, new { @class = "form-control form-control-sm" })</td>
+                            <td>@Html.TextBoxFor(m => m.ProductVarietyItems[i].VarietyNameKnd, new { @class = "form-control form-control-sm" })</td>
+                            <td>@Html.DropDownListFor(m => m.ProductVarietyItems[i].UnitId,
+                                Enum.GetValues(typeof(UnitType)).Cast<UnitType>()
+                                .Select(e => new SelectListItem { Text = e.ToString(), Value = ((int)e).ToString() }),
+                                "--Select--",
+                                new { @class = "form-select form-select-sm" })</td>
+                            <td>@Html.TextBoxFor(m => m.ProductVarietyItems[i].Mrpprice, new { @class = "form-control form-control-sm", type = "number" })</td>
+                            <td>@Html.TextBoxFor(m => m.ProductVarietyItems[i].SellingPrice, new { @class = "form-control form-control-sm", type = "number" })</td>
+                            <td>@Html.TextBoxFor(m => m.ProductVarietyItems[i].StockQty, new { @class = "form-control form-control-sm", type = "number" })</td>
+                            <td>@Html.TextBoxFor(m => m.ProductVarietyItems[i].MinStockQty, new { @class = "form-control form-control-sm", type = "number" })</td>
+                            <td>
+                                <input asp-for="ProductVarietyItems[@i].ImageFile"
+                                       type="file"
+                                       class="form-control form-control-sm"
+                                       accept="image/*" />
+                            </td>
+                            <td>@Html.CheckBoxFor(m => m.ProductVarietyItems[i].IsDeleted)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="text-end mt-3">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    Submit
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+ *@
+
+ 
+
+
+    <div id="formMessages"></div>
+
 
     <div class="card shadow-sm mb-4" style="border:1px solid #bebeff;">
         <div id="loader" style="display:none;">
@@ -98,14 +267,21 @@
         </div>
 
         <div style="background-color:#bebeff" class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Manage Crop Content</h5>
+            <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i> Product Details </h5>
         </div>
 
         <div class="card-body">
-            <form asp-action="CentersAvailabilityDetails" method="post" enctype="multipart/form-data" id="form">
+            <form asp-controller="AvailabilityToolsWeb" asp-action="CentersAvailabilityDetails" method="post" enctype="multipart/form-data" id="form">
+
+            @Html.AntiForgeryToken()
+
+                @* <input type="hidden" id="fileBaseUrl" value="@ViewData["fileBaseUrl"]" /> *@
+
                 @Html.Hidden("fileBaseUrl", ViewBag.fileBaseUrl, new { id = "fileBaseUrl" })
-                @Html.Hidden("filename", "", new { id = "filename" })
-                @Html.Hidden("ImageId", "", new { id = "ImageId" })
+                @Html.HiddenFor(m => m.ProductId)
+                @Html.HiddenFor(m => m.Filepath)
+
+
                 <!-- TOP FILTER ROW -->
                 <div class="row g-3 mb-4">
 
@@ -117,7 +293,7 @@
                             </div>
                             <div class="col-sm-8">
                                 @Html.DropDownListFor(m => m.DistrictId,
-                                                                new SelectList(Model.DistrictType, "Key", "Value", Model.DistrictId),
+                                new SelectList(Model.DistrictType, "Key", "Value", Model.DistrictId),
                                                                 "--Please Select--",
                                                                 new { @class = "form-select form-select-sm", id = "DistrictType" })
                             </div>
@@ -134,7 +310,7 @@
                                 @Html.DropDownListFor(m => m.CenterId,
                                                                 new SelectList(Model.Centerstype, "Key", "Value", Model.CenterId),
                                                                 "--Please Select--",
-                                                                new { @class = "form-select form-select-sm", id = "Centerstype" })
+                                                                new { @class = "form-select form-select-sm CenterId", id = "Centerstype" })
                             </div>
                         </div>
                     </div>
@@ -143,7 +319,7 @@
                     <div class="col-sm-6">
                         <div class="row mt-3 mt-sm-0">
                             <div class="col-sm-4">
-                                <label class="form-label">Types</label>
+                                <label class="form-label">Product Types</label>
                             </div>
                             <div class="col-sm-8">
                                 @Html.DropDownListFor(m => m.HeadId,
@@ -153,10 +329,22 @@
                             </div>
                         </div>
                     </div>
-
+                    <!-- File Path -->
+                   @*  <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="form-label">Select File</label>
+                            </div>
+                            <div class="col-sm-8">
+                                  
+                                <input type="file" asp-for="ImageFile"
+                                       class="form-control fileInput" accept="image/*" />
+                            </div>
+                        </div>
+                    </div> *@
                 </div>
 
-                <hr class="my-4" />
+        
 
                 <!-- MAIN TWO COLUMN GRID -->
                 <div class="row g-4">
@@ -168,7 +356,7 @@
                                 <label class="form-label">Product Name (English)</label>
                             </div>
                             <div class="col-sm-8">
-                                @Html.TextBoxFor(m => m.AvailToolname_eng, new { @class = "form-control" })
+                                @Html.TextBoxFor(m => m.ProductNameEng, new { @class = "form-control" })
                             </div>
                         </div>
                     </div>
@@ -180,65 +368,16 @@
                                 <label class="form-label">Product Name (Kannada)</label>
                             </div>
                             <div class="col-sm-8">
-                                @Html.TextBoxFor(m => m.AvailToolname_knd, new { @class = "form-control" })
+                                @Html.TextBoxFor(m => m.ProductNameKnd, new { @class = "form-control" })
                             </div>
                         </div>
                     </div>
 
-                    <!-- Quantity -->
-                    <div class="col-sm-6">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <label class="form-label">Quantity</label>
-                            </div>
-                            <div class="col-sm-8">
-                                @Html.TextBoxFor(m => m.Quantity,
-                                                                new { @class = "form-control", type = "number", min = "0" })
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Unit -->
-                    <div class="col-sm-6">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <label class="form-label">Unit</label>
-                            </div>
-                            <div class="col-sm-8">
-                                @Html.DropDownListFor(
-                                                                m => m.Unit,
-                                                                new SelectList(Enum.GetValues(typeof(UnitType))),
-                                                                "--Select Unit--",
-                                                                new { @class = "form-select" })
-                            </div>
-                        </div>
-                    </div>
+                
 
-                    <!-- Price -->
-                    <div class="col-sm-6">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <label class="form-label">Price</label>
-                            </div>
-                            <div class="col-sm-8">
-                                @Html.TextBoxFor(m => m.Price,
-                                                                new { @class = "form-control", type = "number", step = "0.01" })
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Availability Date -->
-                    <div class="col-sm-6">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <label class="form-label">Availability Date</label>
-                            </div>
-                            <div class="col-sm-8">
-                                @Html.TextBoxFor(m => m.AvailabilityDate, "{0:yyyy-MM-dd}",
-                                                                new { @class = "form-control", type = "date" })
-                            </div>
-                        </div>
-                    </div>
+                 
 
                     <!-- Remarks -->
                     <div class="col-sm-6">
@@ -252,12 +391,106 @@
                             </div>
                         </div>
                     </div>
+                </div>
 
+                <hr class="my-4" />
+
+                <div class="card">
+                    <div style="background-color:#bebeff" class="card-header d-flex justify-content-between">
+                        <span>Varieties Details</span>
+                        <button type="button" id="btnAddVariety" class="btn btn-sm btn-primary">
+                            Add New
+                        </button>
+
+                    </div>
+
+                    <div class="card-body">
+                        <table class="table table-bordered" id="varietyTable">
+                            <thead>
+                                <tr>
+                                    <th>Variety Name</th>
+                                    <th>Variety Kannada</th>
+                                    <th>Units</th>
+                                 @*    <th>MRP</th> *@
+                                    <th>Selling</th>
+                                    <th>Stock</th>
+                                  @*   <th>Min Stock</th>
+                                    <th>Select Image File</th> *@
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="varietyBody">
+                                @for (int i = 0; i < Model.ProductVarietyItems.Count; i++)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.TextBoxFor(m => m.ProductVarietyItems[i].VarietyNameEng, new { @class = "form-control form-control-sm" })
+                                            @Html.ValidationMessageFor(m => m.ProductVarietyItems[i].VarietyNameEng, "", new { @class = "text-danger" })
+                                        </td>
+
+                                        <td>
+                                            @Html.TextBoxFor(m => m.ProductVarietyItems[i].VarietyNameKnd, new { @class = "form-control form-control-sm" })
+                                            @Html.ValidationMessageFor(m => m.ProductVarietyItems[i].VarietyNameKnd, "", new { @class = "text-danger" })
+                                        </td>
+
+                                        <td>
+                                            @Html.DropDownListFor(
+                                            m => m.ProductVarietyItems[i].UnitId,
+                                                                                Enum.GetValues(typeof(UnitType)).Cast<UnitType>().Select(e => new SelectListItem { Text = e.ToString(), Value = ((int)e).ToString() }),
+                                                                                "--Select Unit--",
+                                                                                new { @class = "form-select form-select-sm" }
+                                                                                )
+                                        @Html.ValidationMessageFor(m => m.ProductVarietyItems[i].UnitId, "", new { @class = "text-danger" })
+                                    </td>
+
+                                    @* <td>
+                                        @Html.TextBoxFor(m => m.ProductVarietyItems[i].Mrpprice, new { @class = "form-control form-control-sm", type = "number", step = "0.01" })
+                                        @Html.ValidationMessageFor(m => m.ProductVarietyItems[i].Mrpprice, "", new { @class = "text-danger" })
+                                    </td> *@
+
+                                    <td>
+                                        @Html.TextBoxFor(m => m.ProductVarietyItems[i].SellingPrice, new { @class = "form-control form-control-sm", type = "number", step = "0.01" })
+                                        @Html.ValidationMessageFor(m => m.ProductVarietyItems[i].SellingPrice, "", new { @class = "text-danger" })
+                                    </td> 
+
+                                    <td>
+                                        @Html.TextBoxFor(m => m.ProductVarietyItems[i].StockQty, new { @class = "form-control form-control-sm", type = "number" })
+                                        @Html.ValidationMessageFor(m => m.ProductVarietyItems[i].StockQty, "", new { @class = "text-danger" })
+                                    </td>
+
+                                    @* <td>
+                                        @Html.TextBoxFor(m => m.ProductVarietyItems[i].MinStockQty, new { @class = "form-control form-control-sm", type = "number" })
+                                        @Html.ValidationMessageFor(m => m.ProductVarietyItems[i].MinStockQty, "", new { @class = "text-danger" })
+                                    </td> *@
+
+                                    @* <td>
+                                        <div style="display: flex; align-items: center; gap: 5px;">
+ 
+                                            <input type="file" asp-for="ProductVarietyItems[@i].ImageFile"
+                                             class="form-control fileInput" accept="image/*" />
+                                           
+                                            <button type="button" class="btn btn-primary btn-sm viewImage" style="display:none; margin-top:5px;">View</button>
+
+                                    </div> 
+                                    </td>*@
+                                    
+                                    <td class="text-center">
+                                        @Html.CheckBoxFor(m => m.ProductVarietyItems[i].IsDeleted, new { @class = "form-check-input" })
+                                    </td>
+                                </tr>
+                                                                }
+                            </tbody>
+
+
+
+                        </table>
+                    </div>
                 </div>
 
                 <!-- Submit Button -->
                 <div class="mt-4 text-end">
-                    <button type="submit" class="btn btn-primary btn-sm px-3">
+                    <button id="btnsumbit" type="button" class="btn btn-primary btn-sm px-3">
                         <i class="bi bi-check-circle me-2"></i>Submit
                     </button>
                 </div>
@@ -275,7 +508,7 @@
                 <div class="card-header" style="background-color:#bebeff;display:flex;justify-content:space-between;align-items:center;">
                     <h6 class="text-muted mb-0">Content Details</h6>
                     <button class="btn btn-primary btn-sm" type="button" id="griddata">
-                        <i class="bi bi-arrow-repeat me-1"></i> Refresh  
+                        <i class="bi bi-arrow-repeat me-1"></i> Refresh
                     </button>
                 </div>
 
@@ -292,17 +525,14 @@
                                 <table class="table table-bordered table-hover" id="itemGrid">
                                     <thead>
                                         <tr class="table-heading table-header-main">
+                                            <th class="text-center" style="min-width: 80px;">Action</th>
                                             <th class="text-center" style="min-width: 60px;">Sl. No.</th>
                                             <th style="min-width: 150px;">Center - ಕೇಂದ್ರ</th>
-
                                             <th style="min-width: 150px;">Category - ವರ್ಗ</th>
-                                            <th style="min-width: 150px;">Item - ಉಪವಿಭಾಗ</th>
-                                            <th style="min-width: 100px;">Quantity - ಪ್ರಮಾಣ</th>
-                                            <th style="min-width: 100px;">Unit - ಘಟಕ</th>
-                                            <th style="min-width: 100px;">Price - ಬೆಲೆ (₹)</th>
-                                            <th style="min-width: 160px;">Availability Date - ಲಭ್ಯತಾ ದಿನಾಂಕ</th>
+                                            <th style="min-width: 150px;">Product Name (En)</th> 
                                             <th style="min-width: 180px;">Description - ವಿವರಣೆ</th>
-                                            <th class="text-center" style="min-width: 80px;">Action - ಕ್ರಿಯೆ</th>
+                                            <th style="min-width: 180px;">Create Date - ರಚಿಸಿದ ದಿನಾಂಕ</th>
+                                            <th style="min-width: 180px;">Modified Date - ತಿದ್ದುಪಡಿ ದಿನಾಂಕ</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -345,8 +575,42 @@
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/js/CentersAvailabilityDetails_Index.js"></script>
 
-     <script src="~/js/paging.js?version=@Guid.NewGuid()"></script>
+    <script src="~/js/paging.js?version=@Guid.NewGuid()"></script>
     <script src="~/js/generic_gridfilter.js?version=@Guid.NewGuid()"></script>
     <script src="~/js/generic.js?version=@Guid.NewGuid()"></script>
     <script src="~/js/rootpathfinder.js"></script>
+
+
+    <script>
+
+             //Ajax begin Form
+
+        function onBegin() {
+            $("#loader").show();
+        }
+
+        function onSuccess(response) {
+            $("#loader").hide();
+
+            // If View returned (HTML)
+            if (typeof response === "string") {
+                document.open();
+                document.write(response);
+                document.close();
+                return;
+            }
+
+            if (response.success) {
+                alert("Saved successfully");
+            } else {
+                alert(response.message || "Failed");
+            }
+        }
+
+        function onFailure() {
+            $("#loader").hide();
+            alert("Something went wrong");
+        }
+
+</script>
 }

@@ -27,6 +27,8 @@ namespace UHSB_Bagalkot.Service.ViewModels
 
         public string PhoneNumber { get; set; }
         public bool IsFromadmin { get; set; }
+        public bool isOtpEnabled { get; set; }
+        public int RoleypeId { get; set; }
     }
     public class RefreshVM
     {
@@ -42,6 +44,7 @@ namespace UHSB_Bagalkot.Service.ViewModels
         public string phoneNo { get; set; }
         public int userID { get; set; }
         public int userCount { get; set; }
+        public string message { get; set; }
     }
     public class TokenResponse
     {

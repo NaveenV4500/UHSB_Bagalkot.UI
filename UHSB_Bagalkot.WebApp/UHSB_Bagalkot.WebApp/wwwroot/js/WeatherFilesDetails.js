@@ -58,18 +58,24 @@
         $container.empty();
 
         if (!CentersData || CentersData.length === 0) {
-            $container.append('<span>No districts found</span>');
+            $container.append(
+                '<div class="col-12 text-center">' +
+                '<div class="alert alert-warning">ಜಿಲ್ಲೆಗಳ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ</div>' +
+                '</div>'
+            );
             return;
         }
 
         $.each(CentersData, function (i, item) {
 
             var buttonHtml =
+                '<div class="col-6 col-md-4 col-lg-3 mb-4">' +
                 '<button type="button" ' +
-                'class="district-btn btn btn-outline-primary" ' +
+                'class="district-btn btn btn-outline-primary w-100" ' +
                 'data-districtid="' + item.id + '">' +
                 item.text +
-                '</button>';
+                '</button>' +
+                '</div>';
 
             $container.append(buttonHtml);
         });
@@ -95,9 +101,9 @@
     }
     function renderWeeklyData(CentersData) {
         var html = '';
-
-        if (!CentersData || CentersData.length === 0) {
-            html = '<div class="alert alert-warning">No weekly data available</div>';
+        debugger;
+        if (!CentersData || CentersData.length === 0 || CentersData == "No reports found for the given district.") {
+            html = '<div class="alert alert-warning">No weekly data available <br> ವಾರದ ಮಾಹಿತಿಯು ಲಭ್ಯವಿಲ್ಲ</div>';
             $('#weeklyWeatherBody').html(html);
             $('#weeklyWeatherModal').modal('show');
             return;

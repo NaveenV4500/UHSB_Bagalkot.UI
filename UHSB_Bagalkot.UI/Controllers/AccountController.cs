@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -22,16 +23,16 @@ using UHSB_Bagalkot.Service.ViewModels;
 
 namespace UHSB_Bagalkot.UI.Controllers
 {
-    [ApiController] 
+    [ApiController]
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
         private readonly IAccountRepository _accountRepository;
         private readonly IConfiguration _configuration;
         private readonly TokenService _tokenService;
-        private readonly HttpClient _httpClient = new HttpClient(); 
+        private readonly HttpClient _httpClient = new HttpClient();
         private readonly IEmailService _emailService;
-        public AccountController(IAccountRepository accountRepository, IConfiguration configuration, TokenService tokenService,IEmailService emailService)
+        public AccountController(IAccountRepository accountRepository, IConfiguration configuration, TokenService tokenService, IEmailService emailService)
         {
             _accountRepository = accountRepository;
             _configuration = configuration;
@@ -41,7 +42,7 @@ namespace UHSB_Bagalkot.UI.Controllers
 
 
 
-        [HttpPost("LoginLog")]
+        [HttpPost("Login")]
         public async Task<IActionResult> LoginLog([FromBody] LoginVM request)
         {
             CommonEnum.WriteLog($"Login attempt for phone: {request.PhoneNumber}");
@@ -51,18 +52,34 @@ namespace UHSB_Bagalkot.UI.Controllers
                 if (string.IsNullOrEmpty(request.PhoneNumber))
                 {
                     CommonEnum.WriteLog("Login failed: Phone number is empty.");
-                    return new JsonResult(new { success = false, message = "Phone number is required." }) { StatusCode = 401 };
+                    return new JsonResult(new { success = false, message = "Phone number is required." }) { StatusCode = 500 };
                 }
+                CommonEnum.WriteLog("request.RoleypeId : " + request.RoleypeId);
 
                 request.PhoneNumber = request.PhoneNumber.Trim('"');
 
-                var user = await _accountRepository.GetUserByPhoneAsync(request.PhoneNumber, request.UserName, request.IsFromadmin);
+                if (request.RoleypeId == (int)CommonEnum.UserRoleType.Admin || request.RoleypeId == (int)CommonEnum.UserRoleType.Scientist)
+                {
+                    if (string.IsNullOrEmpty(request.UserName) || string.IsNullOrEmpty(request.PhoneNumber))
+                    {
+                        return new JsonResult(new { success = false, message = "User name and phone number are mandatory." })
+                        {
+                            StatusCode = 200
+                        };
+                    }
+                }
+
+                var user = await _accountRepository.GetUserByPhoneAsync(request.PhoneNumber, request.UserName, request.IsFromadmin, request.RoleypeId);
+
 
                 if (user == null)
                 {
                     CommonEnum.WriteLog($"Login failed: Phone number {request.PhoneNumber} not registered or inactive.");
-                    return new JsonResult(new { success = false, message = "Phone number not registered or inactive." }) { StatusCode = 401 };
+                    return new JsonResult(new { success = false, message = "Phone number not registered or inactive." }) { StatusCode = 200 };
                 }
+
+
+
                 if (!user.IsActive && (user.RoleType == (byte)CommonEnum.UserRoleType.Scientist))
                 {
                     return new JsonResult(new
@@ -70,14 +87,27 @@ namespace UHSB_Bagalkot.UI.Controllers
                         success = false,
                         message = "Registered successfully. Pending for admin approval."
                     })
-                    { StatusCode = 200 };  
+                    { StatusCode = 200 };
                 }
 
-                var claims = new List<Claim>
+                if (request.isOtpEnabled && request.IsFromadmin && user.RoleType == (int)CommonEnum.UserRoleType.Admin || user.RoleType == (int)CommonEnum.UserRoleType.Scientist)
                 {
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
-                };
+                    return new JsonResult(new
+                    {
+                        success = false,
+                        message = "Invalid login attempt. Please select the correct role. The selected role does not match this user."
+                    })
+                    { StatusCode = 200 };
+                }
+
+
+                        var claims = new List<Claim>
+                        {
+                            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),    
+                            new Claim(ClaimTypes.Name, user.UserName),                      
+                            new Claim(ClaimTypes.Role, user.RoleType.ToString())
+                        };
+
 
                 var accessToken = _tokenService.GenerateAccessToken(claims.ToArray());
                 var refreshToken = _tokenService.GenerateRefreshToken();
@@ -96,7 +126,7 @@ namespace UHSB_Bagalkot.UI.Controllers
                     phoneNo = user.PhoneNumber,
                     UserID = user.Id,
                     UserCount = count,
-                    isactive=user.IsActive
+                    isactive = user.IsActive
                 });
             }
             catch (Exception ex)
@@ -119,73 +149,74 @@ namespace UHSB_Bagalkot.UI.Controllers
 
         }
 
-        [HttpPost("Login")]
-        public async Task<IActionResult> Login([FromBody] LoginVM request)
-        {
-            CommonEnum.WriteLog($"Login attempt for phone: {request.PhoneNumber}");
+        //[HttpPost("Login")]
+        //public async Task<IActionResult> Login([FromBody] LoginVM request)
+        //{
+        //    CommonEnum.WriteLog($"Login attempt for phone: {request.PhoneNumber}");
 
-            try
-            {
-                if (string.IsNullOrEmpty(request.PhoneNumber))
-                {
-                    CommonEnum.WriteLog("Login failed: Phone number is empty.");
-                    return new JsonResult(new { success = false, message = "Phone number is required." }) { StatusCode = 401 };
-                }
+        //    try
+        //    {
+        //        if (string.IsNullOrEmpty(request.PhoneNumber))
+        //        {
+        //            CommonEnum.WriteLog("Login failed: Phone number is empty.");
+        //            return new JsonResult(new { success = false, message = "Phone number is required." }) { StatusCode = 401 };
+        //        }
 
-                request.PhoneNumber = request.PhoneNumber.Trim('"');
+        //        request.PhoneNumber = request.PhoneNumber.Trim('"');
 
-                var user = await _accountRepository.GetUserByPhoneAsync(request.PhoneNumber, request.UserName, request.IsFromadmin);
+        //        var user = await _accountRepository.GetUserByPhoneAsync(request.PhoneNumber, request.UserName, request.IsFromadmin);
 
-                if (user == null)
-                {
-                    CommonEnum.WriteLog($"Login failed: Phone number {request.PhoneNumber} not registered or inactive.");
-                    return new JsonResult(new { success = false, message = "Phone number not registered or inactive." }) { StatusCode = 401 };
-                }
+        //        if (user == null)
+        //        {
+        //            CommonEnum.WriteLog($"Login failed: Phone number {request.PhoneNumber} not registered or inactive.");
+        //            return new JsonResult(new { success = false, message = "Phone number not registered or inactive." }) { StatusCode = 401 };
+        //        }
 
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
-                };
+        //        var claims = new List<Claim>
+        //                {
+        //                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        //                    new Claim(ClaimTypes.Name, user.UserName),
+        //                    new Claim(ClaimTypes.Role, user.RoleType.ToString())
+        //                };
 
-                var accessToken = _tokenService.GenerateAccessToken(claims.ToArray());
-                var refreshToken = _tokenService.GenerateRefreshToken();
-                _tokenService.SaveRefreshTokenToDb(user.Id, refreshToken);
+        //        var accessToken = _tokenService.GenerateAccessToken(claims.ToArray());
+        //        var refreshToken = _tokenService.GenerateRefreshToken();
+        //        _tokenService.SaveRefreshTokenToDb(user.Id, refreshToken);
 
-                var count = _accountRepository.GetUsersCount();
-                CommonEnum.WriteLog($"Login successful for user: {user.UserName}, UserID: {user.Id}");
+        //        var count = _accountRepository.GetUsersCount();
+        //        CommonEnum.WriteLog($"Login successful for user: {user.UserName}, UserID: {user.Id}");
 
-                return Ok(new
-                {
-                    success = true,
-                    AccessToken = accessToken,
-                    RefreshToken = refreshToken.Token,
-                    UserName = user.UserName,
-                    userRoleType = user.RoleType,
-                    phoneNo = user.PhoneNumber,
-                    UserID = user.Id,
-                    UserCount = count
-                });
-            }
-            catch (Exception ex)
-            {
+        //        return Ok(new
+        //        {
+        //            success = true,
+        //            AccessToken = accessToken,
+        //            RefreshToken = refreshToken.Token,
+        //            UserName = user.UserName,
+        //            userRoleType = user.RoleType,
+        //            phoneNo = user.PhoneNumber,
+        //            UserID = user.Id,
+        //            UserCount = count
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-                var errorMessage = $"Login error for phone: {request.PhoneNumber}.\n" +
-                                   $"Exception: {ex.Message}\n" +
-                                   $"Inner Exception: {ex.InnerException?.Message}\n" +
-                                   $"Stack Trace: {ex.StackTrace}";
+        //        var errorMessage = $"Login error for phone: {request.PhoneNumber}.\n" +
+        //                           $"Exception: {ex.Message}\n" +
+        //                           $"Inner Exception: {ex.InnerException?.Message}\n" +
+        //                           $"Stack Trace: {ex.StackTrace}";
 
-                CommonEnum.WriteLog(errorMessage);
+        //        CommonEnum.WriteLog(errorMessage);
 
-                return new JsonResult(new
-                {
-                    success = false,
-                    message = errorMessage
-                })
-                { StatusCode = 500 };
-            }
+        //        return new JsonResult(new
+        //        {
+        //            success = false,
+        //            message = errorMessage
+        //        })
+        //        { StatusCode = 500 };
+        //    }
 
-        }
+        //}
 
 
         [HttpPost("loginOriginal")]
@@ -210,11 +241,11 @@ namespace UHSB_Bagalkot.UI.Controllers
 
 
                 var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
-                };
-
+                        {
+                            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                            new Claim(ClaimTypes.Name, user.UserName),
+                            new Claim(ClaimTypes.Role, user.RoleType.ToString())
+                        };
                 var accessToken = _tokenService.GenerateAccessToken(claims.ToArray());
                 var refreshToken = _tokenService.GenerateRefreshToken();
 
@@ -259,11 +290,11 @@ namespace UHSB_Bagalkot.UI.Controllers
 
             // build claims
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, user.UserName),
-        new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
-        // new Claim(ClaimTypes.Role, user.RoleType)
-    };
+                        {
+                            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                            new Claim(ClaimTypes.Name, user.UserName),
+                            new Claim(ClaimTypes.Role, user.RoleType.ToString())
+                        };
 
             // generate tokens
             var accessToken = _tokenService.GenerateAccessToken(claims.ToArray());
@@ -292,7 +323,7 @@ namespace UHSB_Bagalkot.UI.Controllers
             string msg = string.Empty;
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-           
+
             if (!IsValidPhoneNumber(request.PhoneNumber))
             {
                 return BadRequest("Please enter a valid phone number");
@@ -314,11 +345,11 @@ namespace UHSB_Bagalkot.UI.Controllers
                 }
 
                 request.IsActive = false;
-                msg= "Registered successfully !. Pending for admin approval.";
+                msg = "Registered successfully !. Pending for admin approval.";
             }
             else
             {
-                msg= "Registration successful!";
+                msg = "Registration successful!";
             }
 
             var existingUser = await _accountRepository.GetUserByPhoneAsync(request.PhoneNumber);
@@ -382,15 +413,22 @@ namespace UHSB_Bagalkot.UI.Controllers
         public IActionResult Refresh([FromBody] RefreshVM model)
         {
             var storedToken = _tokenService.GetRefreshTokenFromDb(model.RefreshToken);
+            if (storedToken == null) {
+                return BadRequest(false);
+            }
+            var user = _accountRepository.GetUserByUserId(storedToken.UserId).Result;
 
             if (storedToken == null)
                 return Unauthorized("Invalid or expired refresh token");
 
             // generate new access + refresh tokens
-            var newAccessToken = _tokenService.GenerateAccessToken(new[]
-            {
-        new Claim(ClaimTypes.Name, "username") // ideally from storedToken.UserId
-    });
+            var claims = new List<Claim>
+    {   
+        new Claim(ClaimTypes.Name, user.UserName),
+        new Claim(ClaimTypes.MobilePhone, user.PhoneNumber)
+    };
+            var newAccessToken = _tokenService.GenerateAccessToken(claims.ToArray());
+
 
             var newRefreshToken = _tokenService.GenerateRefreshToken();
 
@@ -456,10 +494,13 @@ namespace UHSB_Bagalkot.UI.Controllers
             return Ok(errorMessage);
         }
 
-
-
         #endregion
 
+        [HttpGet("usercount")]
+        public async Task<IActionResult> UsersCount()
+        {
+           return Ok( _accountRepository.GetUsersCount());
+        }
 
 
         #region OTP Master
@@ -613,4 +654,4 @@ namespace UHSB_Bagalkot.UI.Controllers
 
     }
 }
- 
+

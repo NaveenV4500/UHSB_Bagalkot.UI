@@ -46,12 +46,14 @@ namespace UHSB_Bagalkot.WebApp.Controllers
                     message = "Invalid login data"
                 });
             }
-
+            var isOtpEnabled =Convert.ToBoolean(_apiSettings.OtpEnable);
             var loginData = new
             {
                 phoneNumber = obj.PhoneNumber,
                 UserName = obj.UserName,
-                IsFromadmin = true
+                IsFromadmin = true,
+                RoleypeId =obj.RoleypeId,
+                isOtpEnabled = isOtpEnabled
             };
 
             var content = new StringContent(
@@ -61,7 +63,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
             );
 
             var response = await _httpClient.PostAsync(
-                $"{_apiSettings.Base_Url}/Account/LoginLog",
+                $"{_apiSettings.Base_Url}/Account/Login",
                 content
             );
 
@@ -83,6 +85,15 @@ namespace UHSB_Bagalkot.WebApp.Controllers
             var jsonString = await response.Content.ReadAsStringAsync();
             var loginResponse = JsonConvert.DeserializeObject<LoginResponse>(jsonString);
 
+            if (!loginResponse.success)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = loginResponse.message
+                });
+            }
+
             // Store session values
             HttpContext.Session.SetString("AccessToken", loginResponse.accessToken);
             HttpContext.Session.SetString("RefreshToken", loginResponse.refreshToken);
@@ -91,14 +102,14 @@ namespace UHSB_Bagalkot.WebApp.Controllers
             HttpContext.Session.SetString("userRoleType", loginResponse.userRoleType.ToString());
             HttpContext.Session.SetString("usercount", loginResponse.userCount.ToString());
 
-            string role = loginResponse.userRoleType == "1" ? "admin" : "farmer";
+            string role = loginResponse.userRoleType == "1" ? "admin" : loginResponse.userRoleType == "3"  ? "scientist" : "farmer";
 
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, loginResponse.userName),
-        new Claim("UserID", loginResponse.userID.ToString()),
-        new Claim(ClaimTypes.Role, role)
-    };
+            {
+                new Claim(ClaimTypes.Name, loginResponse.userName),
+                new Claim("UserID", loginResponse.userID.ToString()),
+                new Claim(ClaimTypes.Role, role)
+            };
 
             var identity = new ClaimsIdentity(
                 claims,
@@ -143,7 +154,7 @@ namespace UHSB_Bagalkot.WebApp.Controllers
             }
 
             var role = (int)CommonEnum.UserRoleType.Admin;
-            ViewBag.Role = role;
+            ViewBag.Role = roleValue;
 
             ViewBag.CanAddEdit = role == (int)CommonEnum.UserRoleType.Admin ||
                                  role == (int)CommonEnum.UserRoleType.Scientist;

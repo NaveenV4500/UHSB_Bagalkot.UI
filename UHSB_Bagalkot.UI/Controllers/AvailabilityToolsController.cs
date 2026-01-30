@@ -6,6 +6,7 @@ using UHSB_Bagalkot.Service.Repositories;
 using UHSB_Bagalkot.Service.ViewModels;
 using UHSB_Bagalkot.Service.ViewModels.AvailabilityTools;
 using UHSB_Bagalkot.Service.ViewModels.Crop;
+using UHSB_Bagalkot.Service.ViewModels.Product;
 
 namespace UHSB_Bagalkot.UI.Controllers
 {
@@ -37,6 +38,23 @@ namespace UHSB_Bagalkot.UI.Controllers
             return Ok(new ApiResponse<object> {  Success = true, Data = result  });
         }
 
+        [HttpGet("getgridcontentproducts")]
+        public async Task<IActionResult> getgridcontentproducts(int currentPage = 1, int pageSize = 10, GridEnum.AvailabilityToolsFilterBy orderBy = GridEnum.AvailabilityToolsFilterBy.CreatedDate, bool isDescending = false, string filterDetails = null, string externalFilter = null, int centerid = 0, int districtid = 0, int pagetype = 0)
+        {
+            CommonEnum.WriteLog($"getgridcontentproducts   - API hit | DistrictId={districtid}, CenterId={centerid}, Page={currentPage}");
+            var result = await _repository.getgridcontentproducts(currentPage, pageSize, orderBy, isDescending, filterDetails, externalFilter, centerid, districtid, pagetype);
+            CommonEnum.WriteLog($"getgridcontentproducts  - Returning {result.TotalCount} rows");
+            return Ok(new ApiResponse<object> { Success = true, Data = result });
+        }
+
+        [HttpGet("GetProductVarieties")]
+        public async Task<IActionResult> GetProductVarieties(int productId = 0)
+        {
+             var result = await _repository.GetProductVarieties(productId);
+             return Ok(new ApiResponse<object> { Success = true, Data = result });
+        }
+         
+
 
         [HttpGet("plantingcentersDD")]
         public async Task<IActionResult> plantingcentersDD()
@@ -55,7 +73,7 @@ namespace UHSB_Bagalkot.UI.Controllers
          
 
         [HttpPost("SaveOrEditProdectDetails")]
-        public async Task<IActionResult> SaveOrEditProdectDetails([FromBody] AvailabilityToolsDetailsVM model)
+        public async Task<IActionResult> SaveOrEditProdectDetails([FromBody] ProductsVM model)
         {
             if (!ModelState.IsValid) return BadRequest();
 
@@ -64,5 +82,15 @@ namespace UHSB_Bagalkot.UI.Controllers
 
             return Ok(result);
         }
-    }
+
+        [HttpGet("GetbyIdProdect")]
+        public async Task<IActionResult> GetbyIdProdect(int identifier)
+        {
+ 
+            var result = await _repository.GetbyIdProdect(identifier);
+            if (result == null) return NotFound("not found.");
+
+            return Ok(result);
+        }
+     }
 }

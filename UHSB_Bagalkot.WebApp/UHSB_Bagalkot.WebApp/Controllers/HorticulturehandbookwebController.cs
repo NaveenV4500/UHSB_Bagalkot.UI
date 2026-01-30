@@ -10,7 +10,7 @@ using UHSB_Bagalkot.Service.ViewModels.Sections;
 
 namespace UHSB_Bagalkot.WebApp.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class HorticulturehandbookwebController : Controller
     {
         private readonly ApiSettings _apiSettings;

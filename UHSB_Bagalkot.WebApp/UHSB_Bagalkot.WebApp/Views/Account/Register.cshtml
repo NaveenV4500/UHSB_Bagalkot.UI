@@ -6,7 +6,9 @@
 
 @{
     ViewData["Title"] = "User Master";
-    var role = Convert.ToInt32(Context.Session.GetString("userRoleType"));
+ //   var role = Convert.ToInt32(Context.Session.GetString("userRoleType"));
+    var role = ViewBag.Role;
+
 }
 
 
@@ -74,12 +76,12 @@
                 </div>
 
                 <!-- Farmer -->
-                <div class="col-12 col-md-6 role-farmer d-none">
+                @* <div class="col-12 col-md-6 role-farmer d-none">
                     @Html.LabelFor(m => m.LandSize, new { @class = "form-label fw-semibold" })
                     <span class="text-danger">*</span>
                     @Html.TextBoxFor(m => m.LandSize, new { @class = "form-control", id = "LandSize", type = "number", placeholder = "Land size in acres" })
                     <span class="text-danger small" id="errorLandSize"></span>
-                </div>
+                </div> *@
 
                 <!-- Scientist -->
                 <div class="col-12 col-md-6 role-scientist d-none">
@@ -100,56 +102,58 @@
                 <button type="button" class="btn btn-primary px-4" id="btnRegister">
                     Save
                 </button>
-               
+
             </div>
                         }
         </div>
     </div>
 </div>
 
- 
 
- 
+
+
 
 @if (role == (int)CommonEnum.UserRoleType.Admin)
 {
-<section id="gridContent" class="container mt-5">
-    <div class="card shadow-sm border-0">
-        <div class="custom_card card-header text-white">
-            <strong>User List</strong>
-        </div>
-        <div class="card-body">
-            <div class="mb-3" id="multiGridFilter"></div>
+    <section id="gridContent" class="container mt-5">
+        <div class="card shadow-sm border-0">
+            <div class="custom_card card-header text-white">
+                <strong>User List</strong>
+                <button class="btn btn-primary btn-sm" type="button" id="griddata">
+                    <i class="bi bi-arrow-repeat me-1"></i> Refresh
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="mb-3" id="multiGridFilter"></div>
 
-            @await Html.PartialAsync("_GridPagingHeader")
+                @await Html.PartialAsync("_GridPagingHeader")
 
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th style="width:100px;">Action</th>
-                            <th style="width:60px;">Sl No.</th>
-                            <th>@Html.DisplayNameFor(m => m.UserName)</th>
-                            <th>@Html.DisplayNameFor(m => m.RoleType)</th>
-                            <th>@Html.DisplayNameFor(m => m.DistrictsName)</th>
-                            <th>@Html.DisplayNameFor(m => m.Village)</th>
-                            <th>@Html.DisplayNameFor(m => m.PhoneNumber)</th>
-                            <th>@Html.DisplayNameFor(m => m.IsActive)</th>
-                            <th>@Html.DisplayNameFor(m => m.CreatedDate)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="gridBody">
-                      
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:100px;">Action</th>
+                                <th style="width:60px;">Sl No.</th>
+                                <th>@Html.DisplayNameFor(m => m.UserName)</th>
+                                <th>@Html.DisplayNameFor(m => m.RoleType)</th>
+                                <th>@Html.DisplayNameFor(m => m.DistrictsName)</th>
+                                <th>@Html.DisplayNameFor(m => m.Village)</th>
+                                <th>@Html.DisplayNameFor(m => m.PhoneNumber)</th>
+                                <th>@Html.DisplayNameFor(m => m.IsActive)</th>
+                                <th>@Html.DisplayNameFor(m => m.CreatedDate)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gridBody">
+                        </tbody>
+                    </table>
 
-                <div id="ajaxLoader" class="text-center mt-3 d-none">
-                    <img src="~/images/webapploader.gif" alt="Loading..." />
+                    <div id="ajaxLoader" class="text-center mt-3 d-none">
+                        <img src="~/images/webapploader.gif" alt="Loading..." />
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 }
 @section Scripts {
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>

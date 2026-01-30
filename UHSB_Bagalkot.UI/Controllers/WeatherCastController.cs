@@ -83,7 +83,7 @@ namespace UHSB_Bagalkot.UI.Controllers
             var reports = await _repository.GetWeeklyReportsAsync(districtId);
 
             if (reports == null || !reports.Any())
-                return NotFound("No reports found for the given district.");
+                return Ok("No reports found for the given district.");
 
            
             var today = DateTime.Now;

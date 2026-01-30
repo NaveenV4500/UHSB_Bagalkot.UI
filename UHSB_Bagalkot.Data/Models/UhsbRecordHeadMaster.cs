@@ -18,4 +18,6 @@ public partial class UhsbRecordHeadMaster
     public int? DataType { get; set; }
 
     public virtual ICollection<UhsbAvailabilityToolsDetail> UhsbAvailabilityToolsDetails { get; set; } = new List<UhsbAvailabilityToolsDetail>();
+
+    public virtual ICollection<UhsbProduct> UhsbProducts { get; set; } = new List<UhsbProduct>();
 }

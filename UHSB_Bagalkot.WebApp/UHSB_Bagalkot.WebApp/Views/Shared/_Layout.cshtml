@@ -100,7 +100,7 @@
 
     <!-- 🔹 NAVBAR -->
     <header class="mb-4">
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-soft px-3">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-3 fixed-top">
             <div class="container">
 
                 <a class="navbar-brand d-flex align-items-center"
@@ -162,7 +162,11 @@
                                 </ul>
                             </li>
 
-                            <li class="nav-item dropdown">
+                           
+                        }
+                         @if (User.Identity.IsAuthenticated && User.IsInRole("admin") || User.IsInRole("scientist") )
+                        {
+                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                                     Weather Report
                                 </a>
@@ -173,6 +177,22 @@
                                            asp-action="Index">
                                             Upload Weather Report
                                         </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("admin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                    Euipment 
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="AvailabilityToolsWeb"  asp-action="CentersAvailabilityDetails"> Add Products </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="AvailabilityToolsWeb" asp-action="EuipmentIndex">Products </a>
                                     </li>
                                 </ul>
                             </li>
@@ -221,17 +241,52 @@
     </header>
 
     <!-- 🔹 MAIN CONTENT -->
-    <main class="container-fluid px-3 px-md-4">
+    <main style="margin-top:50px">
         @RenderBody()
     </main>
 
     <!-- 🔹 FOOTER -->
-    <footer class="mt-4 py-3 shadow-soft">
-        <div class="container-fluid d-flex justify-content-between small text-muted">
-            <span>© 2025 University of Horticultural Sciences, Bagalkot</span>
-            <span>Developed by <strong>Naveen V</strong></span>
+    <footer class="mt-5 pt-4 pb-3 bg-light border-top">
+        <div class="container">
+            <div class="row small text-muted">
+
+                <!-- University Info -->
+                <div class="col-md-6 mb-3">
+                    <strong class="text-dark">
+                        University of Horticultural Sciences
+                    </strong><br />
+                    Udyanagiri, Bagalkote – 587104
+                </div>
+
+                <!-- Contact Info -->
+                <div class="col-md-6 mb-3 text-md-end">
+                    <div>
+                        <i class="bi bi-telephone"></i>
+                        08354-230276 |
+                        <i class="bi bi-printer"></i>
+                        08354-230300
+                    </div>
+                    
+                    <div>
+                        <i class="bi bi-envelope"></i>
+                        <a href="mailto:uhsbagalkot@gmail.com"
+                           class="text-muted text-decoration-none">
+                            uhsbagalkot@gmail.com 
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            <hr class="my-2">
+
+            <!-- Copyright -->
+            <div class="text-center small text-muted">
+                © 2025 University of Horticultural Sciences, Bagalkot
+            </div>
         </div>
     </footer>
+
 
     <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
